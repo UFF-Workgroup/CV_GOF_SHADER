@@ -1,0 +1,12 @@
+open3d
+plyfile
+ninja
+GPUtil
+opencv-python
+lpips
+trimesh
+einops
+matplotlib
+numpy=2.0.0
+ninja
+torch
