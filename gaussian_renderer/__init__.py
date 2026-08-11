@@ -64,9 +64,6 @@ def render(viewpoint_camera, pc : GaussianModel, pipe, bg_color : torch.Tensor, 
     scales = None
     rotations = None
     cov3D_precomp = None
-    specular_tint = pc.get_specular_tint
-    roughness = pc.get_roughness
-    residual_color = pc.get_residual_color
     if pipe.compute_cov3D_python:
         cov3D_precomp = pc.get_covariance(scaling_modifier)
     else:
@@ -108,10 +105,7 @@ def render(viewpoint_camera, pc : GaussianModel, pipe, bg_color : torch.Tensor, 
         scales = scales,
         rotations = rotations,
         cov3D_precomp = cov3D_precomp,
-        # view2gaussian_precomp=view2gaussian_precomp,
-        specular_tint = specular_tint,   
-        roughness = roughness,           
-        residual_color = residual_color, 
+        view2gaussian_precomp = view2gaussian_precomp,
         )
 
     # Those Gaussians that were frustum culled or had a radius of 0 were not visible.
@@ -202,12 +196,7 @@ def integrate(points3D, viewpoint_camera, pc : GaussianModel, pipe, bg_color : t
     else:
         colors_precomp = override_color
 
-
-    specular_tint = pc.get_specular_tint
-    roughness = pc.get_roughness
-    residual_color = pc.get_residual_color
-
-    # Rasterize visible Gaussians to image, obtain their radii (on screen). 
+    # Rasterize visible Gaussians to image, obtain their radii (on screen).
     rendered_image, alpha_integrated, color_integrated, radii = rasterizer.integrate(
         points3D = points3D,
         means3D = means3D,
@@ -218,9 +207,6 @@ def integrate(points3D, viewpoint_camera, pc : GaussianModel, pipe, bg_color : t
         scales = scales,
         rotations = rotations,
         cov3D_precomp = cov3D_precomp,
-        specular_tint = specular_tint,      # <--- ADICIONAR
-        roughness = roughness,              # <--- ADICIONAR
-        residual_color = residual_color,    # <--- ADICIONAR
         view2gaussian_precomp=view2gaussian_precomp)
 
     # Those Gaussians that were frustum culled or had a radius of 0 were not visible.

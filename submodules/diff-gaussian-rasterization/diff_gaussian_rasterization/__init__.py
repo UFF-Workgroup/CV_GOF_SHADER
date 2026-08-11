@@ -3,7 +3,7 @@
 # GRAPHDECO research group, https://team.inria.fr/graphdeco
 # All rights reserved.
 #
-# This software is free for non-commercial, research and evaluation use 
+# This software is free for non-commercial, research and evaluation use
 # under the terms of the LICENSE.md file.
 #
 # For inquiries contact  george.drettakis@inria.fr
@@ -27,9 +27,6 @@ def rasterize_gaussians(
     scales,
     rotations,
     cov3Ds_precomp,
-    specular_tint,          # <- ADIÇÃO
-    roughness,               # <- ADIÇÃO
-    residual_color,          # <- ADIÇÃO
     view2gaussian_precomp,
     raster_settings,
 ):
@@ -42,9 +39,6 @@ def rasterize_gaussians(
         scales,
         rotations,
         cov3Ds_precomp,
-        specular_tint,    # <- ADIÇÃO
-        roughness,        # <- ADIÇÃO
-        residual_color,   # <- ADIÇÃO
         view2gaussian_precomp,
         raster_settings,
     )
@@ -61,16 +55,13 @@ class _RasterizeGaussians(torch.autograd.Function):
         scales,
         rotations,
         cov3Ds_precomp,
-        specular_tint,    # <- ADIÇÃO
-        roughness,        # <- ADIÇÃO
-        residual_color,   # <- ADIÇÃO
         view2gaussian_precomp,
         raster_settings,
     ):
 
         # Restructure arguments the way that the C++ lib expects them
         args = (
-            raster_settings.bg, 
+            raster_settings.bg,
             means3D,
             colors_precomp,
             opacities,
@@ -78,9 +69,6 @@ class _RasterizeGaussians(torch.autograd.Function):
             rotations,
             raster_settings.scale_modifier,
             cov3Ds_precomp,
-            specular_tint,    # <- ADIÇÃO
-            roughness,        # <- ADIÇÃO
-            residual_color,   # <- ADIÇÃO
             view2gaussian_precomp,
             raster_settings.viewmatrix,
             raster_settings.projmatrix,
@@ -112,11 +100,7 @@ class _RasterizeGaussians(torch.autograd.Function):
         # Keep relevant tensors for backward
         ctx.raster_settings = raster_settings
         ctx.num_rendered = num_rendered
-        ctx.save_for_backward(colors_precomp, means3D, scales, rotations, cov3Ds_precomp, 
-                        specular_tint,    # <- ADIÇÃO
-                        roughness,        # <- ADIÇÃO
-                        residual_color,   # <- ADIÇÃO
-                        view2gaussian_precomp, radii, sh, geomBuffer, binningBuffer, imgBuffer)
+        ctx.save_for_backward(colors_precomp, means3D, scales, rotations, cov3Ds_precomp, view2gaussian_precomp, radii, sh, geomBuffer, binningBuffer, imgBuffer)
         return color, radii
 
     @staticmethod
@@ -125,30 +109,27 @@ class _RasterizeGaussians(torch.autograd.Function):
         # Restore necessary values from context
         num_rendered = ctx.num_rendered
         raster_settings = ctx.raster_settings
-        colors_precomp, means3D, scales, rotations, cov3Ds_precomp, specular_tint, roughness, residual_color, view2gaussian_precomp, radii, sh, geomBuffer, binningBuffer, imgBuffer = ctx.saved_tensors
+        colors_precomp, means3D, scales, rotations, cov3Ds_precomp, view2gaussian_precomp, radii, sh, geomBuffer, binningBuffer, imgBuffer = ctx.saved_tensors
 
         # Restructure args as C++ method expects them
         args = (raster_settings.bg,
-                means3D, 
-                radii, 
-                colors_precomp, 
-                scales, 
-                rotations, 
-                raster_settings.scale_modifier, 
-                cov3Ds_precomp, 
-                specular_tint,          # <- ADIÇÃO
-                roughness,               # <- ADIÇÃO
-                residual_color,          # <- ADIÇÃO
+                means3D,
+                radii,
+                colors_precomp,
+                scales,
+                rotations,
+                raster_settings.scale_modifier,
+                cov3Ds_precomp,
                 view2gaussian_precomp,
-                raster_settings.viewmatrix, 
-                raster_settings.projmatrix, 
-                raster_settings.tanfovx, 
-                raster_settings.tanfovy, 
+                raster_settings.viewmatrix,
+                raster_settings.projmatrix,
+                raster_settings.tanfovx,
+                raster_settings.tanfovy,
                 raster_settings.kernel_size,
                 raster_settings.subpixel_offset,
-                grad_out_color, 
-                sh, 
-                raster_settings.sh_degree, 
+                grad_out_color,
+                sh,
+                raster_settings.sh_degree,
                 raster_settings.campos,
                 geomBuffer,
                 num_rendered,
@@ -177,9 +158,6 @@ class _RasterizeGaussians(torch.autograd.Function):
             grad_scales,
             grad_rotations,
             grad_cov3Ds_precomp,
-            None,
-            None,
-            None,
             grad_view2gaussian_precomp,
             None
         )
@@ -188,7 +166,7 @@ class _RasterizeGaussians(torch.autograd.Function):
 
 class GaussianRasterizationSettings(NamedTuple):
     image_height: int
-    image_width: int 
+    image_width: int
     tanfovx : float
     tanfovy : float
     kernel_size : float
@@ -208,36 +186,30 @@ class GaussianRasterizer(nn.Module):
         self.raster_settings = raster_settings
 
     def markVisible(self, positions):
-        # Mark visible points (based on frustum culling for camera) with a boolean 
+        # Mark visible points (based on frustum culling for camera) with a boolean
         with torch.no_grad():
             raster_settings = self.raster_settings
             visible = _C.mark_visible(
                 positions,
                 raster_settings.viewmatrix,
                 raster_settings.projmatrix)
-            
+
         return visible
 
-    def forward(self, means3D, means2D, opacities, shs = None, colors_precomp = None, scales = None, rotations = None, cov3D_precomp = None, specular_tint = None, roughness = None, residual_color = None, view2gaussian_precomp = None):
-        
+    def forward(self, means3D, means2D, opacities, shs = None, colors_precomp = None, scales = None, rotations = None, cov3D_precomp = None, view2gaussian_precomp = None):
+
         raster_settings = self.raster_settings
 
         if (shs is None and colors_precomp is None) or (shs is not None and colors_precomp is not None):
             raise Exception('Please provide excatly one of either SHs or precomputed colors!')
-        
+
         if ((scales is None or rotations is None) and cov3D_precomp is None) or ((scales is not None or rotations is not None) and cov3D_precomp is not None):
             raise Exception('Please provide exactly one of either scale/rotation pair or precomputed 3D covariance!')
-        
+
         if shs is None:
             shs = torch.Tensor([])
         if colors_precomp is None:
             colors_precomp = torch.Tensor([])
-        if specular_tint is None:           # <- ADIÇÃO
-            specular_tint = torch.Tensor([])
-        if roughness is None:               # <- ADIÇÃO
-            roughness = torch.Tensor([])
-        if residual_color is None:          # <- ADIÇÃO
-            residual_color = torch.Tensor([])
 
         if scales is None:
             scales = torch.Tensor([])
@@ -249,7 +221,7 @@ class GaussianRasterizer(nn.Module):
         # TODO check and raise exception for precomputed view2gaussian
         if view2gaussian_precomp is None:
             view2gaussian_precomp = torch.Tensor([])
-            
+
         # Invoke C++/CUDA rasterization routine
         return rasterize_gaussians(
             means3D,
@@ -257,27 +229,23 @@ class GaussianRasterizer(nn.Module):
             shs,
             colors_precomp,
             opacities,
-            scales, 
+            scales,
             rotations,
             cov3D_precomp,
-            specular_tint,       # <- ADIÇÃO
-            roughness,            # <- ADIÇÃO
-            residual_color,       # <- ADIÇÃO
             view2gaussian_precomp,
-            raster_settings, 
+            raster_settings,
         )
 
-    # Mude a assinatura para:
-    def integrate(self, points3D, means3D, means2D, opacities, shs, colors_precomp, scales, rotations, cov3D_precomp, specular_tint, roughness, residual_color, view2gaussian_precomp):
-        
+    def integrate(self, points3D, means3D, means2D, opacities, shs, colors_precomp, scales, rotations, cov3D_precomp, view2gaussian_precomp):
+
         raster_settings = self.raster_settings
 
         if (shs is None and colors_precomp is None) or (shs is not None and colors_precomp is not None):
             raise Exception('Please provide excatly one of either SHs or precomputed colors!')
-        
+
         if ((scales is None or rotations is None) and cov3D_precomp is None) or ((scales is not None or rotations is not None) and cov3D_precomp is not None):
             raise Exception('Please provide exactly one of either scale/rotation pair or precomputed 3D covariance!')
-        
+
         if shs is None:
             shs = torch.Tensor([])
         if colors_precomp is None:
@@ -293,11 +261,11 @@ class GaussianRasterizer(nn.Module):
         # TODO check and raise exception for precomputed view2gaussian
         if view2gaussian_precomp is None:
             view2gaussian_precomp = torch.Tensor([])
-            
+
         # Invoke C++/CUDA rasterization routine
         # Restructure arguments the way that the C++ lib expects them
         args = (
-            raster_settings.bg, 
+            raster_settings.bg,
             points3D,
             means3D,
             colors_precomp,
@@ -306,9 +274,6 @@ class GaussianRasterizer(nn.Module):
             rotations,
             raster_settings.scale_modifier,
             cov3D_precomp,
-            specular_tint,    # <--- ADICIONAR
-            roughness,        # <--- ADICIONAR
-            residual_color,   # <--- ADICIONAR
             view2gaussian_precomp,
             raster_settings.viewmatrix,
             raster_settings.projmatrix,

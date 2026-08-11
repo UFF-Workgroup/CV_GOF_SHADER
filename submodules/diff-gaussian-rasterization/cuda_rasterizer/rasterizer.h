@@ -43,9 +43,6 @@ namespace CudaRasterizer
 			const float scale_modifier,
 			const float* rotations,
 			const float* cov3D_precomp,
-			const float* specular_tint,   // <-- ADICIONAR
-			const float* roughness,       // <-- ADICIONAR
-			const float* residual_color,  // <-- ADICIONAR
 			const float* view2gaussian_precomp,
 			const float* viewmatrix,
 			const float* projmatrix,
@@ -111,9 +108,6 @@ namespace CudaRasterizer
 			const float scale_modifier,
 			const float* rotations,
 			const float* cov3D_precomp,
-			const float* specular_tint,   // <-- ADICIONAR
-			const float* roughness,       // <-- ADICIONAR
-			const float* residual_color,  // <-- ADICIONAR
 			const float* view2gaussian_precomp,
 			const float* viewmatrix,
 			const float* projmatrix,

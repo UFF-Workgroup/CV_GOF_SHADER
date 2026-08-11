@@ -43,9 +43,6 @@ RasterizeGaussiansCUDA(
 	const torch::Tensor& rotations,
 	const float scale_modifier,
 	const torch::Tensor& cov3D_precomp,
-	const torch::Tensor& specular_tint,  // <- ADIÇÃO
-    const torch::Tensor& roughness,      // <- ADIÇÃO
-    const torch::Tensor& residual_color, // <- ADIÇÃO
 	const torch::Tensor& view2gaussian_precomp,
 	const torch::Tensor& viewmatrix,
 	const torch::Tensor& projmatrix,
@@ -108,9 +105,6 @@ RasterizeGaussiansCUDA(
 		scale_modifier,
 		rotations.contiguous().data_ptr<float>(),
 		cov3D_precomp.contiguous().data<float>(), 
-		specular_tint.contiguous().data<float>(),   
-	roughness.contiguous().data<float>(),       
-	residual_color.contiguous().data<float>(),  
 		view2gaussian_precomp.contiguous().data<float>(), 
 		viewmatrix.contiguous().data<float>(), 
 		projmatrix.contiguous().data<float>(),
@@ -137,9 +131,6 @@ std::tuple<torch::Tensor, torch::Tensor, torch::Tensor, torch::Tensor, torch::Te
 	const torch::Tensor& rotations,
 	const float scale_modifier,
 	const torch::Tensor& cov3D_precomp,
-	const torch::Tensor& specular_tint,  // <- ADIÇÃO
-    const torch::Tensor& roughness,      // <- ADIÇÃO
-    const torch::Tensor& residual_color, // <- ADIÇÃO
 	const torch::Tensor& view2gaussian_precomp,
 	const torch::Tensor& viewmatrix,
     const torch::Tensor& projmatrix,
@@ -251,9 +242,6 @@ IntegrateGaussiansToPointsCUDA(
 	const torch::Tensor& rotations,
 	const float scale_modifier,
 	const torch::Tensor& cov3D_precomp,
-	const torch::Tensor& specular_tint,  
-	const torch::Tensor& roughness,      
-	const torch::Tensor& residual_color, 
 	const torch::Tensor& view2gaussian_precomp,
 	const torch::Tensor& viewmatrix,
 	const torch::Tensor& projmatrix,
@@ -336,9 +324,6 @@ IntegrateGaussiansToPointsCUDA(
 		scale_modifier,
 		rotations.contiguous().data_ptr<float>(),
 		cov3D_precomp.contiguous().data<float>(), 
-		specular_tint.contiguous().data<float>(),   
-	roughness.contiguous().data<float>(),       
-	residual_color.contiguous().data<float>(),  
 		view2gaussian_precomp.contiguous().data<float>(), 
 		viewmatrix.contiguous().data<float>(), 
 		projmatrix.contiguous().data<float>(),

@@ -141,6 +141,30 @@ def get_frustum_mask(points: torch.Tensor, cameras: list, near: float = 0.02, fa
 
 class GaussianModel:
 
+    # Parametros de material do BRDF, por Gaussiana.
+    #
+    # Esta tabela e a FONTE UNICA DA VERDADE: inicializacao, otimizador, densificacao,
+    # poda, checkpoint e PLY sao todos derivados dela. A auditoria de 2026-08-10 achou
+    # tres bugs (A-1/A-2/A-3) causados exatamente por manter essas listas em sincronia
+    # na mao -- um parametro foi adicionado ao otimizador mas esquecido em prune_points,
+    # em capture/restore e no PLY. Adicionar um parametro novo aqui o propaga para todos
+    # os caminhos automaticamente.
+    #
+    #   atributo -> (nome no otimizador/PLY, canais, valor inicial POS-ativacao, ativacao)
+    MATERIAL_PARAMS = {
+        "_specular_tint":   ("specular_tint",   3, 0.05, "sigmoid"),
+        "_roughness":       ("roughness",       1, 0.70, "sigmoid"),
+        "_normal_residual": ("normal_residual", 3, 0.00, "identity"),
+    }
+
+    @staticmethod
+    def _material_raw_init(value, activation):
+        """Converte um valor pos-ativacao no valor cru que o otimizador guarda."""
+        if activation == "sigmoid":
+            # inverse_sigmoid espera um tensor; usamos logit escalar.
+            return float(np.log(value / (1.0 - value)))
+        return float(value)
+
     def setup_functions(self):
         def build_covariance_from_scaling_rotation(scaling, scaling_modifier, rotation):
             L = build_scaling_rotation(scaling_modifier * scaling, rotation)
@@ -182,9 +206,8 @@ class GaussianModel:
         self._appearance_embeddings = nn.Parameter(torch.empty(2048, 64).cuda())
         self._appearance_embeddings.data.normal_(0, std)
 
-        self._specular_tint = torch.empty(0)
-        self._roughness = torch.empty(0)
-        self._residual_color = torch.empty(0)
+        for attr in self.MATERIAL_PARAMS:
+            setattr(self, attr, torch.empty(0))
 
     def capture(self):
         return (
@@ -199,22 +222,28 @@ class GaussianModel:
             self.xyz_gradient_accum,
             self.denom,
             self.optimizer.state_dict(),
-            self.spatial_lr_scale
+            self.spatial_lr_scale,
+            # A-2: sem isto, retomar de checkpoint restaura material vazio e o Adam
+            # e montado sobre parametros de tamanho 0.
+            {attr: getattr(self, attr) for attr in self.MATERIAL_PARAMS},
         )
-    
+
     def restore(self, model_args, training_args):
-        (self.active_sh_degree, 
-        self._xyz, 
-        self._features_dc, 
+        (self.active_sh_degree,
+        self._xyz,
+        self._features_dc,
         self._features_rest,
-        self._scaling, 
-        self._rotation, 
+        self._scaling,
+        self._rotation,
         self._opacity,
-        self.max_radii2D, 
-        xyz_gradient_accum, 
+        self.max_radii2D,
+        xyz_gradient_accum,
         denom,
-        opt_dict, 
-        self.spatial_lr_scale) = model_args
+        opt_dict,
+        self.spatial_lr_scale,
+        material) = model_args
+        for attr, tensor in material.items():
+            setattr(self, attr, nn.Parameter(tensor.requires_grad_(True)))
         self.training_setup(training_args)
         self.xyz_gradient_accum = xyz_gradient_accum
         self.denom = denom
@@ -266,15 +295,24 @@ class GaussianModel:
     
     @property
     def get_specular_tint(self):
+        """Tom especular s em [0,1]. Faz o papel de F0 (refletancia normal) no Fresnel."""
         return torch.sigmoid(self._specular_tint)
 
     @property
     def get_roughness(self):
+        """Rugosidade rho em [0,1]. Controla a largura do lobulo especular."""
         return torch.sigmoid(self._roughness)
 
     @property
-    def get_residual_color(self):
-        return self._residual_color
+    def get_normal_residual(self):
+        """Residuo Delta-n somado a normal geometrica antes de normalizar (GaussianShader Eq. 4)."""
+        return self._normal_residual
+
+    # NOTA (B-2): _residual_color foi removido. O artigo define o residual como
+    # c_r(omega_o) -- uma FUNCAO da direcao de vista -- e a implementacao anterior era
+    # um RGB fixo por Gaussiana, que apenas duplicava o termo difuso e agravava a
+    # ambiguidade difuso/especular. O papel de c_r(omega_o) passa a ser cumprido pelos
+    # graus >= 1 das SH que o 3DGS ja carrega em _features_rest (ver get_shading_colors).
 
     def get_apperance_embedding(self, idx):
         return self._appearance_embeddings[idx]
@@ -397,6 +435,46 @@ class GaussianModel:
         if self.active_sh_degree < self.max_sh_degree:
             self.active_sh_degree += 1
 
+    def _optimizer_attr_map(self):
+        """Nome do grupo no otimizador -> atributo do modelo, para todo parametro por-Gaussiana."""
+        m = {
+            "xyz": "_xyz",
+            "f_dc": "_features_dc",
+            "f_rest": "_features_rest",
+            "opacity": "_opacity",
+            "scaling": "_scaling",
+            "rotation": "_rotation",
+        }
+        m.update({name: attr for attr, (name, _, _, _) in self.MATERIAL_PARAMS.items()})
+        return m
+
+    def _assert_optimizer_binding(self):
+        """Invariante: o tensor que o modelo usa e o MESMO objeto que o Adam atualiza.
+
+        Esta e a defesa estrutural contra o bug A-1. Quebrar essa identidade nao gera
+        excecao nem muda formas -- so faz o parametro parar de aprender em silencio, o
+        que e praticamente indetectavel numa curva de loss. Por isso a checagem e um
+        assert em tempo de execucao, e nao apenas um teste.
+        """
+        attr_map = self._optimizer_attr_map()
+        for group in self.optimizer.param_groups:
+            attr = attr_map.get(group["name"])
+            if attr is None:
+                continue  # appearance_embeddings / appearance_network
+            if getattr(self, attr) is not group["params"][0]:
+                raise RuntimeError(
+                    f"Parametro '{group['name']}' desconectado do otimizador: "
+                    f"self.{attr} nao e o mesmo objeto que param_groups[...]['params'][0]. "
+                    f"O Adam estaria atualizando um tensor orfao (ver bug A-1 em docs/06_AUDITORIA.md)."
+                )
+
+    def _init_material_params(self, num_points, device="cuda"):
+        """Cria os tensores de material com os defaults de MATERIAL_PARAMS."""
+        for attr, (_, channels, init_value, activation) in self.MATERIAL_PARAMS.items():
+            raw = self._material_raw_init(init_value, activation)
+            tensor = torch.full((num_points, channels), raw, dtype=torch.float, device=device)
+            setattr(self, attr, nn.Parameter(tensor.requires_grad_(True)))
+
     def create_from_pcd(self, pcd : BasicPointCloud, spatial_lr_scale : float):
         self.spatial_lr_scale = spatial_lr_scale
         fused_point_cloud = torch.tensor(np.asarray(pcd.points)).float().cuda()
@@ -414,13 +492,13 @@ class GaussianModel:
 
         opacities = self.inverse_opacity_activation(0.1 * torch.ones((fused_point_cloud.shape[0], 1), dtype=torch.float, device="cuda"))
 
-        tensor_specular = inverse_sigmoid(0.5 * torch.ones((fused_point_cloud.shape[0], 3), dtype=torch.float, device="cuda"))
-        tensor_roughness = inverse_sigmoid(0.5 * torch.ones((fused_point_cloud.shape[0], 1), dtype=torch.float, device="cuda"))
-        tensor_residual = torch.zeros((fused_point_cloud.shape[0], 3), dtype=torch.float, device="cuda")
-
-        self._specular_tint = nn.Parameter(tensor_specular.requires_grad_(True))
-        self._roughness = nn.Parameter(tensor_roughness.requires_grad_(True))
-        self._residual_color = nn.Parameter(tensor_residual.requires_grad_(True))
+        # B-3: material comeca quase totalmente difuso. A inicializacao anterior era
+        # s=0.5 (50% de especular em TODAS as Gaussianas na iteracao 0) e rho=0.5
+        # (lobulo ja estreito), o que poe o ramo especular competindo com o difuso
+        # antes de a geometria existir e favorece highlights espurios. Comecamos com
+        # s=0.05 e rho=0.7 (lobulo largo) e deixamos a otimizacao subir o especular
+        # apenas onde a foto exigir.
+        self._init_material_params(fused_point_cloud.shape[0])
 
         self._xyz = nn.Parameter(fused_point_cloud.requires_grad_(True))
         self._features_dc = nn.Parameter(features[:,:,0:1].transpose(1, 2).contiguous().requires_grad_(True))
@@ -444,9 +522,17 @@ class GaussianModel:
             {'params': [self._opacity], 'lr': training_args.opacity_lr, "name": "opacity"},
             {'params': [self._scaling], 'lr': training_args.scaling_lr, "name": "scaling"},
             {'params': [self._rotation], 'lr': training_args.rotation_lr, "name": "rotation"},
-            {'params': [self._specular_tint], 'lr': training_args.specular_tint_lr, "name": "specular_tint"},
-            {'params': [self._roughness], 'lr': training_args.roughness_lr, "name": "roughness"},
-            {'params': [self._residual_color], 'lr': training_args.residual_color_lr, "name": "residual_color"},
+        ]
+
+        # Material do BRDF. Precisa vir ANTES dos grupos de aparencia: _prune_optimizer e
+        # cat_tensors_to_optimizer iteram todos os grupos pulando apenas appearance_*, e
+        # esperam uma entrada por grupo no dicionario de densificacao.
+        for attr, (name, _, _, _) in self.MATERIAL_PARAMS.items():
+            l.append({'params': [getattr(self, attr)],
+                      'lr': getattr(training_args, f"{name}_lr"),
+                      "name": name})
+
+        l += [
             {'params': [self._appearance_embeddings], 'lr': training_args.appearance_embeddings_lr, "name": "appearance_embeddings"},
             {'params': self.appearance_network.parameters(), 'lr': training_args.appearance_network_lr, "name": "appearance_network"}
         ]
@@ -465,7 +551,7 @@ class GaussianModel:
                 param_group['lr'] = lr
                 return lr
 
-    def construct_list_of_attributes(self, exclude_filter=False):
+    def construct_list_of_attributes(self, exclude_filter=False, include_material=True):
         l = ['x', 'y', 'z', 'nx', 'ny', 'nz']
         # All channels except the 3 DC
         for i in range(self._features_dc.shape[1]*self._features_dc.shape[2]):
@@ -479,9 +565,20 @@ class GaussianModel:
             l.append('rot_{}'.format(i))
         if not exclude_filter:
             l.append('filter_3D')
+        if include_material:
+            for _, (name, channels, _, _) in self.MATERIAL_PARAMS.items():
+                for i in range(channels):
+                    l.append('{}_{}'.format(name, i))
         return l
 
     def save_ply(self, path):
+        """A-3: o PLY precisa carregar o material.
+
+        Todo o pipeline a jusante (render.py, extract_mesh.py, metrics.py) recarrega o
+        modelo por load_ply. Sem persistir o material, as imagens de avaliacao sairiam
+        renderizadas com material default -- diferentes das de treino -- sem nenhum erro
+        no log. E o bug mais perigoso para a validade dos numeros do artigo.
+        """
         mkdir_p(os.path.dirname(path))
 
         xyz = self._xyz.detach().cpu().numpy()
@@ -493,10 +590,11 @@ class GaussianModel:
         rotation = self._rotation.detach().cpu().numpy()
 
         filter_3D = self.filter_3D.detach().cpu().numpy()
+        material = [getattr(self, attr).detach().cpu().numpy() for attr in self.MATERIAL_PARAMS]
         dtype_full = [(attribute, 'f4') for attribute in self.construct_list_of_attributes()]
 
         elements = np.empty(xyz.shape[0], dtype=dtype_full)
-        attributes = np.concatenate((xyz, normals, f_dc, f_rest, opacities, scale, rotation, filter_3D), axis=1)
+        attributes = np.concatenate((xyz, normals, f_dc, f_rest, opacities, scale, rotation, filter_3D, *material), axis=1)
         elements[:] = list(map(tuple, attributes))
         el = PlyElement.describe(elements, 'vertex')
         PlyData([el]).write(path)
@@ -515,7 +613,10 @@ class GaussianModel:
         
         rotation = self._rotation.detach().cpu().numpy()
 
-        dtype_full = [(attribute, 'f4') for attribute in self.construct_list_of_attributes(exclude_filter=True)]
+        # include_material=False de proposito: o PLY "fundido" existe para ser aberto por
+        # visualizadores de 3DGS vanilla (opacidade e escala ja com o filtro 3D embutido).
+        # Material do BRDF nao faz sentido nesse formato e so o poluiria.
+        dtype_full = [(attribute, 'f4') for attribute in self.construct_list_of_attributes(exclude_filter=True, include_material=False)]
 
         elements = np.empty(xyz.shape[0], dtype=dtype_full)
         attributes = np.concatenate((xyz, normals, f_dc, f_rest, opacities, scale, rotation), axis=1)
@@ -621,6 +722,23 @@ class GaussianModel:
         self._rotation = nn.Parameter(torch.tensor(rots, dtype=torch.float, device="cuda").requires_grad_(True))
         self.filter_3D = torch.tensor(filter_3D, dtype=torch.float, device="cuda")
 
+        # A-3 (leitura): material com fallback. PLYs antigos -- inclusive o baseline de
+        # 30k ja treinado em output/fase2_linux_validacao -- nao tem esses atributos.
+        # Ausencia => default de MATERIAL_PARAMS, para que checkpoints antigos continuem
+        # carregando em vez de estourar.
+        present = {p.name for p in plydata.elements[0].properties}
+        self._init_material_params(xyz.shape[0])
+        for attr, (name, channels, _, _) in self.MATERIAL_PARAMS.items():
+            names = ['{}_{}'.format(name, i) for i in range(channels)]
+            if not all(n in present for n in names):
+                print(f"[load_ply] atributo '{name}' ausente no PLY; usando valor default.")
+                continue
+            values = np.zeros((xyz.shape[0], channels))
+            for i, n in enumerate(names):
+                values[:, i] = np.asarray(plydata.elements[0][n])
+            setattr(self, attr, nn.Parameter(
+                torch.tensor(values, dtype=torch.float, device="cuda").requires_grad_(True)))
+
         self.active_sh_degree = self.max_sh_degree
 
     def replace_tensor_to_optimizer(self, tensor, name):
@@ -675,9 +793,19 @@ class GaussianModel:
         self.xyz_gradient_accum_abs_max = self.xyz_gradient_accum_abs_max[valid_points_mask]
         self.denom = self.denom[valid_points_mask]
         self.max_radii2D = self.max_radii2D[valid_points_mask]
-        self._specular_tint = nn.Parameter(self._specular_tint[valid_points_mask])
-        self._roughness = nn.Parameter(self._roughness[valid_points_mask])
-        self._residual_color = nn.Parameter(self._residual_color[valid_points_mask])
+
+        # A-1: o codigo anterior fazia
+        #     self._specular_tint = nn.Parameter(self._specular_tint[valid_points_mask])
+        # descartando o tensor que _prune_optimizer ja tinha podado e criando um
+        # nn.Parameter DIFERENTE. A partir dai self._specular_tint e
+        # optimizer.param_groups[...]["params"][0] eram objetos distintos: o Adam
+        # atualizava um tensor orfao e o parametro que o modelo de fato usa nunca mais
+        # era atualizado. As formas continuavam certas, entao nao havia excecao -- os
+        # parametros simplesmente congelavam a partir da iteracao 600.
+        for attr, (name, _, _, _) in self.MATERIAL_PARAMS.items():
+            setattr(self, attr, optimizable_tensors[name])
+
+        self._assert_optimizer_binding()
 
     def cat_tensors_to_optimizer(self, tensors_dict):
         optimizable_tensors = {}
@@ -703,16 +831,15 @@ class GaussianModel:
 
         return optimizable_tensors
 
-    def densification_postfix(self, new_xyz, new_features_dc, new_features_rest, new_opacities, new_scaling, new_rotation, new_specular, new_roughness, new_residual):
+    def densification_postfix(self, new_xyz, new_features_dc, new_features_rest, new_opacities, new_scaling, new_rotation, new_material):
         d = {"xyz": new_xyz,
         "f_dc": new_features_dc,
         "f_rest": new_features_rest,
         "opacity": new_opacities,
         "scaling" : new_scaling,
-        "rotation" : new_rotation,
-        "specular_tint": new_specular,
-        "roughness": new_roughness,
-        "residual_color": new_residual}
+        "rotation" : new_rotation}
+        # new_material: dict atributo -> tensor, montado por densify_and_{split,clone}.
+        d.update({self.MATERIAL_PARAMS[attr][0]: t for attr, t in new_material.items()})
 
         optimizable_tensors = self.cat_tensors_to_optimizer(d)
         self._xyz = optimizable_tensors["xyz"]
@@ -721,10 +848,10 @@ class GaussianModel:
         self._opacity = optimizable_tensors["opacity"]
         self._scaling = optimizable_tensors["scaling"]
         self._rotation = optimizable_tensors["rotation"]
-        self._specular_tint = optimizable_tensors["specular_tint"]
-        self._roughness = optimizable_tensors["roughness"]
-        self._residual_color = optimizable_tensors["residual_color"]
-        
+        for attr, (name, _, _, _) in self.MATERIAL_PARAMS.items():
+            setattr(self, attr, optimizable_tensors[name])
+        self._assert_optimizer_binding()
+
         self.xyz_gradient_accum = torch.zeros((self.get_xyz.shape[0], 1), device="cuda")
         self.xyz_gradient_accum_abs = torch.zeros((self.get_xyz.shape[0], 1), device="cuda")
         self.xyz_gradient_accum_abs_max = torch.zeros((self.get_xyz.shape[0], 1), device="cuda")
@@ -754,10 +881,9 @@ class GaussianModel:
         new_features_dc = self._features_dc[selected_pts_mask].repeat(N,1,1)
         new_features_rest = self._features_rest[selected_pts_mask].repeat(N,1,1)
         new_opacities = self._opacity[selected_pts_mask].repeat(N,1)
-        new_specular = self._specular_tint[selected_pts_mask].repeat(N,1)
-        new_roughness = self._roughness[selected_pts_mask].repeat(N,1)
-        new_residual = self._residual_color[selected_pts_mask].repeat(N,1)
-        self.densification_postfix(new_xyz, new_features_dc, new_features_rest, new_opacities, new_scaling, new_rotation, new_specular, new_roughness, new_residual)
+        new_material = {attr: getattr(self, attr)[selected_pts_mask].repeat(N,1)
+                        for attr in self.MATERIAL_PARAMS}
+        self.densification_postfix(new_xyz, new_features_dc, new_features_rest, new_opacities, new_scaling, new_rotation, new_material)
 
         prune_filter = torch.cat((selected_pts_mask, torch.zeros(N * selected_pts_mask.sum(), device="cuda", dtype=bool)))
         self.prune_points(prune_filter)
@@ -784,10 +910,9 @@ class GaussianModel:
         new_scaling = self._scaling[selected_pts_mask]
         new_rotation = self._rotation[selected_pts_mask]
         
-        new_specular = self._specular_tint[selected_pts_mask]
-        new_roughness = self._roughness[selected_pts_mask]
-        new_residual = self._residual_color[selected_pts_mask]
-        self.densification_postfix(new_xyz, new_features_dc, new_features_rest, new_opacities, new_scaling, new_rotation, new_specular, new_roughness, new_residual)
+        new_material = {attr: getattr(self, attr)[selected_pts_mask]
+                        for attr in self.MATERIAL_PARAMS}
+        self.densification_postfix(new_xyz, new_features_dc, new_features_rest, new_opacities, new_scaling, new_rotation, new_material)
 
     def densify_and_prune(self, max_grad, min_opacity, extent, max_screen_size):
         grads = self.xyz_gradient_accum / self.denom

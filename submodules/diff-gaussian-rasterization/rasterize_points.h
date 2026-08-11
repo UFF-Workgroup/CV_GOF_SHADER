@@ -25,9 +25,6 @@ RasterizeGaussiansCUDA(
 	const torch::Tensor& rotations,
 	const float scale_modifier,
 	const torch::Tensor& cov3D_precomp,
-	const torch::Tensor& specular_tint,  // <- ADIÇÃO
-    const torch::Tensor& roughness,      // <- ADIÇÃO
-    const torch::Tensor& residual_color, // <- ADIÇÃO
 	const torch::Tensor& view2gaussian_precomp,
 	const torch::Tensor& viewmatrix,
 	const torch::Tensor& projmatrix,
@@ -53,9 +50,6 @@ std::tuple<torch::Tensor, torch::Tensor, torch::Tensor, torch::Tensor, torch::Te
 	const torch::Tensor& rotations,
 	const float scale_modifier,
 	const torch::Tensor& cov3D_precomp,
-	const torch::Tensor& specular_tint,  // <- ADIÇÃO
-    const torch::Tensor& roughness,      // <- ADIÇÃO
-    const torch::Tensor& residual_color, // <- ADIÇÃO
 	const torch::Tensor& view2gaussian_precomp,
 	const torch::Tensor& viewmatrix,
     const torch::Tensor& projmatrix,
@@ -89,9 +83,6 @@ IntegrateGaussiansToPointsCUDA(
 	const torch::Tensor& rotations,
 	const float scale_modifier,
 	const torch::Tensor& cov3D_precomp,
-	const torch::Tensor& specular_tint,  // <- ADIÇÃO
-    const torch::Tensor& roughness,      // <- ADIÇÃO
-    const torch::Tensor& residual_color, // <- ADIÇÃO
 	const torch::Tensor& view2gaussian_precomp,
 	const torch::Tensor& viewmatrix,
 	const torch::Tensor& projmatrix,

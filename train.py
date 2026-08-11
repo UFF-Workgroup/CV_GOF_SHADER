@@ -362,7 +362,10 @@ if __name__ == "__main__":
     print("Optimizing " + args.model_path)
 
     # Initialize system state (RNG)
-    # safe_state(args.quiet)
+    # C-3: safe_state carimba timestamp em cada linha do stdout, o que torna o log de
+    # treino utilizavel como registro de experimento. As seeds abaixo sao redundantes
+    # com as dele, mas ficam explicitas de proposito.
+    safe_state(args.quiet)
 
     random.seed(0)
     np.random.seed(0)

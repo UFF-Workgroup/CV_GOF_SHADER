@@ -87,9 +87,10 @@ class OptimizationParams(ParamGroup):
         self.opacity_lr = 0.05
         self.scaling_lr = 0.005
         self.rotation_lr = 0.001
+        # Material do BRDF. Os nomes casam com GaussianModel.MATERIAL_PARAMS: <nome>_lr
         self.specular_tint_lr = 0.005
         self.roughness_lr = 0.005
-        self.residual_color_lr = 0.001
+        self.normal_residual_lr = 0.001
         self.appearance_embeddings_lr = 0.001
         self.appearance_network_lr = 0.001
         self.percent_dense = 0.01
