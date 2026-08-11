@@ -126,18 +126,27 @@ Retomar dali não seria o mesmo treino. O run foi **relançado do zero** como
 | **Pico de VRAM** | **3.07 GB** (`max_memory_allocated`) |
 | Tempo total | 6 h 50 min (1,22 it/s médio) |
 
-**Comparação com REF-fase2 (25.2358): diferença de 0,005 dB.** Está uma ordem de grandeza
-abaixo do piso de ruído declarado (~0,1 dB), o que sustenta a conclusão de que **a reversão
-da plumbagem CUDA e as correções da auditoria foram neutras para o baseline** — que era a
-pergunta que B1 existe para responder.
+**Fechamento por `metrics.py` — comparação pelo caminho idêntico ao da referência**
+(`render.py --skip_train` + `metrics.py -r 2`, 32 vistas de teste):
 
-> **Ressalva de método, que impede tratar os 0,005 dB como medida fina.** Os dois números
-> vêm de caminhos de cálculo diferentes: 25.2311 é a avaliação interna do `train.py`
-> (tensores float em memória) e 25.2358 saiu do `metrics.py` (PNGs de 8 bits lidos do
-> disco). A quantização desloca o PSNR na casa de 0,01–0,05 dB — ou seja, **na mesma ordem
-> da diferença observada**. A concordância é forte evidência de neutralidade, mas a
-> comparação rigorosa exige rodar `render.py` + `metrics.py` sobre este run, pelo mesmo
-> caminho que produziu a referência. Pendente.
+| | REF-fase2 | **B1** | Δ |
+|---|---|---|---|
+| PSNR | 25.2358 | **25.2200** | −0.016 dB |
+| SSIM | 0.88677 | **0.88632** | −0.00045 |
+| LPIPS | 0.13371 | **0.13379** | +0.00009 |
+
+**Conclusão: a reversão da plumbagem CUDA e as correções da auditoria foram neutras para o
+baseline.** As três diferenças estão muito abaixo do piso de ruído declarado (~0,1 dB em
+PSNR), e as duas métricas independentes (SSIM e LPIPS) concordam com a leitura. Essa era a
+pergunta que B1 existe para responder, e **B0 deixa de ser pré-requisito para liberar os
+runs E** — continua desejável como referência de literatura, não como portão.
+
+> **A ressalva de método se confirmou quantitativamente.** A avaliação interna do `train.py`
+> deu 25.2311 e o `metrics.py` deu 25.2200 sobre o mesmo modelo: **0,011 dB de diferença só
+> pela quantização em 8 bits do PNG**, dentro da faixa de 0,01–0,05 dB antecipada. Como esse
+> deslocamento é da mesma ordem do efeito que se quer medir, **comparações entre runs devem
+> usar sempre o mesmo caminho** — de preferência `metrics.py`, que é o que a literatura
+> reporta. Números do log de treino servem para acompanhar, não para comparar.
 
 **Notas de leitura da curva de perda.** Dois padrões aparecem no log e nenhum é
 divergência: (i) oscilações em 3k, 6k, 9k e 12k são os resets de opacidade
@@ -171,7 +180,7 @@ Ver a matriz completa em `04_PROTOCOLO.md`.
 | ID | Status | Pergunta |
 |---|---|---|
 | B0 | pendente | GOF upstream — referência da literatura |
-| B1 | **concluído** (`EXP-20260811-02-b1`) — 25.2311 vs 25.2358, Δ 0,005 dB: **reversão neutra**. Falta o fechamento por `metrics.py` | árvore atual sem BRDF — a reversão CUDA foi neutra? |
+| B1 | **concluído e fechado** (`EXP-20260811-02-b1`) — PSNR 25.2200 vs 25.2358 (Δ 0,016 dB), SSIM e LPIPS idem: **reversão neutra** | árvore atual sem BRDF — a reversão CUDA foi neutra? |
 | E1 | pendente | BRDF `light_frame=world` em Truck |
 | E2 | pendente | BRDF `light_frame=view` na cena de rocha — **contribuição principal** |
 | E3 | pendente | `sh_degree ∈ {0,1,2,3}` — quanto de $c_r$ é preciso? |
