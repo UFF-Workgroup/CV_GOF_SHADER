@@ -157,6 +157,11 @@ class GaussianModel:
         "_normal_residual": ("normal_residual", 3, 0.00, "identity"),
     }
 
+    # Grupos do otimizador que NAO sao por-Gaussiana e portanto tem de ser pulados na
+    # densificacao e na poda. Esquecer "lighting" aqui faria cat_tensors_to_optimizer
+    # tentar concatenar novas Gaussianas ao environment map.
+    NON_GAUSSIAN_GROUPS = ["appearance_embeddings", "appearance_network", "lighting"]
+
     @staticmethod
     def _material_raw_init(value, activation):
         """Converte um valor pos-ativacao no valor cru que o otimizador guarda."""
@@ -208,6 +213,10 @@ class GaussianModel:
 
         for attr in self.MATERIAL_PARAMS:
             setattr(self, attr, torch.empty(0))
+
+        # Iluminacao (envmap ou SH). Criada por setup_lighting(args), porque depende de
+        # flags que so existem depois do parse dos argumentos.
+        self.lighting = None
 
     def capture(self):
         return (
@@ -314,9 +323,114 @@ class GaussianModel:
     # ambiguidade difuso/especular. O papel de c_r(omega_o) passa a ser cumprido pelos
     # graus >= 1 das SH que o 3DGS ja carrega em _features_rest (ver get_shading_colors).
 
+    @property
+    def get_albedo(self):
+        """Albedo difuso c_d em [0,1], vindo do termo DC das SH.
+
+        Exposto para logging e relighting; o forward de sombreamento NAO usa esta
+        propriedade (ver get_shading_colors e a nota sobre equivalencia exata).
+        """
+        from utils.sh_utils import SH2RGB
+        return torch.clamp(SH2RGB(self._features_dc[:, 0, :]), 0.0, 1.0)
+
+    def setup_lighting(self, args, device="cuda"):
+        """Cria o modulo de iluminacao. Idempotente."""
+        from scene.lighting import build_lighting
+        if self.lighting is None:
+            self.lighting = build_lighting(args).to(device)
+        return self.lighting
+
+    def save_lighting(self, path):
+        if self.lighting is None:
+            return
+        mkdir_p(os.path.dirname(path))
+        torch.save({"class": type(self.lighting).__name__,
+                    "state_dict": self.lighting.state_dict()}, path)
+
+    def load_lighting(self, path):
+        if self.lighting is None or not os.path.exists(path):
+            if self.lighting is not None:
+                print(f"[load_lighting] '{path}' ausente; iluminacao fica no valor inicial.")
+            return
+        payload = torch.load(path, map_location="cuda")
+        expected = type(self.lighting).__name__
+        if payload["class"] != expected:
+            raise RuntimeError(
+                f"Iluminacao salva e {payload['class']} mas a config atual pede {expected}. "
+                f"Confira --light_repr; avaliar com a representacao errada invalidaria os numeros."
+            )
+        self.lighting.load_state_dict(payload["state_dict"])
+
+    def get_shading_colors(self, viewpoint_camera, args):
+        """Cor por-Gaussiana pela equacao de sombreamento; entra como colors_precomp.
+
+            c(wo) = gamma( c_d + c_r(wo) + F(n.wo, s) * L_s(r, rho) )
+
+        EQUIVALENCIA EXATA COM O BASELINE (ADR-004, teste T1)
+        c_d e c_r(wo) NAO sao calculados em separado: eval_sh sobre todas as SH ja
+        devolve exatamente a soma dos dois (grau 0 = c_d, graus >=1 = c_r(wo)). Isso faz
+        com que, com s=0 e gamma=identidade, esta funcao reproduza bit a bit o caminho
+        convert_SHs_python do GOF. Sem essa propriedade nao daria para atribuir uma
+        diferenca de PSNR ao termo especular em vez de a uma mudanca acidental na cor
+        difusa -- e a ablacao perderia o sentido.
+
+        Tudo em espaco de vista quando light_frame="view" (ver scene/brdf.py).
+        """
+        from scene import brdf
+        from utils.sh_utils import eval_sh
+
+        xyz = self.get_xyz
+        campos = viewpoint_camera.camera_center
+
+        # Direcao camera -> Gaussiana. Mesma convencao do caminho SH original do GOF
+        # (gaussian_renderer/__init__.py), requisito para a equivalencia exata.
+        dir_pp = xyz - campos.repeat(xyz.shape[0], 1)
+        dir_pp = dir_pp / dir_pp.norm(dim=1, keepdim=True)
+
+        shs = self.get_features.transpose(1, 2).view(-1, 3, (self.max_sh_degree + 1) ** 2)
+        base = eval_sh(self.active_sh_degree, shs, dir_pp) + 0.5   # c_d + c_r(wo)
+
+        if not getattr(args, "brdf", False):
+            return torch.clamp_min(base, 0.0)
+
+        # omega_o: da superficie PARA a camera.
+        view_dirs = -dir_pp
+
+        rotations = build_rotation(self.get_rotation)
+        normals = brdf.shortest_axis_normal(rotations, self.get_scaling)
+        normals = brdf.orient_towards_camera(normals, view_dirs)
+        if getattr(args, "use_normal_residual", False):
+            normals = brdf.apply_normal_residual(normals, self.get_normal_residual)
+
+        reflect_dirs = brdf.reflect(view_dirs, normals)
+
+        # Mesa giratoria: o envmap correto vive no referencial da sala, que difere do de
+        # vista por uma rotacao global constante -- absorvida pelo mapa aprendido. Ver
+        # docs/03_FORMULACAO.md. light_frame="world" recupera o GaussianShader padrao,
+        # valido quando o objeto esta parado e a camera orbita (cena de controle Truck).
+        if getattr(args, "light_frame", "view") == "view":
+            R_w2v = brdf.world_to_view_rotation(viewpoint_camera)
+            reflect_dirs = reflect_dirs @ R_w2v.transpose(0, 1)
+        reflect_dirs = torch.nn.functional.normalize(reflect_dirs, dim=-1, eps=1e-8)
+
+        tint = self.get_specular_tint
+        roughness = self.get_roughness
+        if getattr(args, "no_fresnel", False):
+            fresnel = tint
+        else:
+            cos_theta = (normals * view_dirs).sum(-1, keepdim=True).clamp(0.0, 1.0)
+            fresnel = brdf.schlick_fresnel(cos_theta, tint)
+
+        specular = fresnel * self.lighting.sample(reflect_dirs, roughness)
+
+        color = base + specular
+        if getattr(args, "use_tonemap", False):
+            return brdf.tonemap_srgb(color)
+        return torch.clamp_min(color, 0.0)
+
     def get_apperance_embedding(self, idx):
         return self._appearance_embeddings[idx]
-    
+
     def get_covariance(self, scaling_modifier = 1):
         return self.covariance_activation(self.get_scaling, scaling_modifier, self._rotation)
 
@@ -537,6 +651,10 @@ class GaussianModel:
             {'params': self.appearance_network.parameters(), 'lr': training_args.appearance_network_lr, "name": "appearance_network"}
         ]
 
+        if self.lighting is not None:
+            l.append({'params': list(self.lighting.parameters()),
+                      'lr': training_args.envmap_lr, "name": "lighting"})
+
         self.optimizer = torch.optim.Adam(l, lr=0.0, eps=1e-15)
         self.xyz_scheduler_args = get_expon_lr_func(lr_init=training_args.position_lr_init*self.spatial_lr_scale,
                                                     lr_final=training_args.position_lr_final*self.spatial_lr_scale,
@@ -744,7 +862,7 @@ class GaussianModel:
     def replace_tensor_to_optimizer(self, tensor, name):
         optimizable_tensors = {}
         for group in self.optimizer.param_groups:
-            if group["name"] in ["appearance_embeddings", "appearance_network"]:
+            if group["name"] in self.NON_GAUSSIAN_GROUPS:
                 continue
             if group["name"] == name:
                 stored_state = self.optimizer.state.get(group['params'][0], None)
@@ -761,7 +879,7 @@ class GaussianModel:
     def _prune_optimizer(self, mask):
         optimizable_tensors = {}
         for group in self.optimizer.param_groups:
-            if group["name"] in ["appearance_embeddings", "appearance_network"]:
+            if group["name"] in self.NON_GAUSSIAN_GROUPS:
                 continue
             stored_state = self.optimizer.state.get(group['params'][0], None)
             if stored_state is not None:
@@ -810,7 +928,7 @@ class GaussianModel:
     def cat_tensors_to_optimizer(self, tensors_dict):
         optimizable_tensors = {}
         for group in self.optimizer.param_groups:
-            if group["name"] in ["appearance_embeddings", "appearance_network"]:
+            if group["name"] in self.NON_GAUSSIAN_GROUPS:
                 continue
             assert len(group["params"]) == 1
             extension_tensor = tensors_dict[group["name"]]

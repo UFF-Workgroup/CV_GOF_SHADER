@@ -61,6 +61,21 @@ class ModelParams(ParamGroup):
         self.load_allres = False
         self.sample_more_highres = False
         self.use_decoupled_appearance = False
+
+        # --- Sombreamento BRDF (GaussianShader dentro do GOF) ---
+        # Ficam em ModelParams de proposito: sao gravados em cfg_args, entao render.py e
+        # extract_mesh.py herdam a MESMA configuracao usada no treino via
+        # get_combined_args. Se ficassem em PipelineParams, avaliar exigiria repetir os
+        # flags a mao e um esquecimento produziria numeros silenciosamente errados.
+        self.brdf = False               # liga a equacao de sombreamento
+        self.light_frame = "view"       # "view" (mesa giratoria) | "world" (camera orbita)
+        self.light_repr = "envmap"      # "envmap" (pre-filtrado) | "sh" (baixa frequencia)
+        self.envmap_res = 128           # altura do mapa equirretangular (largura = 2x)
+        self.envmap_levels = 6          # niveis de mip para pre-filtragem por rugosidade
+        self.light_sh_degree = 3        # grau da SH quando light_repr="sh"
+        self.no_fresnel = False         # ablacao E5: desliga o Fresnel de Schlick
+        self.use_tonemap = False        # Marco 2; off preserva a equivalencia com baseline
+        self.use_normal_residual = False  # ablacao E6: liga o residuo de normal
         super().__init__(parser, "Loading Parameters", sentinel)
 
     def extract(self, args):
@@ -104,6 +119,21 @@ class OptimizationParams(ParamGroup):
         self.densify_from_iter = 500
         self.densify_until_iter = 15_000
         self.densify_grad_threshold = 0.0002
+
+        # --- Otimizacao do BRDF ---
+        self.envmap_lr = 0.01
+        # Warm-up: o ramo especular so liga depois de a geometria assentar. Ligado desde
+        # a iteracao 0 ele compete com o difuso antes de existir superficie para refletir,
+        # e a separacao difuso/especular (que ja e mal-posta) fica ainda pior.
+        self.brdf_from_iter = 3_000
+        # L_sparse: a maioria das Gaussianas deve ser nao-especular. Sem isto o otimizador
+        # espalha brilho por toda parte e o "material" aprendido perde sentido fisico.
+        self.lambda_specular_sparse = 0.001
+        self.lambda_normal_residual = 0.001
+        # Consistencia entre a normal de sombreamento (por-Gaussiana) e a normal por-raio
+        # do GOF. Default 0: custa uma segunda rasterizacao por iteracao, pesado em 6 GB.
+        # A hipotese e que a depth_normal_loss que o GOF ja tem basta (ablacao E7).
+        self.lambda_shading_normal = 0.0
         super().__init__(parser, "Optimization Parameters")
 
 def get_combined_args(parser : ArgumentParser):

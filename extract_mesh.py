@@ -21,7 +21,7 @@ def evaluage_alpha(points, views, gaussians, pipeline, background, kernel_size, 
     
     with torch.no_grad():
         for _, view in enumerate(tqdm(views, desc="Rendering progress")):
-            ret = integrate(points, view, gaussians, pipeline, background, kernel_size=kernel_size)
+            ret = integrate(points, view, gaussians, pipeline, background, kernel_size=kernel_size, brdf_args=brdf_args)
             alpha_integrated = ret["alpha_integrated"]
             if return_color:
                 color_integrated = ret["color_integrated"]    
@@ -34,7 +34,7 @@ def evaluage_alpha(points, views, gaussians, pipeline, background, kernel_size, 
     return alpha
 
 @torch.no_grad()
-def marching_tetrahedra_with_binary_search(model_path, name, iteration, views, gaussians, pipeline, background, kernel_size, filter_mesh : bool, texture_mesh : bool, near : float, far : float):
+def marching_tetrahedra_with_binary_search(model_path, name, iteration, views, gaussians, pipeline, background, kernel_size, filter_mesh : bool, texture_mesh : bool, near : float, far : float, brdf_args=None):
     render_path = os.path.join(model_path, name, "ours_{}".format(iteration), "fusion")
 
     makedirs(render_path, exist_ok=True)
@@ -138,7 +138,7 @@ def extract_mesh(dataset : ModelParams, iteration : int, pipeline : PipelinePara
         kernel_size = dataset.kernel_size
         
         cams = scene.getTrainCameras()
-        marching_tetrahedra_with_binary_search(dataset.model_path, "test", iteration, cams, gaussians, pipeline, background, kernel_size, filter_mesh, texture_mesh, near, far)
+        marching_tetrahedra_with_binary_search(dataset.model_path, "test", iteration, cams, gaussians, pipeline, background, kernel_size, filter_mesh, texture_mesh, near, far, brdf_args=dataset)
 
 if __name__ == "__main__":
     # Set up command line argument parser

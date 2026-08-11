@@ -17,7 +17,7 @@ import torch
 import torchvision
 import random
 from random import randint
-from utils.loss_utils import l1_loss, ssim
+from utils.loss_utils import l1_loss, ssim, specular_sparsity_loss, normal_residual_loss
 from gaussian_renderer import render, network_gui
 import sys
 from scene import Scene, GaussianModel
@@ -91,8 +91,8 @@ def training(dataset, opt, pipe, testing_iterations, saving_iterations, checkpoi
     first_iter = 0
     tb_writer = prepare_output_and_logger(dataset)
     gaussians = GaussianModel(dataset.sh_degree)
-    scene = Scene(dataset, gaussians)
-    gaussians.training_setup(opt)
+    scene = Scene(dataset, gaussians)   # cria a iluminacao se dataset.brdf
+    gaussians.training_setup(opt)       # precisa vir depois: registra a iluminacao no Adam
     if checkpoint:
         (model_params, first_iter) = torch.load(checkpoint)
         gaussians.restore(model_params, opt)
@@ -145,7 +145,12 @@ def training(dataset, opt, pipe, testing_iterations, saving_iterations, checkpoi
             pipe.debug = True
 
         
-        render_pkg = render(viewpoint_cam, gaussians, pipe, background, kernel_size=dataset.kernel_size)
+        # Warm-up do BRDF: antes de brdf_from_iter o modelo treina como o GOF puro, para
+        # a geometria assentar. Ligar o especular na iteracao 0 o poe competindo com o
+        # difuso antes de existir superficie para refletir.
+        brdf_args = dataset if (dataset.brdf and iteration >= opt.brdf_from_iter) else None
+
+        render_pkg = render(viewpoint_cam, gaussians, pipe, background, kernel_size=dataset.kernel_size, brdf_args=brdf_args)
         rendering, viewspace_point_tensor, visibility_filter, radii = render_pkg["render"], render_pkg["viewspace_points"], render_pkg["visibility_filter"], render_pkg["radii"]
         
         image = rendering[:3, :, :]
@@ -186,6 +191,19 @@ def training(dataset, opt, pipe, testing_iterations, saving_iterations, checkpoi
         
         # Final loss
         loss = rgb_loss + depth_normal_loss * lambda_depth_normal + distortion_loss * lambda_distortion
+
+        # Regularizadores do BRDF. So entram quando o ramo especular esta ativo: antes do
+        # warm-up eles apenas empurrariam parametros que nao afetam a imagem.
+        specular_sparse_loss = torch.tensor(0.0, device="cuda")
+        normal_reg_loss = torch.tensor(0.0, device="cuda")
+        if brdf_args is not None:
+            if opt.lambda_specular_sparse > 0:
+                specular_sparse_loss = specular_sparsity_loss(gaussians.get_specular_tint)
+                loss = loss + opt.lambda_specular_sparse * specular_sparse_loss
+            if dataset.use_normal_residual and opt.lambda_normal_residual > 0:
+                normal_reg_loss = normal_residual_loss(gaussians.get_normal_residual)
+                loss = loss + opt.lambda_normal_residual * normal_reg_loss
+
         loss.backward()
         
         iter_end.record()
@@ -195,7 +213,7 @@ def training(dataset, opt, pipe, testing_iterations, saving_iterations, checkpoi
             with torch.no_grad():
                 eval_cam = allCameras[random.randint(0, len(allCameras) -1)]
                 
-                rendering = render(eval_cam, gaussians, pipe, background, kernel_size=dataset.kernel_size)["render"]
+                rendering = render(eval_cam, gaussians, pipe, background, kernel_size=dataset.kernel_size, brdf_args=brdf_args)["render"]
                 image = rendering[:3, :, :]
                 transformed_image = L1_loss_appearance(image, eval_cam.original_image.cuda(), gaussians, eval_cam.idx, return_transformed_image=True)
                 
@@ -244,7 +262,7 @@ def training(dataset, opt, pipe, testing_iterations, saving_iterations, checkpoi
                 progress_bar.close()
 
             # Log and save
-            training_report(tb_writer, iteration, Ll1, loss, l1_loss, iter_start.elapsed_time(iter_end), testing_iterations, scene, render, (pipe, background, dataset.kernel_size))
+            training_report(tb_writer, iteration, Ll1, loss, l1_loss, iter_start.elapsed_time(iter_end), testing_iterations, scene, render, (pipe, background, dataset.kernel_size), brdf_args=brdf_args)
             if (iteration in saving_iterations):
                 print("\n[ITER {}] Saving Gaussians".format(iteration))
                 scene.save(iteration)
@@ -300,12 +318,23 @@ def prepare_output_and_logger(args):
         print("Tensorboard not available: not logging progress")
     return tb_writer
 
-def training_report(tb_writer, iteration, Ll1, loss, l1_loss, elapsed, testing_iterations, scene : Scene, renderFunc, renderArgs):
+def training_report(tb_writer, iteration, Ll1, loss, l1_loss, elapsed, testing_iterations, scene : Scene, renderFunc, renderArgs, brdf_args=None):
     if tb_writer:
         tb_writer.add_scalar('train_loss_patches/l1_loss', Ll1.item(), iteration)
         tb_writer.add_scalar('train_loss_patches/total_loss', loss.item(), iteration)
         tb_writer.add_scalar('iter_time', elapsed, iteration)
         tb_writer.add_scalar('total_points', scene.gaussians.get_xyz.shape[0], iteration)
+        # Fase 5: em 6 GB o pico de VRAM e um resultado a reportar, nao so um detalhe
+        # operacional. Registrar sempre para que a tabela do artigo possa cita-lo.
+        tb_writer.add_scalar('vram/peak_gb', torch.cuda.max_memory_allocated() / 1024**3, iteration)
+        if brdf_args is not None:
+            g = scene.gaussians
+            # Se estas curvas ficarem chatas nos valores iniciais (0.05 / 0.70), o
+            # material nao esta aprendendo -- e o sintoma do bug A-1.
+            tb_writer.add_scalar('brdf/specular_tint_mean', g.get_specular_tint.mean().item(), iteration)
+            tb_writer.add_scalar('brdf/roughness_mean', g.get_roughness.mean().item(), iteration)
+            if g.lighting is not None:
+                tb_writer.add_scalar('brdf/light_mean', g.lighting.as_image().mean().item(), iteration)
 
     # Report test and samples of training set
     if iteration in testing_iterations:
@@ -318,7 +347,7 @@ def training_report(tb_writer, iteration, Ll1, loss, l1_loss, elapsed, testing_i
                 l1_test = 0.0
                 psnr_test = 0.0
                 for idx, viewpoint in enumerate(config['cameras']):
-                    rendering = renderFunc(viewpoint, scene.gaussians, *renderArgs)["render"]
+                    rendering = renderFunc(viewpoint, scene.gaussians, *renderArgs, brdf_args=brdf_args)["render"]
                     image = rendering[:3, :, :]
                     normal = rendering[3:6, :, :]
                     image = torch.clamp(image, 0.0, 1.0)
