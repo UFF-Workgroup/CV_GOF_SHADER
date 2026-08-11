@@ -14,7 +14,7 @@ from tetranerf.utils.extension import cpp
 from utils.tetmesh import marching_tetrahedra
 
 @torch.no_grad()
-def evaluage_alpha(points, views, gaussians, pipeline, background, kernel_size, return_color=False):
+def evaluage_alpha(points, views, gaussians, pipeline, background, kernel_size, return_color=False, brdf_args=None):
     final_alpha = torch.ones((points.shape[0]), dtype=torch.float32, device="cuda")
     if return_color:
         final_color = torch.ones((points.shape[0], 3), dtype=torch.float32, device="cuda")
@@ -53,7 +53,7 @@ def marching_tetrahedra_with_binary_search(model_path, name, iteration, views, g
         torch.save(cells, os.path.join(render_path, "cells.pt"))
     
     # evaluate alpha
-    alpha = evaluage_alpha(points, views, gaussians, pipeline, background, kernel_size)
+    alpha = evaluage_alpha(points, views, gaussians, pipeline, background, kernel_size, brdf_args=brdf_args)
 
     vertices = points.cuda()[None]
     tets = cells.cuda().long()
@@ -89,7 +89,7 @@ def marching_tetrahedra_with_binary_search(model_path, name, iteration, views, g
     for step in range(n_binary_steps):
         print("binary search in step {}".format(step))
         mid_points = (left_points + right_points) / 2
-        alpha = evaluage_alpha(mid_points, views, gaussians, pipeline, background, kernel_size)
+        alpha = evaluage_alpha(mid_points, views, gaussians, pipeline, background, kernel_size, brdf_args=brdf_args)
         mid_sdf = alpha_to_sdf(alpha).squeeze().unsqueeze(-1)
         
         ind_low = ((mid_sdf < 0) & (left_sdf < 0)) | ((mid_sdf > 0) & (left_sdf > 0))
@@ -104,7 +104,7 @@ def marching_tetrahedra_with_binary_search(model_path, name, iteration, views, g
             continue
         
         if texture_mesh:
-            _, color = evaluage_alpha(points, views, gaussians, pipeline, background, kernel_size, return_color=True)
+            _, color = evaluage_alpha(points, views, gaussians, pipeline, background, kernel_size, return_color=True, brdf_args=brdf_args)
             vertex_colors=(color.cpu().numpy() * 255).astype(np.uint8)
         else:
             vertex_colors=None
