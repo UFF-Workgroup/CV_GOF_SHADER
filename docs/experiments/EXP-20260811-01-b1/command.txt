@@ -1,0 +1,1 @@
+/home/geomesh/miniconda3/envs/gof/bin/python train.py -m /home/geomesh/Documentos/CV_GOF_SHADER/output/EXP-20260811-01-b1 -s /home/geomesh/Documentos/Truck -r 2 --sh_degree 0 --eval 

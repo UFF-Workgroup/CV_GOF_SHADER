@@ -57,6 +57,36 @@ O número correto a citar virá de B0/B1/E1/E2 conforme `04_PROTOCOLO.md`.
 
 ---
 
+### REF-fase2 — referência do baseline de 30k (treinado antes das correções)
+
+| | |
+|---|---|
+| Origem | `~/Documentos/gaussian-opacity-fields/output/fase2_linux_validacao` |
+| Config | Truck, `-r 2 --sh_degree 0 --eval`, 30 000 it |
+| **PSNR** | **25.236** |
+| SSIM | 0.8868 |
+| LPIPS | 0.1337 |
+
+Treinado com o código **anterior às correções**, mas é um baseline **válido do GOF puro**:
+os três tensores de material existiam e estavam sujeitos ao bug A-1, porém nenhum kernel os
+lia — eram peso morto e não influenciaram um único pixel. Serve como referência para B1.
+
+*Ressalva:* `--sh_degree 0` remove toda dependência de vista, o que isola bem o efeito do
+especular mas torna este baseline **artificialmente fraco** para comparação com a
+literatura. Por isso B0 (GOF upstream com defaults) continua necessário.
+
+### T8 — extração de malha com BRDF · `35e8843` + `96b8918`
+
+Malha extraída do modelo `SMOKE-20260810-02-brdf`: 1 123 849 vértices, 2 251 678 faces,
+**watertight**, zero faces degeneradas, 40,8 MB. 1 059 209 pontos tetra, 7 071 262
+tetraedros, 8 passos de busca binária.
+
+Rodar de verdade revelou um bug que nenhum teste unitário pegaria: `evaluage_alpha` usava
+`brdf_args` sem recebê-lo — extrair malha de modelo com BRDF estava quebrado
+(`NameError`). Corrigido em `96b8918`.
+
+---
+
 ## Runs planejados
 
 Ver a matriz completa em `04_PROTOCOLO.md`.
@@ -64,7 +94,7 @@ Ver a matriz completa em `04_PROTOCOLO.md`.
 | ID | Status | Pergunta |
 |---|---|---|
 | B0 | pendente | GOF upstream — referência da literatura |
-| B1 | pendente | árvore atual sem BRDF — a reversão CUDA foi neutra? |
+| B1 | **rodando** (`EXP-20260811-01-b1`) | árvore atual sem BRDF — a reversão CUDA foi neutra? Alvo: bater REF-fase2 (PSNR 25.236) dentro do ruído |
 | E1 | pendente | BRDF `light_frame=world` em Truck |
 | E2 | pendente | BRDF `light_frame=view` na cena de rocha — **contribuição principal** |
 | E3 | pendente | `sh_degree ∈ {0,1,2,3}` — quanto de $c_r$ é preciso? |
