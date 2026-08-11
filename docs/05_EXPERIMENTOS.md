@@ -112,6 +112,53 @@ Retomar dali não seria o mesmo treino. O run foi **relançado do zero** como
    incluindo o material) foi feita na Fase 1 — antes dela, retomar de checkpoint restauraria
    um modelo com material vazio.
 
+### EXP-20260811-02-b1 — **B1 concluído** · `97cf882`
+
+| | |
+|---|---|
+| Commit | `97cf882` (branch `feat/brdf-especular`) |
+| Cena / config | Truck, `-r 2 --sh_degree 0 --eval`, 30 000 it, sem `--brdf` |
+| **PSNR teste @30k** | **25.2311** |
+| PSNR treino @30k | 26.8324 |
+| L1 teste @30k | 0.03323 |
+| PSNR teste @7k | 24.0410 |
+| Gaussianas | 2 089 655 |
+| **Pico de VRAM** | **3.07 GB** (`max_memory_allocated`) |
+| Tempo total | 6 h 50 min (1,22 it/s médio) |
+
+**Comparação com REF-fase2 (25.2358): diferença de 0,005 dB.** Está uma ordem de grandeza
+abaixo do piso de ruído declarado (~0,1 dB), o que sustenta a conclusão de que **a reversão
+da plumbagem CUDA e as correções da auditoria foram neutras para o baseline** — que era a
+pergunta que B1 existe para responder.
+
+> **Ressalva de método, que impede tratar os 0,005 dB como medida fina.** Os dois números
+> vêm de caminhos de cálculo diferentes: 25.2311 é a avaliação interna do `train.py`
+> (tensores float em memória) e 25.2358 saiu do `metrics.py` (PNGs de 8 bits lidos do
+> disco). A quantização desloca o PSNR na casa de 0,01–0,05 dB — ou seja, **na mesma ordem
+> da diferença observada**. A concordância é forte evidência de neutralidade, mas a
+> comparação rigorosa exige rodar `render.py` + `metrics.py` sobre este run, pelo mesmo
+> caminho que produziu a referência. Pendente.
+
+**Notas de leitura da curva de perda.** Dois padrões aparecem no log e nenhum é
+divergência: (i) oscilações em 3k, 6k, 9k e 12k são os resets de opacidade
+(`iteration % 3000 == 0`, dentro do bloco `iteration < densify_until_iter`); (ii) um degrau
+em **15 000** (0,0495 → 0,0821 na média por janela), que é `distortion_from_iter` e
+`depth_normal_from_iter` ligando ao mesmo tempo, com `lambda_distortion = 100`. **A função
+de perda muda de definição em 15k**, então valores antes e depois não são comparáveis.
+
+**T9 (regressão de recursos): passa com folga.** Pico de 3,07 GB contra o teto de 5,5 GB.
+Sobram ~2,4 GB para o ramo BRDF nos runs E — margem confortável para os +7 parâmetros por
+Gaussiana previstos no orçamento.
+
+**Incidente de infraestrutura durante o run.** O driver NVIDIA foi atualizado no disco com
+o treino em andamento (NVML 595.84 vs. módulo 595.71.05 carregado), quebrando o
+`nvidia-smi`. O treino não foi afetado e processos CUDA novos continuaram subindo — só a
+interface de gerência caiu. A medição de VRAM do protocolo é imune por já usar
+`torch.cuda.max_memory_allocated()`, interno ao processo. **Um reboot pendente derruba
+qualquer treino em curso**; os checkpoints de 10k/20k/30k cobrem esse risco.
+
+---
+
 Os artefatos ficam arquivados em `docs/experiments/EXP-20260811-01-b1/` como registro do
 que foi executado, não como resultado.
 
@@ -124,7 +171,7 @@ Ver a matriz completa em `04_PROTOCOLO.md`.
 | ID | Status | Pergunta |
 |---|---|---|
 | B0 | pendente | GOF upstream — referência da literatura |
-| B1 | **rodando** (`EXP-20260811-02-b1`; a 1ª tentativa abortou por queda de energia) | árvore atual sem BRDF — a reversão CUDA foi neutra? Alvo: bater REF-fase2 (PSNR 25.236) dentro do ruído |
+| B1 | **concluído** (`EXP-20260811-02-b1`) — 25.2311 vs 25.2358, Δ 0,005 dB: **reversão neutra**. Falta o fechamento por `metrics.py` | árvore atual sem BRDF — a reversão CUDA foi neutra? |
 | E1 | pendente | BRDF `light_frame=world` em Truck |
 | E2 | pendente | BRDF `light_frame=view` na cena de rocha — **contribuição principal** |
 | E3 | pendente | `sh_degree ∈ {0,1,2,3}` — quanto de $c_r$ é preciso? |
