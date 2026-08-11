@@ -107,7 +107,22 @@ reportar, não detalhe operacional.
 **Saúde do material:** médias de `specular_tint` e `roughness` no tensorboard. Curvas
 chatas nos valores iniciais (0.05 / 0.70) significam material não aprendendo — o sintoma
 do bug A-1.
-**Relighting:** renders qualitativos com o envmap substituído.
+**Relighting:** renders qualitativos com o envmap substituído — `scripts/relight.py`.
+
+```bash
+python scripts/relight.py -m output/<RUN_ID> --views 0 12 24
+```
+
+Quatro baterias sintéticas (procedurais, sem HDR externo), cada uma variando **uma**
+dimensão: `estudio_lateral` (fonte única e aguda), `contraluz_dupla` (duas fontes de
+temperaturas opostas), `ceu_chao` (baixa frequência pura) e `uniforme` (sem estrutura).
+Todas são reescalonadas para a **mesma radiância média do mapa aprendido** — sem isso a
+comparação mede exposição, não distribuição de luz. O mapa aprendido entra como controle.
+
+`uniforme` não é decoração: é o **controle negativo**. Se a imagem sob luz uniforme for
+indistinguível da renderizada com o mapa aprendido, o ramo especular não está
+contribuindo — e nenhuma métrica de NVS revelaria isso sozinha, porque um especular
+inerte não piora o PSNR, só deixa de ajudar.
 
 ---
 
