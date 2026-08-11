@@ -85,6 +85,36 @@ Rodar de verdade revelou um bug que nenhum teste unitário pegaria: `evaluage_al
 `brdf_args` sem recebê-lo — extrair malha de modelo com BRDF estava quebrado
 (`NameError`). Corrigido em `96b8918`.
 
+### EXP-20260811-01-b1 — **ABORTADO** (queda de energia), não é resultado
+
+| | |
+|---|---|
+| Commit | `96b8918` |
+| Config | Truck, `-r 2 --sh_degree 0 --eval`, 30 000 it |
+| Início | 2026-08-11 00:18:22 |
+| Última evidência | `point_cloud/iteration_7000/` gravado às 01:27:51 |
+| Desfecho | processo morto por queda de energia; **sem métricas** |
+
+O treino passou da iteração 7000 e foi interrompido em algum ponto depois. Não havia
+`--checkpoint_iterations`, então **não existe estado do otimizador para retomar** — o PLY
+de 7000 guarda os parâmetros, mas não os momentos do Adam nem o estado da densificação.
+Retomar dali não seria o mesmo treino. O run foi **relançado do zero** como
+`EXP-20260811-02-b1`.
+
+**Duas lições incorporadas ao processo, não só ao relato:**
+
+1. **O log foi perdido junto.** `train.log` tem apenas 6 linhas úteis, terminando em
+   "Computing 3D filter", porque o stdout do Python estava bufferizado e nunca foi
+   descarregado. `scripts/run_experiment.sh` passou a invocar `python -u`.
+2. **Runs longos agora salvam checkpoint.** Em 30k iterações num ambiente sem no-break, a
+   probabilidade de perder tudo não é desprezível. Os runs longos passam a usar
+   `--checkpoint_iterations`. Isso só é seguro porque a correção A-2 (`capture`/`restore`
+   incluindo o material) foi feita na Fase 1 — antes dela, retomar de checkpoint restauraria
+   um modelo com material vazio.
+
+Os artefatos ficam arquivados em `docs/experiments/EXP-20260811-01-b1/` como registro do
+que foi executado, não como resultado.
+
 ---
 
 ## Runs planejados
@@ -94,7 +124,7 @@ Ver a matriz completa em `04_PROTOCOLO.md`.
 | ID | Status | Pergunta |
 |---|---|---|
 | B0 | pendente | GOF upstream — referência da literatura |
-| B1 | **rodando** (`EXP-20260811-01-b1`) | árvore atual sem BRDF — a reversão CUDA foi neutra? Alvo: bater REF-fase2 (PSNR 25.236) dentro do ruído |
+| B1 | **rodando** (`EXP-20260811-02-b1`; a 1ª tentativa abortou por queda de energia) | árvore atual sem BRDF — a reversão CUDA foi neutra? Alvo: bater REF-fase2 (PSNR 25.236) dentro do ruído |
 | E1 | pendente | BRDF `light_frame=world` em Truck |
 | E2 | pendente | BRDF `light_frame=view` na cena de rocha — **contribuição principal** |
 | E3 | pendente | `sh_degree ∈ {0,1,2,3}` — quanto de $c_r$ é preciso? |

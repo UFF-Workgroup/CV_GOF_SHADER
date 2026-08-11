@@ -47,7 +47,7 @@ fi
 
 git -C "$REPO" rev-parse HEAD > "$META/commit.txt"
 git -C "$REPO" rev-parse --abbrev-ref HEAD >> "$META/commit.txt"
-printf '%q ' "$PY" train.py -m "$OUT" "$@" > "$META/command.txt"
+printf '%q ' "$PY" -u train.py -m "$OUT" "$@" > "$META/command.txt"
 
 {
     echo "run_id:   $RUN_ID"
@@ -60,7 +60,10 @@ printf '%q ' "$PY" train.py -m "$OUT" "$@" > "$META/command.txt"
 
 echo "[run_experiment] $RUN_ID -> $OUT"
 cd "$REPO"
-"$PY" train.py -m "$OUT" "$@" 2>&1 | tee "$META/train.log"
+# -u (unbuffered): sem isso o stdout do Python so e descarregado no fim, e uma queda de
+# energia no meio do treino leva junto TODO o log -- foi exatamente o que aconteceu na
+# primeira tentativa do B1 (EXP-20260811-01-b1), que perdeu 7000 iteracoes de registro.
+"$PY" -u train.py -m "$OUT" "$@" 2>&1 | tee "$META/train.log"
 
 # cfg_args e a config efetiva; guarda-la ao lado das metricas evita ter de reconstruir
 # depois quais flags estavam ligados.
