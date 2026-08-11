@@ -35,3 +35,11 @@ exp*
 eval_tnt/TrainingSet
 dtu_eval/Offical_DTU_Dataset
 __pycache__
+
+# --- Rastreabilidade científica ---
+# As regras acima ignoram output/, *.json, *.png, *.ply e *.npy, o que descartaria
+# todo artefato de experimento. docs/experiments/ é a exceção deliberada: é lá que
+# ficam cfg_args, commit.txt, metrics.json, env.txt e renders de amostra de cada run.
+# Sem isso, nenhum número do artigo é rastreável até um commit.
+!docs/experiments/
+!docs/experiments/**
