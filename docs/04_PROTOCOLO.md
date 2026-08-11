@@ -113,7 +113,29 @@ do bug A-1.
 
 ## Orçamento de VRAM
 
-Medido para Truck `-r 2` (~2,0 M Gaussianas):
+> **Meça com `torch.cuda.max_memory_allocated()`, não com `nvidia-smi`.**
+> Medido em B1 (Truck `-r 2 --sh_degree 0`, iteração 6777, 1,64 M Gaussianas):
+> `nvidia-smi` reportava **5,67 GB** enquanto o pico real de alocação era **2,91 GB**.
+> A diferença de ~2× é o pool reservado-mas-livre do alocador do PyTorch mais o contexto
+> CUDA — o PyTorch cresce a pool e não a devolve. Ler `nvidia-smi` levaria à conclusão
+> falsa de que o treino está a 92 % do limite e prestes a estourar.
+>
+> O valor de `vram/peak_gb` já vai para o tensorboard a cada iteração; é ele que deve
+> entrar na tabela do artigo.
+
+**Curva medida em B1** (pico alocado, GB):
+
+| iteração | 848 | 1695 | 2542 | 3389 | 4236 | 5083 | 5930 | 6777 |
+|---|---|---|---|---|---|---|---|---|
+| pico (GB) | 1,86 | 2,16 | 2,46 | 2,58 | 2,63 | 2,77 | 2,89 | 2,91 |
+| Gaussianas (M) | 0,18 | 0,67 | 1,15 | 1,08 | 1,43 | 1,64 | 1,84 | 1,64 |
+
+Os incrementos caem (0,30 → 0,30 → 0,12 → 0,05 → 0,14 → 0,12 → 0,02) e a contagem de
+Gaussianas **oscila** em vez de crescer monotonamente, porque poda e reset de opacidade
+contrabalançam a densificação. Com `sh_degree=0` sobra folga confortável nos 6 GB.
+
+**Estimativa analítica** de parâmetros + gradiente + 2 estados do Adam, para
+dimensionar configurações ainda não medidas (~2,0 M Gaussianas):
 
 | Configuração | Params/Gauss. | VRAM (param+grad+2 Adam) |
 |---|---|---|
