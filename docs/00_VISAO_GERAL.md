@@ -17,6 +17,7 @@ volumétrica do **Gaussian Opacity Fields (GOF)**, para reconstrução de gêmeo
 | Ver os números medidos | [`05_EXPERIMENTOS.md`](05_EXPERIMENTOS.md) |
 | Saber o que estava quebrado no código herdado | [`06_AUDITORIA.md`](06_AUDITORIA.md) |
 | Saber onde o método falha | [`07_LIMITACOES.md`](07_LIMITACOES.md) |
+| Consultar as fórmulas dos artigos-fonte, com equação/seção/página | [`08_ARTIGOS_REFERENCIA.md`](08_ARTIGOS_REFERENCIA.md) |
 | O plano completo original | [`00_PLANO_MESTRE.md`](00_PLANO_MESTRE.md) |
 
 `ARQUIVO_GUIA_DA_APLICACAO_v1.md` é o guia anterior, **arquivado e supersedido** — suas
