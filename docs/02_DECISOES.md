@@ -235,3 +235,50 @@ inicialização, otimizador, densificação, poda, checkpoint e PLY são todos d
 A causa raiz — manter listas de parâmetros em sincronia à mão em cinco lugares — deixa
 de existir. É defesa **estrutural**, não apenas um teste, porque a falha é silenciosa e
 um teste só protege o que alguém lembrou de testar.
+
+---
+
+## ADR-010 — Sem máscaras de fundo na cena de testemunho (premissa medida, não suposta)
+
+**Data:** 2026-08-12 · **Status:** aceito
+
+**Contexto.** A captura do testemunho FS16 põe a amostra sobre dois roletes que a giram
+enquanto a câmera fotografa faixa a faixa, do topo para a base. Dentro de uma faixa a
+câmera fica **parada**. Essa configuração tem um modo de falha clássico e silencioso no
+SfM: um fundo estático visto por uma câmera parada tem **paralaxe zero**, o COLMAP casa
+essas features de bom grado, conclui que a câmera não se moveu, e o objeto — a única
+coisa que se move — vira outlier. Sai uma reconstrução; só que errada.
+
+Pelo risco, o plano previa mascarar o fundo antes do COLMAP. A máscara seria obtida sem
+modelo aprendido: dentro de uma faixa o fundo é constante no tempo e a rocha não, então o
+desvio-padrão temporal por pixel separaria os dois.
+
+**O que a medição mostrou.** Duas coisas, ambas contra a hipótese:
+
+1. **Não há fundo estático a mascarar.** A região escura aparece com 33 % do quadro em
+   **um** dos 72 quadros (o 001) e cai para 1–3 % nos demais — e essa fração residual é
+   sombra da própria rocha. O que parecia fundo é a borda do cilindro girando para fora de
+   vista: rastreando a região escura ao longo da faixa 01, o centroide anda junto com a
+   textura, em vez de ficar parado como um fundo ficaria.
+2. **O discriminador não discrimina.** Numa região de fundo declarado, o desvio-padrão
+   temporal deu **28,9**, contra **21,1** na rocha. Otsu, aplicado a uma distribuição
+   dominada por rocha, escolhe um limiar *dentro* da rocha: as máscaras resultantes
+   cobriam de 33 % a 66 % do quadro e recortavam o próprio testemunho.
+
+**Decisão.** Não mascarar. O COLMAP roda pelo `convert.py` upstream, idêntico ao usado no
+Truck — o que preserva a comparabilidade entre as duas cenas e elimina uma etapa não
+justificada do protocolo.
+
+**O que sobrevive do trabalho descartado.** A verificação da estrutura da captura, em
+`scripts/prepare_turntable.py check`: por correlação de fase, o passo entre quadros
+consecutivos é constante dentro da faixa (o giro, +0,437 do quadro) e destoa na troca de
+faixa (o deslize da câmera). Os 7 passos atípicos caíram **exatamente** nas 7 fronteiras
+esperadas, nenhum fora — confirmando 8 faixas × 9 poses = 72 a partir dos pixels, e não
+do relato. É esse teste que sustenta a suposição de orientação de câmera constante da qual
+`--light_frame view` depende (ADR-002).
+
+**Consequência de método.** A hipótese do fundo estático era plausível, barata de testar e
+falsa. Testá-la custou noventa segundos de estatística; aceitá-la teria custado um COLMAP
+sobre máscaras que cortam a amostra — e, pior, uma reconstrução plausível o bastante para
+não levantar suspeita. Vale como precedente: **premissa sobre os dados se mede antes de
+virar etapa de pipeline.**

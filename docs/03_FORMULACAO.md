@@ -123,7 +123,11 @@ comportamento físico correto, e o análogo contínuo dos mips.
 Esta é a adaptação central do trabalho ao setup de captura, e o resultado é **exato**, não
 aproximado.
 
-**Setup.** O testemunho gira sobre uma mesa; a câmera e as luzes ficam paradas na sala.
+**Setup.** O testemunho repousa sobre **dois roletes que o giram** em torno do próprio eixo,
+enquanto a câmera fotografa faixa a faixa, do topo para a base. As luzes ficam paradas na
+bancada. Dentro de uma faixa a câmera não se move; entre faixas ela **desliza paralela ao
+eixo do cilindro, mantendo a orientação**. Medido em `preparo/captura.json`: 8 faixas × 9
+poses de rotação = 72 fotos.
 
 **Referenciais.**
 - $O$: referencial do **objeto**. É o que o COLMAP reconstrói, porque o COLMAP vê o objeto
@@ -166,11 +170,17 @@ próprio mapa aprendido.
 > Uma única linha (`reflect_dirs @ R_w2v.T`) resolve exatamente um erro de modelagem que
 > invalidaria todos os reflexos.
 
-**Suposição, e quando ela quebra.** A prova usa que $C$ é constante, ou seja, **uma única
-estação de câmera**. Com $K$ alturas ou anéis de câmera, existem $C_1,\dots,C_K$ distintos
-e um único $L'$ não serve para todos. Mitigação prevista: uma rotação aprendível por
-estação (`--num_light_stations`). Antes de rodar as cenas de rocha é preciso saber quantas
-posições de câmera a captura usa.
+**Suposição, e quando ela quebra.** A prova usa que $C$ é constante. É importante notar
+**o que exatamente precisa ser constante: só a rotação sala→câmera, não a posição.** As 8
+faixas são 8 posições distintas de câmera, mas diferem por uma **translação** ao longo do
+eixo do cilindro, e translação não altera $C$. Logo a prova vale para as 72 fotos, e a
+mitigação por rotação aprendível por estação (`--num_light_stations`) **não é necessária**
+nesta captura.
+
+Ela voltaria a ser necessária se a câmera fosse reapontada ou inclinada entre faixas — o
+que é verificável a posteriori nas poses do COLMAP (`scripts/inspect_poses.py`), e não
+apenas declarado. Com $K$ orientações distintas existiriam $C_1,\dots,C_K$ e um único $L'$
+não serviria para todas.
 
 **Caso de controle.** Em Truck (Tanks&Temples) o objeto está parado e a câmera orbita, com
 o sol fixo no mundo — o caso oposto. Lá o correto é `--light_frame world`, que recupera o

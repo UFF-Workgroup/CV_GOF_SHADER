@@ -48,11 +48,33 @@ Consequências práticas, que precisam constar do artigo:
 fixo: é o regime em que `--light_frame world` é o fisicamente correto. Tem ground-truth de
 malha e permite comparação com a literatura.
 
-**Testemunhos de rocha** — cena **alvo**. Mesa giratória, luz fixa na sala:
-`--light_frame view`. *Bloqueio atual:* falta saber quantas estações de câmera a captura
-usa (ver `03_FORMULACAO.md` §6).
+**Testemunho FS16** (`~/Documentos/rocha_fs16_16cm`) — cena **alvo**, `--light_frame view`.
 
-Split: `--eval` (o holdout padrão do 3DGS, cada 8ª imagem para teste).
+A amostra gira sobre **dois roletes** enquanto a câmera fotografa faixa a faixa, do topo
+para a base; as luzes ficam paradas na bancada. Cada foto é um *focus stack* de 15 camadas
+(1080 fotos brutas → 72 finais, 9504×6336).
+
+A estrutura da captura é **verificada a partir dos pixels**, não do relato
+(`scripts/prepare_turntable.py check` → `preparo/captura.json`): por correlação de fase o
+passo entre quadros consecutivos é constante dentro da faixa (+0,437 do quadro, dispersão
+0,007) e destoa na troca de faixa. Os **7 passos atípicos caem exatamente nas 7 fronteiras
+esperadas, nenhum fora** — confirmando 8 faixas × 9 poses = 72.
+
+*O bloqueio das estações de câmera está resolvido, e pela via boa:* as 8 faixas diferem por
+uma **translação** ao longo do eixo, e a derivação de `03_FORMULACAO.md` §6 exige apenas que
+a **rotação** sala→câmera seja constante. `--num_light_stations` não é necessário aqui; a
+verificação a posteriori nas poses está em `scripts/inspect_poses.py`.
+
+*Sem máscaras de fundo* — a premissa de fundo estático foi medida e é falsa nesta captura
+(ADR-010). O COLMAP roda pelo `convert.py` upstream, o mesmo usado em Truck.
+
+**Resolução de treino.** As fotos originais são grandes demais; `prepare_turntable.py
+images --downscale 8` gera `images_8/` (1188×792) a partir das imagens não distorcidas,
+comparável ao Truck em `-r 2` (960×540). Treina-se com `-i images_8 -r 1`.
+
+Split: `--eval` (o holdout padrão do 3DGS, cada 8ª imagem para teste). Com 72 fotos em
+faixas de 9, o passo 8 faz o holdout **caminhar** pelos índices de rotação e pelas faixas —
+as 9 vistas de teste não se concentram numa faixa nem num ângulo.
 
 ---
 
@@ -61,7 +83,8 @@ Split: `--eval` (o holdout padrão do 3DGS, cada 8ª imagem para teste).
 | ID | Configuração | Pergunta que responde |
 |---|---|---|
 | **B0** | GOF upstream, defaults | referência da literatura |
-| **B1** | árvore atual, sem `--brdf` | a reversão CUDA e as correções foram neutras? |
+| **B1** | árvore atual, sem `--brdf`, Truck | a reversão CUDA e as correções foram neutras? |
+| **B2** | árvore atual, sem `--brdf`, **rocha** | controle da cena alvo — é contra ele que E2 se mede |
 | **E1** | `--brdf --light_frame world`, Truck | o especular ajuda com luz fixa no mundo? |
 | **E2** | `--brdf --light_frame view`, rocha | **contribuição principal** |
 | **E3** | E2 × `--sh_degree {0,1,2,3}` | quanto de $c_r$ é preciso com especular explícito? |
@@ -73,7 +96,13 @@ Split: `--eval` (o holdout padrão do 3DGS, cada 8ª imagem para teste).
 **B1 é obrigatório antes de qualquer E.** Se B1 divergir de B0 além do ruído, algo nas
 correções mudou o baseline e todo E fica sem referência.
 
-**Marco de decisão.** Se E2 não superar B1 **em NVS e em geometria**, parar e diagnosticar
+**Por que B2 existe.** A redação anterior mandava comparar E2 (rocha) com B1 (Truck) — o que
+não é comparação: são cenas, resoluções e dificuldades diferentes, e a diferença de PSNR
+entre elas não diz nada sobre o especular. O controle de uma cena tem de ser a **mesma cena**
+com a **mesma configuração**, mudando só `--brdf`. B2 é esse controle, e é pré-requisito de
+E2 como B1 é dos runs em Truck.
+
+**Marco de decisão.** Se E2 não superar B2 **em NVS e em geometria**, parar e diagnosticar
 antes de seguir com as ablações. A hipótese de que o especular ajuda pode não valer para
 rocha fosca — e isso, com evidência, também é publicável.
 
