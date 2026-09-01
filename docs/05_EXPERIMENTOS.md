@@ -173,6 +173,29 @@ que foi executado, não como resultado.
 
 ---
 
+### EXP-20260901-01-e1 (tentativa 1) — **ABORTADO** (loss NaN), não é resultado
+
+| | |
+|---|---|
+| Commit | `0a4567d` |
+| Config | Truck, `-r 2 --sh_degree 0 --eval --brdf --light_frame world`, 30 000 it |
+| Início | 2026-09-01 14:52 |
+| Loss finito até | iteração 3010 (0,0632) |
+| Loss NaN a partir de | iteração 3020 — dez iterações depois de `brdf_from_iter=3000` |
+| Desfecho | processo interrompido manualmente ~4200 it (loss NaN havia mais de 1000 it) |
+
+Achado durante o monitoramento, não um crash silencioso: o processo continuou vivo (sem
+OOM, VRAM em 5,1/6,1 GB, dentro do teto), só que produzindo `NaN` desde a primeira leva
+de iterações com o ramo especular ligado. Causa raiz identificada e corrigida como
+**A-5** (`06_AUDITORIA.md`): singularidade de gradiente nos polos do envmap
+equirretangular (`atan2`/`acos`). Nenhum checkpoint chegara a ser salvo (interrupção
+antes dos 10k), então não há nada para retomar — relançado do zero, sobre o commit com
+a correção, como `EXP-20260901-02-e1` (mesma convenção de `EXP-20260811-02-b1`: RUN_ID
+novo em vez de reaproveitar o antigo, para não misturar as linhas do tensorboard de uma
+tentativa que rodou até NaN com a retomada limpa).
+
+---
+
 ## Runs planejados
 
 Ver a matriz completa em `04_PROTOCOLO.md`.
@@ -181,7 +204,7 @@ Ver a matriz completa em `04_PROTOCOLO.md`.
 |---|---|---|
 | B0 | pendente | GOF upstream — referência da literatura |
 | B1 | **concluído e fechado** (`EXP-20260811-02-b1`) — PSNR 25.2200 vs 25.2358 (Δ 0,016 dB), SSIM e LPIPS idem: **reversão neutra** | árvore atual sem BRDF — a reversão CUDA foi neutra? |
-| E1 | pendente | BRDF `light_frame=world` em Truck |
+| E1 | tentativa 1 abortada por A-5 (NaN); tentativa 2 relançada após o fix | BRDF `light_frame=world` em Truck |
 | E2 | pendente | BRDF `light_frame=view` na cena de rocha — **contribuição principal** |
 | E3 | pendente | `sh_degree ∈ {0,1,2,3}` — quanto de $c_r$ é preciso? |
 | E4 | pendente | `light_repr=sh` vs `envmap` |

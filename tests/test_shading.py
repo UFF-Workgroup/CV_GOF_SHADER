@@ -306,6 +306,42 @@ def test_envmap_roughness_blurs_the_reflection():
     assert blurry.var().item() < sharp.var().item(), "rugosidade nao borrou a iluminacao"
 
 
+def test_a5_envmap_gradient_finite_near_poles():
+    """A-5: direcao_to_equirect_uv nao pode devolver gradiente NaN/Inf perto dos polos.
+
+    Achado no run E1 (Truck, --brdf --light_frame world): loss finito ate a iteracao
+    3010, NaN a partir da 3020 -- exatamente as primeiras iteracoes com o ramo especular
+    ligado (brdf_from_iter=3000). Causa raiz: acos (v) e atan2 (u) tem gradiente que
+    diverge/vira 0/0 no polo do envmap (x=z=0, y=+-1). Com >1e5 Gaussianas por
+    iteracao, bastou uma cair perto o bastante do polo para contaminar rotation/scaling
+    dela via Adam, e dai a imagem inteira. Este teste reproduz exatamente o gatilho:
+    algumas direcoes EXATAMENTE no polo dentro de um lote grande.
+    """
+    from scene.lighting import direction_to_equirect_uv
+
+    # ponto exato do polo, isolado
+    for y_pole in (1.0, -1.0):
+        d = torch.tensor([[0.0, y_pole, 0.0]], device="cuda", requires_grad=True)
+        direction_to_equirect_uv(d).sum().backward()
+        assert torch.isfinite(d.grad).all(), f"grad nao-finito em y={y_pole} exato (polo)"
+
+    # lote grande com uma fracao forcada exatamente no polo, como no run real
+    torch.manual_seed(0)
+    n = 50_000
+    dirs = torch.nn.functional.normalize(torch.randn(n, 3, device="cuda"), dim=-1)
+    with torch.no_grad():
+        dirs[:20, 0] = 0.0
+        dirs[:20, 2] = 0.0
+        dirs[:20, 1] = 1.0
+    dirs.requires_grad_(True)
+
+    env = EnvironmentMap(resolution=64, num_levels=6).cuda()
+    roughness = torch.full((n, 1), 0.7, device="cuda")
+    env.sample(dirs, roughness).sum().backward()
+    assert torch.isfinite(dirs.grad).all(), "gradiente nao-finito perto do polo do envmap (A-5)"
+    assert torch.isfinite(env.base.grad).all(), "NaN/Inf vazou para os parametros do envmap (A-5)"
+
+
 def test_sh_lighting_attenuates_high_frequency_with_roughness():
     light = SHLighting(degree=3).cuda()
     with torch.no_grad():

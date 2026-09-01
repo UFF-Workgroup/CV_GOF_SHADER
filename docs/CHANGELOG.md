@@ -1,5 +1,26 @@
 # Changelog
 
+## 2026-09-01 (2) — Fix A-5: NaN no polo do envmap, achado na primeira tentativa de E1
+
+**Achado.** A primeira tentativa do run E1 (Truck, `--brdf --light_frame world`) foi a
+NaN na iteração 3020, dez iterações depois de `brdf_from_iter=3000` ligar o especular.
+Causa: `direction_to_equirect_uv` (`scene/lighting.py`) usa `atan2`/`acos` para mapear
+direção 3D em UV do envmap; ambos têm gradiente singular no polo do mapa (`x=z=0`,
+`y=±1`) -- `atan2` degenera numa forma `0/0` ali, produzindo NaN direto. Com >1e5
+Gaussianas por iteração, bastou uma cair perto o bastante do polo para contaminar o
+otimizador inteiro. Ver `06_AUDITORIA.md` A-5.
+
+**Correção.** Direção afastada do polo por epsilon antes de `atan2`/`acos`: viés
+desprezível (~1e-4 rad, abaixo da resolução de um texel), gradiente perto do polo passa
+a ser grande porém finito. Teste novo de regressão
+(`test_a5_envmap_gradient_finite_near_poles`), verificado também com estresse de 2M
+direções aleatórias. Suíte: 36/36 passando (era 35).
+
+`scripts/run_experiment.sh` passou a gravar um `.log` por execução (timestampado, sem
+sobrescrever tentativas anteriores) tanto em `output/<RUN_ID>/logs/` quanto em
+`docs/experiments/<RUN_ID>/` -- a tentativa que crashou com NaN teria seu próprio
+arquivo preservado ao lado da retomada, em vez de ser sobrescrita.
+
 ## 2026-09-01 — Auditoria de checkpoint: A-4
 
 **Achado.** `capture()`/`restore()` (`scene/gaussian_model.py`) nunca persistiam

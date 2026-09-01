@@ -26,10 +26,32 @@ def direction_to_equirect_uv(dirs):
 
     Convencao: y para cima, v=0 no polo superior. A escolha exata e arbitraria desde
     que consistente -- o mapa aprendido se acomoda a ela.
+
+    NaN silencioso (achado 2026-09-01, run E1): esta parametrizacao tem DUAS
+    singularidades de gradiente coincidentes no polo (x=z=0, y=+-1):
+      1. d(acos)/dy = -1/sqrt(1-y^2) diverge quando y -> +-1.
+      2. d(atan2)/d(x,z) = (z,-x)/(x^2+z^2) e uma forma 0/0 quando x=z=0 -- vira NaN,
+         nao apenas grande, porque numerador E denominador zeram juntos.
+    Com >1e5 Gaussianas por iteracao, alguma direcao de reflexao cai exatamente ou perto
+    o bastante do polo para essas formas degenerarem em fp32. Uma unica Gaussiana com
+    gradiente NaN contamina rotation/scaling dela via Adam, dai a cor de toda imagem que
+    a inclui, e a partir dai a perda inteira -- foi exatamente o que aconteceu no run E1
+    (Truck, --brdf --light_frame world): loss finito ate a iteracao 3010, NaN a partir da
+    3020 (a primeira leva de iteracoes com o ramo especular ligado). Reproduzido
+    isoladamente para as duas formas (ver docs/06_AUDITORIA.md, achado A-5).
+
+    Corrigido afastando a direcao do polo por um epsilon antes de atan2/acos: o vies
+    introduzido e da ordem de eps radianos, muito abaixo da resolucao de um texel do
+    envmap, e o gradiente perto do polo fica grande mas finito -- o que o Adam absorve
+    normalmente (e para o que ele foi desenhado), ao contrario de NaN/Inf.
     """
+    eps = 1e-4
     x, y, z = dirs[..., 0], dirs[..., 1], dirs[..., 2]
-    u = torch.atan2(x, -z) / (2.0 * math.pi) + 0.5      # [0,1]
-    v = torch.acos(torch.clamp(y, -1.0, 1.0)) / math.pi  # [0,1]
+    # So importa perto do polo (x=z=0): af asta o componente horizontal de zero sem
+    # alterar visivelmente a direcao em nenhum outro ponto (|x|,|z| tipicamente O(1)).
+    x_safe = torch.where((x.abs() < eps) & (z.abs() < eps), x + eps, x)
+    u = torch.atan2(x_safe, -z) / (2.0 * math.pi) + 0.5      # [0,1]
+    v = torch.acos(torch.clamp(y, -1.0 + eps, 1.0 - eps)) / math.pi  # [0,1]
     return torch.stack([u * 2.0 - 1.0, v * 2.0 - 1.0], dim=-1)
 
 

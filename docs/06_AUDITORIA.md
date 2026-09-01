@@ -146,6 +146,55 @@ estrutural em vez de só documentada.
 
 ---
 
+## A-5 · Gradiente NaN nos polos do envmap — **crítico, silencioso** (achado 2026-09-01, run E1)
+
+**Local.** `scene/lighting.py`, `direction_to_equirect_uv`.
+
+**O que aconteceu.** A primeira tentativa de E1 (Truck, `--brdf --light_frame world`,
+`sh_degree=0`) rodou normalmente até a iteração 3010 (loss caindo de 0,26 para 0,06) e
+virou `Loss=nan` na iteração 3020 — exatamente as primeiras dez iterações depois de
+`brdf_from_iter=3000` ligar o ramo especular — e ficou `NaN` por mais de mil iterações
+seguidas, sem se recuperar. VRAM estava normal (5,1/6,1 GB); não era OOM.
+
+**Causa raiz.** A conversão de direção 3D para coordenadas do envmap equirretangular usa
+`atan2(x,-z)` para o azimute e `acos(y)` para a elevação. As duas têm singularidade de
+**gradiente** exatamente no polo do mapa (`x=z=0`, `y=±1`):
+
+$$\frac{\partial\,\mathrm{acos}(y)}{\partial y} = \frac{-1}{\sqrt{1-y^2}} \xrightarrow{y\to\pm1} \infty
+\qquad\qquad
+\frac{\partial\,\mathrm{atan2}(x,z)}{\partial(x,z)} = \left(\frac{z}{x^2+z^2},\frac{-x}{x^2+z^2}\right) \xrightarrow{x,z\to 0} \frac{0}{0}$$
+
+A segunda é a mais perigosa: `x=z=0` é uma forma `0/0` — produz **NaN diretamente**, não
+apenas um número grande. Com dezenas a centenas de milhares de Gaussianas por iteração,
+alguma direção de reflexão cai exata ou numericamente perto o bastante do polo (em
+fp32) para uma das duas formas degenerar. Uma única Gaussiana com gradiente `NaN`
+contamina `_rotation`/`_scaling` dela via Adam; a partir daí sua cor fica `NaN` em toda
+imagem que a inclui, e a perda de qualquer iteração que amostre essa imagem também.
+
+**Por que os testes existentes não pegaram isto.** T2 ("fluxo de gradiente") só verifica
+que `.grad` é **não-nulo**, com poucas direções aleatórias — a chance de uma amostra
+aleatória pequena cair exatamente no polo é desprezível. O bug só se manifesta em
+escala: com >1e5 amostras por iteração ao longo de milhares de iterações, a
+probabilidade acumulada deixa de ser desprezível. Reproduzido isoladamente (ver
+`test_a5_envmap_gradient_finite_near_poles` em `tests/test_shading.py`): uma direção
+`(0,1,0)` isolada já basta para produzir `grad = [nan, 0, nan]` antes da correção.
+
+**Correção.** `direction_to_equirect_uv` afasta a direção do polo por um epsilon
+(`1e-4`) antes de `atan2`/`acos`: o viés introduzido é da ordem do epsilon em radianos,
+muito abaixo da resolução de um texel do envmap, e o gradiente perto do polo passa a
+ser grande porém **finito** — que é exatamente o regime que o Adam já sabe absorver
+(normaliza pela variância acumulada), ao contrário de `NaN`/`Inf`. Verificado com um
+teste de estresse de 2 milhões de direções aleatórias e com o lote exato que causou o
+crash original (50 mil direções, 20 delas forçadas no polo): gradiente finito em ambos.
+
+**Alcance.** Afeta qualquer treino com `--brdf` e `--light_repr envmap` (o default) —
+ou seja, **todos** os runs BRDF planejados (E1, E2, E4 no modo envmap) estavam
+vulneráveis. `--light_repr sh` (SHLighting) não usa `direction_to_equirect_uv` e não é
+afetado por esta forma específica do bug, mas não foi auditado a fundo para outras
+singularidades.
+
+---
+
 ## B-1 · Tensores de CPU cruzando a fronteira CUDA
 
 `diff_gaussian_rasterization/__init__.py` criava `torch.Tensor([])` — um tensor de **CPU**

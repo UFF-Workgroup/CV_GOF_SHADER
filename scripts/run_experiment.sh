@@ -77,13 +77,27 @@ printf '%q ' "$PY" -u train.py -m "$OUT" "${ARGS[@]}" > "$META/command.txt"
 
 echo "[run_experiment] $RUN_ID -> $OUT"
 cd "$REPO"
+
+# Um .log por EXECUCAO (nao por RUN_ID): retomar apos uma queda/crash com o mesmo
+# RUN_ID sobrescreveria o log da tentativa anterior num "tee" de nome fixo -- e seria
+# perder exatamente o registro de que algo deu errado (ex.: a tentativa que termina em
+# NaN). Carimbado com timestamp e gravado tanto em $OUT (junto dos checkpoints/point
+# cloud dessa run) quanto em $META (pasta de rastreabilidade), sem apagar tentativas
+# anteriores.
+TS="$(date +%Y%m%d-%H%M%S)"
+LOG_NAME="train-$TS.log"
+mkdir -p "$OUT/logs"
 # -u (unbuffered): sem isso o stdout do Python so e descarregado no fim, e uma queda de
 # energia no meio do treino leva junto TODO o log -- foi exatamente o que aconteceu na
 # primeira tentativa do B1 (EXP-20260811-01-b1), que perdeu 7000 iteracoes de registro.
-"$PY" -u train.py -m "$OUT" "${ARGS[@]}" 2>&1 | tee "$META/train.log"
+"$PY" -u train.py -m "$OUT" "${ARGS[@]}" 2>&1 | tee "$OUT/logs/$LOG_NAME" "$META/$LOG_NAME"
+# Aponta sempre para a tentativa mais recente, sem apagar as anteriores.
+ln -sf "logs/$LOG_NAME" "$OUT/train.log"
+ln -sf "$LOG_NAME" "$META/train.log"
 
 # cfg_args e a config efetiva; guarda-la ao lado das metricas evita ter de reconstruir
 # depois quais flags estavam ligados.
 cp -f "$OUT/cfg_args" "$META/cfg_args" 2>/dev/null || true
 
-echo "[run_experiment] concluido. Registre em docs/05_EXPERIMENTOS.md com RUN_ID=$RUN_ID"
+echo "[run_experiment] concluido. Log desta execucao: $OUT/logs/$LOG_NAME"
+echo "[run_experiment] Registre em docs/05_EXPERIMENTOS.md com RUN_ID=$RUN_ID"
