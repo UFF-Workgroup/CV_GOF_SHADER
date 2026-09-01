@@ -219,6 +219,23 @@ class GaussianModel:
         self.lighting = None
 
     def capture(self):
+        # A-4 (mesma classe de A-2, achado ao auditar o checkpoint para retomada):
+        # self.lighting (envmap/SH) e self.appearance_network/_appearance_embeddings sao
+        # registrados no otimizador por training_setup (linhas 654-656 e 649-652), mas ate
+        # aqui nao eram salvos em capture(). optimizer.state_dict() so guarda o MOMENTO do
+        # Adam (exp_avg/exp_avg_sq), nao o VALOR dos parametros -- os valores vivem nos
+        # proprios objetos nn.Module/nn.Parameter. Sem isto, retomar de um checkpoint com
+        # --brdf reiniciaria o envmap/SH aprendido para o ruido inicial (silenciosamente,
+        # sem excecao) enquanto reaplicaria o momento do Adam calculado para os valores
+        # antigos -- descartando o material de iluminacao aprendido em toda a run anterior.
+        lighting_state = None
+        if self.lighting is not None:
+            lighting_state = {"class": type(self.lighting).__name__,
+                               "state_dict": self.lighting.state_dict()}
+        appearance_state = {
+            "embeddings": self._appearance_embeddings,
+            "network": self.appearance_network.state_dict(),
+        }
         return (
             self.active_sh_degree,
             self._xyz,
@@ -235,6 +252,8 @@ class GaussianModel:
             # A-2: sem isto, retomar de checkpoint restaura material vazio e o Adam
             # e montado sobre parametros de tamanho 0.
             {attr: getattr(self, attr) for attr in self.MATERIAL_PARAMS},
+            lighting_state,
+            appearance_state,
         )
 
     def restore(self, model_args, training_args):
@@ -250,9 +269,42 @@ class GaussianModel:
         denom,
         opt_dict,
         self.spatial_lr_scale,
-        material) = model_args
+        material,
+        lighting_state,
+        appearance_state) = model_args
         for attr, tensor in material.items():
             setattr(self, attr, nn.Parameter(tensor.requires_grad_(True)))
+
+        # A-4: iluminacao precisa ser reconstituida ANTES de training_setup registrar
+        # self.lighting.parameters() no otimizador -- senao os grupos do Adam apontariam
+        # para os tensores certos mas com os valores errados (ruido inicial em vez do
+        # envmap/SH treinado). Falha alta em vez de silenciosa, no mesmo espirito de
+        # load_lighting: um checkpoint com iluminacao so faz sentido restaurado num modelo
+        # configurado com os mesmos flags (--brdf, --light_repr) que o geraram.
+        if lighting_state is not None:
+            if self.lighting is None:
+                raise RuntimeError(
+                    "Checkpoint tem iluminacao mas o modelo atual nao foi configurado com "
+                    "--brdf (self.lighting is None). Rode a retomada com os mesmos flags "
+                    "de BRDF/luz do treino original."
+                )
+            if type(self.lighting).__name__ != lighting_state["class"]:
+                raise RuntimeError(
+                    f"Checkpoint tem iluminacao '{lighting_state['class']}' mas a config "
+                    f"atual pede '{type(self.lighting).__name__}'. Confira --light_repr."
+                )
+            self.lighting.load_state_dict(lighting_state["state_dict"])
+        elif self.lighting is not None:
+            raise RuntimeError(
+                "Modelo atual foi configurado com --brdf mas o checkpoint foi salvo sem "
+                "iluminacao (treino original sem --brdf). Retome com os mesmos flags."
+            )
+
+        if appearance_state is not None:
+            self._appearance_embeddings = nn.Parameter(
+                appearance_state["embeddings"].requires_grad_(True))
+            self.appearance_network.load_state_dict(appearance_state["network"])
+
         self.training_setup(training_args)
         self.xyz_gradient_accum = xyz_gradient_accum
         self.denom = denom

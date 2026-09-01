@@ -16,7 +16,7 @@ import torch
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from arguments import OptimizationParams
+from arguments import ModelParams, OptimizationParams
 from scene.gaussian_model import GaussianModel
 from utils.graphics_utils import BasicPointCloud
 
@@ -181,3 +181,69 @@ def test_t5_checkpoint_roundtrip(tmp_path):
     for attr, want in expected.items():
         assert torch.allclose(getattr(restored, attr), want), f"{attr} perdido no checkpoint"
     restored._assert_optimizer_binding()
+
+
+def make_model_with_lighting(num_points=500, sh_degree=0, seed=0, light_repr="sh"):
+    """Como make_model, mas com --brdf ligado e a iluminacao configurada.
+
+    setup_lighting precisa vir ANTES de training_setup, para que a iluminacao entre
+    no grupo 'lighting' do Adam -- mesma ordem que scene/__init__.py + train.py usam.
+    """
+    model, training_args = make_model(num_points=num_points, sh_degree=sh_degree, seed=seed)
+    parser = ArgumentParser()
+    lp = ModelParams(parser)
+    dataset_args = lp.extract(parser.parse_args(["--light_repr", light_repr]))
+    dataset_args.brdf = True
+    model.setup_lighting(dataset_args)
+    model.training_setup(training_args)
+    return model, training_args
+
+
+def test_t5_checkpoint_roundtrip_preserves_lighting(tmp_path):
+    """A-4: capture -> restore com --brdf tem que trazer o envmap/SH aprendido de volta.
+
+    Achado ao auditar o checkpoint para retomada apos interrupcao (mesma classe do A-2:
+    parametro desconectado do otimizador, agora na iluminacao). Antes desta correcao,
+    capture()/restore() nao tocavam em self.lighting -- retomar de checkpoint reiniciava
+    a iluminacao para o ruido inicial, silenciosamente, enquanto reaplicava o MOMENTO do
+    Adam calculado para os valores antigos. Isso descartaria toda a iluminacao aprendida
+    exatamente nos runs que mais precisam de checkpoint (E1/E2, --brdf, 30k iteracoes,
+    maquina sem no-break).
+    """
+    model, training_args = make_model_with_lighting(light_repr="sh")
+    with torch.no_grad():
+        model.lighting.coeffs += torch.randn_like(model.lighting.coeffs)
+    expected = model.lighting.coeffs.detach().clone()
+
+    path = str(tmp_path / "chkpnt_brdf.pth")
+    torch.save((model.capture(), 2000), path)
+
+    (params, it) = torch.load(path)
+    restored, _ = make_model_with_lighting(light_repr="sh")  # self.lighting != None ANTES do restore
+    restored.restore(params, training_args)
+
+    assert it == 2000
+    assert torch.allclose(restored.lighting.coeffs, expected), "iluminacao perdida no checkpoint (A-4)"
+    restored._assert_optimizer_binding()
+
+
+def test_restore_lighting_mismatch_fails_loud():
+    """Restaurar um checkpoint com iluminacao num modelo sem --brdf tem que falhar alto,
+    nunca descartar a iluminacao aprendida em silencio (mesmo espirito de load_lighting)."""
+    model, training_args = make_model_with_lighting(light_repr="sh")
+    params = model.capture()
+
+    restored, _ = make_model()  # sem setup_lighting -> self.lighting is None
+    with pytest.raises(RuntimeError):
+        restored.restore(params, training_args)
+
+
+def test_restore_lighting_class_mismatch_fails_loud():
+    """Checkpoint com envmap restaurado num modelo configurado para SH (ou vice-versa)
+    tambem tem que falhar alto -- confundir as duas classes invalidaria os numeros."""
+    model, training_args = make_model_with_lighting(light_repr="envmap")
+    params = model.capture()
+
+    restored, _ = make_model_with_lighting(light_repr="sh")
+    with pytest.raises(RuntimeError):
+        restored.restore(params, training_args)

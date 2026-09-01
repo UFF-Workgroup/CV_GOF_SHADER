@@ -91,6 +91,61 @@ bater com a configurada. Teste T6.
 
 ---
 
+## A-4 · Checkpoint não persistia iluminação nem embeddings de aparência — **crítico, silencioso** (achado 2026-09-01)
+
+**Local.** `scene/gaussian_model.py`, `capture()`/`restore()`.
+
+**O que acontecia.** A mesma classe de bug do A-2, não pega pela auditoria original
+porque `self.lighting` (envmap/SH) e `self.appearance_network`/`_appearance_embeddings`
+não existiam como conceito quando A-2 foi corrigido — só passaram a ser registrados no
+otimizador (`training_setup`, grupo `"lighting"`) depois, na Fase 3. `capture()` salvava
+`self.optimizer.state_dict()` (que só guarda o **momento** do Adam — `exp_avg`/`exp_avg_sq`
+— não o valor dos parâmetros) e o dicionário de `MATERIAL_PARAMS`, mas nunca os valores de
+`self.lighting` nem de `self.appearance_network`/`_appearance_embeddings`. Ao retomar de
+`--start_checkpoint`:
+
+1. `Scene.__init__` cria `self.lighting` **do zero**, com o ruído inicial (`init_std=0.02`)
+   de sempre.
+2. `restore()` recompunha o material corretamente (A-2 seguia correto), mas nunca tocava
+   `self.lighting` — o objeto continuava sendo o recém-criado no passo 1.
+3. `self.optimizer.load_state_dict(opt_dict)` reaplicava o **momento do Adam calculado
+   para o envmap/SH treinado** sobre esse envmap/SH recém-inicializado — combinação
+   inconsistente: gradientes acumulados para um material, aplicados a outro.
+
+Nenhuma exceção, nenhuma forma incorreta — só o envmap/SH aprendido, silenciosamente
+descartado a cada retomada. Idêntico em espírito a A-2, e com o mesmo alcance: quem
+comparasse um run interrompido-e-retomado com um run contínuo atribuiria a diferença a
+qualquer coisa menos à causa real.
+
+**Por que isto não apareceu em nenhum run até agora.** Todos os runs executados
+(B1, SMOKE) usaram o baseline **sem** `--brdf`, e `Scene` só cria `self.lighting` quando
+`args.brdf` é verdadeiro (`scene/__init__.py`). O bug estava dormente — mas E1/E2 (as
+próximas runs planejadas, `04_PROTOCOLO.md`) são exatamente as que ligam `--brdf`, rodam
+30k iterações, e nesta máquina sem no-break: o cenário de maior probabilidade de precisar
+de retomada é também o único em que o bug se manifesta.
+
+**Correção.** `capture()` agora salva `{"class": ..., "state_dict": self.lighting.state_dict()}`
+quando `self.lighting is not None`, e o estado de `_appearance_embeddings`/
+`appearance_network`. `restore()` aplica isso a `self.lighting` **antes** de
+`training_setup()` re-registrar seus parâmetros no Adam, e falha alto (`RuntimeError`) se
+o checkpoint tem iluminação e o modelo atual não (ou vice-versa), ou se a classe de
+iluminação não bate (`EnvironmentMap` vs `SHLighting`) — mesmo princípio de
+`load_lighting` (A-3): um checkpoint de iluminação só faz sentido restaurado com os
+mesmos flags que o geraram.
+
+Cobertura nova em `tests/test_material_lifecycle.py`:
+`test_t5_checkpoint_roundtrip_preserves_lighting`,
+`test_restore_lighting_mismatch_fails_loud`,
+`test_restore_lighting_class_mismatch_fails_loud`.
+
+**Reforço de processo.** `scripts/run_experiment.sh` passou a injetar
+`--checkpoint_iterations 10000 20000 30000` por default quando o chamador não especifica
+o flag, em vez de depender de alguém lembrar — a mesma lição do incidente
+EXP-20260811-01-b1 (queda de energia sem checkpoint, 7000 iterações perdidas), agora
+estrutural em vez de só documentada.
+
+---
+
 ## B-1 · Tensores de CPU cruzando a fronteira CUDA
 
 `diff_gaussian_rasterization/__init__.py` criava `torch.Tensor([])` — um tensor de **CPU**

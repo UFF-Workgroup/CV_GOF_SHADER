@@ -27,6 +27,23 @@ PY="${PYTHON:-python}"
 
 mkdir -p "$OUT" "$META"
 
+# --checkpoint_iterations default default (nao apenas lembrete no doc): o incidente
+# EXP-20260811-01-b1 perdeu 7000 iteracoes de treino numa queda de energia porque o
+# flag nao foi passado -- nao havia estado do otimizador para retomar. Passar o flag
+# manualmente e conveniencia que se esquece; injetar aqui e estrutural, no mesmo
+# espirito da verificacao de ambiente abaixo. Sem efeito em runs curtos (smoke tests
+# com --iterations < 10000): os valores injetados simplesmente nunca sao atingidos.
+ARGS=("$@")
+HAS_CKPT=0
+for a in "${ARGS[@]}"; do
+    if [ "$a" = "--checkpoint_iterations" ]; then HAS_CKPT=1; break; fi
+done
+if [ "$HAS_CKPT" -eq 0 ]; then
+    echo "[run_experiment] --checkpoint_iterations nao informado; aplicando default" >&2
+    echo "                 10000 20000 30000 (ver EXP-20260811-01-b1 em 05_EXPERIMENTOS.md)." >&2
+    ARGS+=(--checkpoint_iterations 10000 20000 30000)
+fi
+
 # --- Verificacao de ambiente (D-1): as extensoes sao instalacoes editaveis. Se
 # --- apontarem para outra arvore, o Python importa codigo antigo SEM AVISO.
 "$PY" - <<'EOF'
@@ -47,7 +64,7 @@ fi
 
 git -C "$REPO" rev-parse HEAD > "$META/commit.txt"
 git -C "$REPO" rev-parse --abbrev-ref HEAD >> "$META/commit.txt"
-printf '%q ' "$PY" -u train.py -m "$OUT" "$@" > "$META/command.txt"
+printf '%q ' "$PY" -u train.py -m "$OUT" "${ARGS[@]}" > "$META/command.txt"
 
 {
     echo "run_id:   $RUN_ID"
@@ -63,7 +80,7 @@ cd "$REPO"
 # -u (unbuffered): sem isso o stdout do Python so e descarregado no fim, e uma queda de
 # energia no meio do treino leva junto TODO o log -- foi exatamente o que aconteceu na
 # primeira tentativa do B1 (EXP-20260811-01-b1), que perdeu 7000 iteracoes de registro.
-"$PY" -u train.py -m "$OUT" "$@" 2>&1 | tee "$META/train.log"
+"$PY" -u train.py -m "$OUT" "${ARGS[@]}" 2>&1 | tee "$META/train.log"
 
 # cfg_args e a config efetiva; guarda-la ao lado das metricas evita ter de reconstruir
 # depois quais flags estavam ligados.

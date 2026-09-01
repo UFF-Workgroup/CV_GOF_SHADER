@@ -1,5 +1,20 @@
 # Changelog
 
+## 2026-09-01 — Auditoria de checkpoint: A-4
+
+**Achado.** `capture()`/`restore()` (`scene/gaussian_model.py`) nunca persistiam
+`self.lighting` (envmap/SH) nem `_appearance_embeddings`/`appearance_network` — mesma
+classe do bug A-2, dormente até agora porque nenhum run executado usou `--brdf`. Retomar
+de `--start_checkpoint` num treino com BRDF descartaria silenciosamente o envmap/SH
+aprendido, reaplicando o momento do Adam antigo sobre um material reinicializado. Ver
+`06_AUDITORIA.md` A-4.
+
+**Correção.** `capture`/`restore` agora cobrem iluminação e embeddings de aparência, com
+falha alta (`RuntimeError`) em caso de mismatch de flags entre checkpoint e retomada.
+`scripts/run_experiment.sh` passou a injetar `--checkpoint_iterations 10000 20000 30000`
+por default. Três testes novos em `tests/test_material_lifecycle.py`. Suíte completa:
+35 testes passando (era 25).
+
 ## 2026-08-10 — Fases 0 a 5
 
 **Auditoria.** Três bugs críticos e silenciosos no código herdado, todos produzindo formas
