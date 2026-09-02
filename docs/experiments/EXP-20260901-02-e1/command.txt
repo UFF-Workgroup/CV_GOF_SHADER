@@ -1,0 +1,1 @@
+python -u train.py -m /home/geomesh/Documentos/CV_GOF_SHADER/output/EXP-20260901-02-e1 -s /home/geomesh/Documentos/Truck -r 2 --sh_degree 0 --eval --brdf --light_frame world --checkpoint_iterations 10000 20000 30000 

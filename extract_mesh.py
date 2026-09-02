@@ -24,9 +24,11 @@ def evaluage_alpha(points, views, gaussians, pipeline, background, kernel_size, 
             ret = integrate(points, view, gaussians, pipeline, background, kernel_size=kernel_size, brdf_args=brdf_args)
             alpha_integrated = ret["alpha_integrated"]
             if return_color:
-                color_integrated = ret["color_integrated"]    
+                color_integrated = ret["color_integrated"]
                 final_color = torch.where((alpha_integrated < final_alpha).reshape(-1, 1), color_integrated, final_color)
             final_alpha = torch.min(final_alpha, alpha_integrated)
+            del ret, alpha_integrated
+            torch.cuda.empty_cache()
             
         alpha = 1 - final_alpha
     if return_color:

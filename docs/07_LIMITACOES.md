@@ -103,6 +103,28 @@ partir do torch 2.1.
 
 ---
 
+## 7. `extract_mesh.py` não cabe em 6 GB para cenas com muitas Gaussianas
+
+Achado ao tentar extrair a malha do run E1 (2 084 149 Gaussianas): `CUDA
+OutOfMemoryError` dentro de `evaluage_alpha`, mesmo após liberar cache entre vistas —
+o OOM ocorre já na primeira vista, então não é acúmulo, é o volume de pontos mantido
+em VRAM o tempo todo. `get_tetra_points` gera **9 pontos por Gaussiana** (8 vértices de
+caixa + 1 centro): com ~2 M Gaussianas isso são ~18,8 M pontos antes de processar
+qualquer vista, sem flag de subamostragem disponível.
+
+**Não é específico ao BRDF.** B1 (baseline, sem `--brdf`) tem 2 089 655 Gaussianas —
+praticamente igual a E1 — e provavelmente bateria no mesmo teto; nenhuma extração de
+malha na escala de 30k havia sido tentada antes desta sessão (o teste T8 usou o
+checkpoint do *smoke test*, com só 117 892 Gaussianas).
+
+**Consequência.** Comparação geométrica (Chamfer/F1) entre modelos na escala completa
+fica **indisponível neste hardware** até `evaluage_alpha`/`integrate()` serem
+reescritos para processar os pontos tetra em lotes, em vez de todos de uma vez. Enquanto
+isso, a validação de reconstrução fica limitada a NVS (PSNR/SSIM/LPIPS) e inspeção
+qualitativa de malhas em cenas menores (como o *smoke test* que validou T8).
+
+---
+
 ## Trabalho futuro
 
 1. Sombreamento por pixel em CUDA, acoplado à normal por raio do GOF (§1).
@@ -112,3 +134,5 @@ partir do torch 2.1.
    exigiria ground-truth de reflectância que hoje não existe.
 5. Medir quantitativamente a divergência entre as duas definições de normal (por raio vs.
    por Gaussiana) ao longo do treino: é uma contribuição própria ainda não explorada.
+6. Reescrever `evaluage_alpha`/`integrate()` em `extract_mesh.py` para processar pontos
+   tetra em lotes, para viabilizar Chamfer/F1 em cenas com muitas Gaussianas em 6 GB (§7).

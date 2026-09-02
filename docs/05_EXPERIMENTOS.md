@@ -194,6 +194,59 @@ a correção, como `EXP-20260901-02-e1` (mesma convenção de `EXP-20260811-02-b
 novo em vez de reaproveitar o antigo, para não misturar as linhas do tensorboard de uma
 tentativa que rodou até NaN com a retomada limpa).
 
+### EXP-20260901-02-e1 (tentativa 2) — **E1 concluído** · commit `b9868e0`
+
+| | |
+|---|---|
+| Commit | `b9868e0` (pós-fix A-5) |
+| Cena / config | Truck, `-r 2 --sh_degree 0 --eval --brdf --light_frame world`, 30 000 it |
+| Início → fim | 2026-09-01 15:40:57 → 2026-09-02 00:03:04 |
+| **Tempo total** | **8 h 22 min** (vs. 6 h 50 min de B1 — overhead do ramo especular) |
+| Gaussianas finais | 2 084 149 (B1: 2 089 655 — praticamente idêntico) |
+| **Pico de VRAM real** (`vram/peak_gb`, não `nvidia-smi`) | **3,99 GB** — folga confortável do teto de 5,5 GB |
+| `Loss=nan` no log inteiro | **zero ocorrências** (fix A-5 validado em produção) |
+
+**Fechamento por `metrics.py -r 2`** (mesmo caminho de B1, 32 vistas de teste):
+
+| | B1 (sem `--brdf`) | **E1** (`--brdf --light_frame world`) | Δ |
+|---|---|---|---|
+| PSNR | 25,2200 | **25,6254** | **+0,4054 dB** |
+| SSIM | 0,88632 | **0,88943** | +0,00311 |
+| LPIPS | 0,13379 | **0,13627** | +0,00248 (pior — LPIPS menor é melhor) |
+
+**Leitura.** O ganho de PSNR (+0,41 dB) está **acima do piso de ruído** de ~0,1 dB
+declarado em `04_PROTOCOLO.md`/`07_LIMITACOES.md` — não é atribuível só a
+`atomicAdd`/não-determinismo. SSIM concorda na mesma direção (leve melhora). LPIPS
+diverge: piorou ligeiramente, sugerindo que o ganho de PSNR/SSIM pode vir de acertar
+melhor a *magnitude* de reflexos/brilhos (métrica pixel-a-pixel) sem necessariamente
+melhorar a *plausibilidade perceptual* da textura (o que LPIPS pesa mais) — hipótese,
+não conclusão; não investigada a fundo aqui.
+
+**O que este resultado NÃO é, ainda:**
+1. **Execução única.** `04_PROTOCOLO.md` exige ≥2 seeds para qualquer número de
+   destaque (B0, E2 — e por extensão E1). Este é um resultado de **uma** seed.
+2. **Cena de controle, não a cena-alvo.** Truck é veículo com superfícies
+   majoritariamente foscas/metal semi-fosco — não um teste duro de especularidade. A
+   pergunta que importa de verdade (rocha, `--light_frame view`) é **E2**, ainda
+   pendente.
+3. Malha extraída para comparação geométrica (Chamfer/F1) — ver nota abaixo.
+
+**Malha não extraída — limitação de VRAM, não bug do BRDF.** `extract_mesh.py` deu
+`CUDA OutOfMemoryError` (4,71 GB alocados, 95 MB livres dos 4,98 GB reservados,
+tentando alocar 358 MB) tanto na primeira tentativa quanto após adicionar
+`torch.cuda.empty_cache()` por vista em `evaluage_alpha` — a segunda tentativa falhou
+já na primeira vista (0/219), provando que o problema **não é acúmulo entre vistas**
+(por isso o `empty_cache()` não ajudou), e sim o volume de pontos tetra mantido em
+VRAM o tempo todo: `get_tetra_points` gera **9 pontos por Gaussiana** (8 vértices de
+caixa + 1 centro), então com 2,08M Gaussianas isso são **~18,8M pontos** antes até de
+processar a primeira vista. Não há flag de subamostragem exposta. Isso não é
+específico ao BRDF: B1 tem contagem de Gaussianas quase idêntica (2 089 655) e
+provavelmente bateria no mesmo teto — nenhuma extração de malha em 30k foi tentada
+para B1 até hoje. Registrado como limitação nova em `07_LIMITACOES.md` §7; corrigir
+exigiria processar os pontos tetra em lotes dentro de `integrate()`, fora do escopo
+desta sessão. **Comparação geométrica (Chamfer/F1) fica pendente** até essa limitação
+ser endereçada ou a cena rodar em hardware com mais VRAM.
+
 ---
 
 ## Runs planejados
@@ -204,7 +257,7 @@ Ver a matriz completa em `04_PROTOCOLO.md`.
 |---|---|---|
 | B0 | pendente | GOF upstream — referência da literatura |
 | B1 | **concluído e fechado** (`EXP-20260811-02-b1`) — PSNR 25.2200 vs 25.2358 (Δ 0,016 dB), SSIM e LPIPS idem: **reversão neutra** | árvore atual sem BRDF — a reversão CUDA foi neutra? |
-| E1 | tentativa 1 abortada por A-5 (NaN); tentativa 2 relançada após o fix | BRDF `light_frame=world` em Truck |
+| E1 | **concluído** (`EXP-20260901-02-e1`) — PSNR +0,41 dB vs. B1, 1 seed só, ver leitura completa acima | BRDF `light_frame=world` em Truck |
 | E2 | pendente | BRDF `light_frame=view` na cena de rocha — **contribuição principal** |
 | E3 | pendente | `sh_degree ∈ {0,1,2,3}` — quanto de $c_r$ é preciso? |
 | E4 | pendente | `light_repr=sh` vs `envmap` |
