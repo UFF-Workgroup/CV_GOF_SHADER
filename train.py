@@ -145,9 +145,7 @@ def training(dataset, opt, pipe, testing_iterations, saving_iterations, checkpoi
             pipe.debug = True
 
         
-        # Warm-up do BRDF: antes de brdf_from_iter o modelo treina como o GOF puro, para
-        # a geometria assentar. Ligar o especular na iteracao 0 o poe competindo com o
-        # difuso antes de existir superficie para refletir.
+        # Antes de brdf_from_iter o modelo treina como o GOF puro.
         brdf_args = dataset if (dataset.brdf and iteration >= opt.brdf_from_iter) else None
 
         render_pkg = render(viewpoint_cam, gaussians, pipe, background, kernel_size=dataset.kernel_size, brdf_args=brdf_args)
@@ -192,8 +190,7 @@ def training(dataset, opt, pipe, testing_iterations, saving_iterations, checkpoi
         # Final loss
         loss = rgb_loss + depth_normal_loss * lambda_depth_normal + distortion_loss * lambda_distortion
 
-        # Regularizadores do BRDF. So entram quando o ramo especular esta ativo: antes do
-        # warm-up eles apenas empurrariam parametros que nao afetam a imagem.
+        # Regularizadores do BRDF, ativos so apos o warm-up.
         specular_sparse_loss = torch.tensor(0.0, device="cuda")
         normal_reg_loss = torch.tensor(0.0, device="cuda")
         if brdf_args is not None:
@@ -324,13 +321,11 @@ def training_report(tb_writer, iteration, Ll1, loss, l1_loss, elapsed, testing_i
         tb_writer.add_scalar('train_loss_patches/total_loss', loss.item(), iteration)
         tb_writer.add_scalar('iter_time', elapsed, iteration)
         tb_writer.add_scalar('total_points', scene.gaussians.get_xyz.shape[0], iteration)
-        # Fase 5: em 6 GB o pico de VRAM e um resultado a reportar, nao so um detalhe
-        # operacional. Registrar sempre para que a tabela do artigo possa cita-lo.
+        # Pico de VRAM entra na tabela do artigo.
         tb_writer.add_scalar('vram/peak_gb', torch.cuda.max_memory_allocated() / 1024**3, iteration)
         if brdf_args is not None:
             g = scene.gaussians
-            # Se estas curvas ficarem chatas nos valores iniciais (0.05 / 0.70), o
-            # material nao esta aprendendo -- e o sintoma do bug A-1.
+            # Curvas planas nos valores iniciais indicam que o material nao esta aprendendo.
             tb_writer.add_scalar('brdf/specular_tint_mean', g.get_specular_tint.mean().item(), iteration)
             tb_writer.add_scalar('brdf/roughness_mean', g.get_roughness.mean().item(), iteration)
             if g.lighting is not None:
@@ -391,9 +386,7 @@ if __name__ == "__main__":
     print("Optimizing " + args.model_path)
 
     # Initialize system state (RNG)
-    # C-3: safe_state carimba timestamp em cada linha do stdout, o que torna o log de
-    # treino utilizavel como registro de experimento. As seeds abaixo sao redundantes
-    # com as dele, mas ficam explicitas de proposito.
+    # safe_state carimba timestamp no stdout, usado como registro do experimento.
     safe_state(args.quiet)
 
     random.seed(0)

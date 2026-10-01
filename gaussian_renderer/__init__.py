@@ -84,10 +84,7 @@ def render(viewpoint_camera, pc : GaussianModel, pipe, bg_color : torch.Tensor, 
     colors_precomp = None
     if override_color is None:
         if brdf_args is not None and getattr(brdf_args, "brdf", False):
-            # Caminho BRDF: a cor de cada Gaussiana e avaliada em PyTorch e entra como
-            # colors_precomp. O rasterizador do GOF ja devolve dL_dcolors no backward,
-            # entao o autograd propaga gradiente para tint, rugosidade, residuo de normal
-            # e environment map sem uma linha de CUDA nova (ADR-001).
+            # BRDF: cor por Gaussiana calculada em PyTorch e passada como colors_precomp (sem CUDA novo).
             colors_precomp = pc.get_shading_colors(viewpoint_camera, brdf_args)
         elif pipe.convert_SHs_python:
             shs_view = pc.get_features.transpose(1, 2).view(-1, 3, (pc.max_sh_degree+1)**2)
@@ -191,10 +188,7 @@ def integrate(points3D, viewpoint_camera, pc : GaussianModel, pipe, bg_color : t
     colors_precomp = None
     if override_color is None:
         if brdf_args is not None and getattr(brdf_args, "brdf", False):
-            # Caminho BRDF: a cor de cada Gaussiana e avaliada em PyTorch e entra como
-            # colors_precomp. O rasterizador do GOF ja devolve dL_dcolors no backward,
-            # entao o autograd propaga gradiente para tint, rugosidade, residuo de normal
-            # e environment map sem uma linha de CUDA nova (ADR-001).
+            # BRDF: cor por Gaussiana calculada em PyTorch e passada como colors_precomp (sem CUDA novo).
             colors_precomp = pc.get_shading_colors(viewpoint_camera, brdf_args)
         elif pipe.convert_SHs_python:
             shs_view = pc.get_features.transpose(1, 2).view(-1, 3, (pc.max_sh_degree+1)**2)

@@ -62,11 +62,7 @@ class ModelParams(ParamGroup):
         self.sample_more_highres = False
         self.use_decoupled_appearance = False
 
-        # --- Sombreamento BRDF (GaussianShader dentro do GOF) ---
-        # Ficam em ModelParams de proposito: sao gravados em cfg_args, entao render.py e
-        # extract_mesh.py herdam a MESMA configuracao usada no treino via
-        # get_combined_args. Se ficassem em PipelineParams, avaliar exigiria repetir os
-        # flags a mao e um esquecimento produziria numeros silenciosamente errados.
+        # Em ModelParams para irem ao cfg_args e serem herdados por render.py e extract_mesh.py.
         self.brdf = False               # liga a equacao de sombreamento
         self.light_frame = "view"       # "view" (mesa giratoria) | "world" (camera orbita)
         self.light_repr = "envmap"      # "envmap" (pre-filtrado) | "sh" (baixa frequencia)
@@ -102,7 +98,7 @@ class OptimizationParams(ParamGroup):
         self.opacity_lr = 0.05
         self.scaling_lr = 0.005
         self.rotation_lr = 0.001
-        # Material do BRDF. Os nomes casam com GaussianModel.MATERIAL_PARAMS: <nome>_lr
+        # Nomes casam com GaussianModel.MATERIAL_PARAMS: <nome>_lr
         self.specular_tint_lr = 0.005
         self.roughness_lr = 0.005
         self.normal_residual_lr = 0.001
@@ -120,19 +116,13 @@ class OptimizationParams(ParamGroup):
         self.densify_until_iter = 15_000
         self.densify_grad_threshold = 0.0002
 
-        # --- Otimizacao do BRDF ---
         self.envmap_lr = 0.01
-        # Warm-up: o ramo especular so liga depois de a geometria assentar. Ligado desde
-        # a iteracao 0 ele compete com o difuso antes de existir superficie para refletir,
-        # e a separacao difuso/especular (que ja e mal-posta) fica ainda pior.
+        # Warm-up: o ramo especular so liga depois de a geometria assentar.
         self.brdf_from_iter = 3_000
-        # L_sparse: a maioria das Gaussianas deve ser nao-especular. Sem isto o otimizador
-        # espalha brilho por toda parte e o "material" aprendido perde sentido fisico.
+        # L_sparse: a maioria das Gaussianas deve ser nao-especular.
         self.lambda_specular_sparse = 0.001
         self.lambda_normal_residual = 0.001
-        # Consistencia entre a normal de sombreamento (por-Gaussiana) e a normal por-raio
-        # do GOF. Default 0: custa uma segunda rasterizacao por iteracao, pesado em 6 GB.
-        # A hipotese e que a depth_normal_loss que o GOF ja tem basta (ablacao E7).
+        # Consistencia normal de sombreamento x normal por-raio; 0 evita uma 2a rasterizacao por iteracao.
         self.lambda_shading_normal = 0.0
         super().__init__(parser, "Optimization Parameters")
 

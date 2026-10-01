@@ -1,13 +1,4 @@
-"""Testes dos envmaps sinteticos de relighting (scripts/relight.py).
-
-O que precisa ser protegido aqui nao e a aparencia dos mapas, e a **convencao**: os mapas
-sinteticos e o mapa aprendido tem de viver no mesmo sistema de coordenadas. Se
-`equirect_directions` deixar de ser a inversa exata de `direction_to_equirect_uv`, os
-mapas sinteticos aparecem rotacionados ou espelhados em relacao ao aprendido, o
-relighting continua "funcionando" (produz imagens plausiveis) e a figura do artigo passa
-a mostrar uma luz que nao e a que o nome do arquivo diz. E uma falha silenciosa, da mesma
-familia dos bugs da auditoria.
-"""
+"""Testes dos envmaps sinteticos de relighting (scripts/relight.py)."""
 import os
 import sys
 
@@ -54,8 +45,7 @@ def test_match_mean_preserves_structure_and_sets_brightness():
     src = maps["estudio_lateral"]
     out = match_mean(src, 0.25)
     assert abs(float(out.mean()) - 0.25) < 1e-5
-    # Reescala e multiplicacao por escalar: o contraste relativo nao pode mudar, senao
-    # igualar o brilho estaria alterando a variavel que queremos isolar.
+    # Multiplicacao por escalar: o contraste relativo nao pode mudar.
     assert abs(float(out.max() / out.mean()) - float(src.max() / src.mean())) < 1e-3
 
 

@@ -15,14 +15,7 @@ from torch.autograd import Variable
 from math import exp
 
 def specular_sparsity_loss(specular_tint):
-    """L_sparse: penaliza especular espalhado por toda parte.
-
-    Separar difuso de especular so a partir de RGB e um problema mal-posto: um brilho
-    pode ser explicado como albedo claro OU como reflexo. Sem esta penalidade o
-    otimizador nao tem razao para preferir uma das explicacoes, e o "material" resultante
-    nao serve nem para relighting nem para leitura petrofisica. A L1 empurra a solucao
-    para "poucas Gaussianas especulares", que e o prior correto para rocha.
-    """
+    """L_sparse: L1 que favorece poucas Gaussianas especulares."""
     return specular_tint.abs().mean()
 
 

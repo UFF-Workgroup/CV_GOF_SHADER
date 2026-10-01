@@ -1,37 +1,4 @@
-"""Validacao geometrica das poses do COLMAP na cena de testemunho.
-
-**Por que.** A escolha de `--light_frame view` repousa numa afirmacao sobre a captura: a
-rotacao sala->camera, $C$, e constante nas 72 fotos (`03_FORMULACAO.md` §6). Ate aqui isso
-era relato do operador. Este script transforma o relato em medida, usando as poses que o
-COLMAP estimou -- dados independentes de quem descreveu a bancada.
-
-**O movimento, medido nos pixels antes de mais nada** (`prepare_turntable.py check`): a
-captura tem duas escalas. Dentro de uma faixa a camera **desliza** ao longo do eixo do
-testemunho, com a amostra parada. Entre faixas o rolete **gira** a amostra, expondo uma
-nova banda angular. Sao 8 faixas de 9 poses.
-
-No referencial do objeto -- o que o COLMAP reconstroi -- isso prediz uma geometria bem
-especifica, e cada verificacao abaixo testa uma parte dela:
-
-1. **Registro.** Fracao das fotos que entrou na reconstrucao. A captura tem elos fracos
-   entre faixas (o giro deixa pouca superficie comum); se o mapper os perder, faltam bandas
-   angulares inteiras e nao se treina em cima disso.
-
-2. **Deslize dentro da faixa.** Os centros de uma faixa devem ser **colineares**, e a
-   orientacao deve ser **constante** ao longo dela -- e isso que "so desliza, mesma
-   orientacao" significa em numeros.
-
-3. **Eixo comum.** As 8 retas de deslize devem ser **paralelas entre si**: o eixo do
-   testemunho e invariante sob a propria rotacao, entao ele nao muda de faixa para faixa.
-
-4. **Giro entre faixas em torno desse mesmo eixo.** A rotacao relativa entre faixas
-   consecutivas deve ter eixo alinhado com o eixo do deslize. **Este e o teste de $C$
-   constante:** se a camera tivesse sido reapontada, a rotacao relativa entre faixas
-   carregaria uma componente fora do eixo, e um unico envmap em espaco de vista deixaria de
-   servir para todas as fotos.
-
-    python scripts/inspect_poses.py -s ~/Documentos/rocha_fs16_16cm --faixa_size 9
-"""
+"""Valida nas poses do COLMAP que a rotacao sala->camera e constante (premissa de `--light_frame view`)."""
 import json
 import os
 import sys
@@ -149,8 +116,7 @@ def analyse(names, R, centers, faixa_size, n_input):
     # --- 4. giro entre faixas: mesmo eixo? angulo regular?
     eixos, angulos = [], []
     for a, b in zip(faixas, faixas[1:]):
-        # rotacao, em coordenadas do objeto, que leva o referencial de uma faixa ao da
-        # seguinte; usa a orientacao mediana de cada faixa (constante dentro dela)
+        # Rotacao relativa entre as orientacoes (constantes) de faixas consecutivas.
         Q = R[b[0]].T @ R[a[0]]
         e, ang = rotation_axis_angle(Q)
         eixos.append(e)
@@ -167,8 +133,7 @@ def analyse(names, R, centers, faixa_size, n_input):
                 "max": round(float(np.max(desvio_do_eixo)), 3),
             },
         }
-        # C constante exige: (a) orientacao fixa dentro da faixa e (b) o giro entre faixas
-        # em torno do eixo do testemunho, sem componente de reapontamento.
+        # C constante: orientacao fixa na faixa e giro entre faixas em torno do eixo do deslize.
         report["C_constante"] = {
             "sustentado": bool(report["deslize_na_faixa"]
                                ["rotacao_entre_quadros_consecutivos_graus"]["max"] < 2.0

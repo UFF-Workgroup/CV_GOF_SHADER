@@ -1,11 +1,4 @@
-"""Testes do sombreamento BRDF (Fase 3). Cobre T1, T2, T6 e T7 do plano.
-
-T1 e o teste mais importante do projeto. Ele prova que a nova via de cor
-(colors_precomp calculado em PyTorch) e equivalente a antiga (SH avaliadas dentro do
-CUDA). Sem essa garantia, qualquer diferenca de PSNR entre baseline e modelo com BRDF
-poderia vir de uma mudanca acidental na cor difusa em vez do termo especular -- e toda
-a matriz de ablacoes perderia o sentido.
-"""
+"""Testes do sombreamento BRDF (Fase 3)."""
 import os
 import sys
 from argparse import ArgumentParser, Namespace
@@ -71,11 +64,7 @@ def default_pipe(**overrides):
 
 
 def test_t1_colors_precomp_matches_cuda_sh_path():
-    """T1: renderizar por colors_precomp (Python) == renderizar por SH (CUDA).
-
-    Compara a imagem inteira, nao so as cores por-Gaussiana: exercita o caminho de
-    verdade que o treino usa.
-    """
+    """T1: renderizar por colors_precomp (Python) == renderizar por SH (CUDA)."""
     model = make_scene(sh_degree=0)
     cam = make_camera()
     bg = torch.zeros(3, device="cuda")
@@ -92,16 +81,7 @@ def test_t1_colors_precomp_matches_cuda_sh_path():
 
 
 def test_t1_brdf_reduces_to_baseline_when_specular_is_zero():
-    """T1 (continuacao): com s=0 e sem Fresnel, o BRDF colapsa no baseline exato.
-
-    Esta e a propriedade que torna a ablacao interpretavel: a diferenca medida entre
-    baseline e BRDF e atribuivel ao termo especular, e nao a uma mudanca de parametrizacao
-    da cor difusa.
-
-    Nota: com o Fresnel de Schlick LIGADO essa identidade nao vale, e corretamente:
-    F = F0 + (1-F0)(1-cos)^5 tende a 1 em angulo rasante mesmo com F0 = 0. Ver o teste
-    seguinte, que verifica exatamente isso.
-    """
+    """T1 (continuacao): com s=0 e sem Fresnel, o BRDF colapsa no baseline exato."""
     model = make_scene(sh_degree=0)
     cam = make_camera()
     bg = torch.zeros(3, device="cuda")
@@ -118,10 +98,7 @@ def test_t1_brdf_reduces_to_baseline_when_specular_is_zero():
 
 
 def test_fresnel_breaks_exact_reduction_by_design():
-    """Documenta que o Fresnel quebra a reducao exata -- de proposito, e fisicamente.
-
-    Se este teste um dia passar a nao ver diferenca, o Fresnel parou de ser aplicado.
-    """
+    """Documenta que o Fresnel quebra a reducao exata -- de proposito, e fisicamente."""
     model = make_scene(sh_degree=0)
     cam = make_camera()
     bg = torch.zeros(3, device="cuda")
@@ -142,20 +119,14 @@ def test_fresnel_breaks_exact_reduction_by_design():
 
 @pytest.mark.parametrize("light_repr", ["envmap", "sh"])
 def test_t2_gradient_reaches_every_brdf_parameter(light_repr):
-    """T2: um backward tem de levar gradiente nao-nulo a todo parametro novo.
-
-    E a verificacao que substitui as derivadas manuais que o plano antigo escreveria em
-    backward.cu: se o autograd conecta tudo, nao ha derivada para errar.
-    """
+    """T2: um backward tem de levar gradiente nao-nulo a todo parametro novo."""
     model = make_scene(sh_degree=0)
     cam = make_camera()
     bg = torch.zeros(3, device="cuda")
 
     args = default_args(brdf=True, light_repr=light_repr, use_normal_residual=True)
     model.setup_lighting(args)
-    # Iluminacao com estrutura. Sob luz UNIFORME a rugosidade e nao-identificavel e o
-    # gradiente dela e legitimamente zero -- ver o teste seguinte. Exigir gradiente
-    # nao-nulo naquele caso seria exigir que o codigo violasse a matematica.
+    # Luz com estrutura: sob luz uniforme o gradiente da rugosidade e legitimamente zero.
     with torch.no_grad():
         for p in model.lighting.parameters():
             p.add_(torch.randn_like(p) * 0.3)
@@ -181,19 +152,7 @@ def test_t2_gradient_reaches_every_brdf_parameter(light_repr):
 
 @pytest.mark.parametrize("light_repr", ["envmap", "sh"])
 def test_roughness_is_unidentifiable_under_uniform_light(light_repr):
-    """Limitacao documentada: com luz uniforme, dL/drho = 0.
-
-    Nao e bug, e identificabilidade. Se todas as direcoes tem a mesma radiancia, borrar
-    o lobulo especular nao muda nada, entao a rugosidade nao deixa assinatura na imagem e
-    nao pode ser estimada. Consequencias praticas registradas em docs/07_LIMITACOES.md:
-
-      1. As classes de iluminacao inicializam com ruido pequeno (init_std) para nao
-         partir de um ponto exatamente degenerado.
-      2. Numa cena de iluminacao quase uniforme (caixa de luz difusa, comum em bancada de
-         rocha), rho fica mal condicionado e seu valor final deve ser lido com ceticismo.
-
-    O teste fixa init_std=0 de proposito para exibir a degenerescencia pura.
-    """
+    """Limitacao documentada: com luz uniforme, dL/drho = 0."""
     dirs = torch.nn.functional.normalize(torch.randn(512, 3, device="cuda"), dim=-1)
     light = (EnvironmentMap(64, 6, init_std=0.0) if light_repr == "envmap"
              else SHLighting(3, init_std=0.0)).cuda()
@@ -203,8 +162,7 @@ def test_roughness_is_unidentifiable_under_uniform_light(light_repr):
     out.sum().backward()
 
     assert out.var().item() < 1e-12, "a luz deveria ser uniforme neste teste"
-    # envmap deixa ruido de ponto flutuante (avg_pool + grid_sample em resolucoes
-    # diferentes); SH da zero exato. Ambos sao "sem sinal util".
+    # envmap deixa ruido de ponto flutuante; SH da zero exato.
     assert rough.grad.abs().max().item() < 1e-6, (
         "gradiente de rugosidade nao deveria ter sinal util sob luz uniforme")
 
@@ -219,11 +177,7 @@ def test_lighting_init_breaks_the_degeneracy():
 
 
 def test_t2_light_frame_view_actually_changes_result():
-    """A escolha de referencial da luz tem de mudar o resultado.
-
-    Se 'view' e 'world' produzissem a mesma imagem, a adaptacao para mesa giratoria
-    (a contribuicao metodologica) seria inocua -- e um bug silencioso.
-    """
+    """A escolha de referencial da luz tem de mudar o resultado."""
     cam = make_camera()
     bg = torch.zeros(3, device="cuda")
     images = {}
@@ -237,8 +191,7 @@ def test_t2_light_frame_view_actually_changes_result():
             images[frame] = render(cam, model, default_pipe(), bg, kernel_size=0.0,
                                    brdf_args=args)["render"][:3].clone()
 
-    # Camera na origem olhando -z com R=I: aqui view e world diferem por uma rotacao nao
-    # trivial (T=[0,0,4]), entao as imagens tem de diferir.
+    # Com R=I e T=[0,0,4], view e world diferem por uma rotacao nao trivial.
     diff = (images["view"] - images["world"]).abs().max().item()
     assert diff > 1e-5, "light_frame nao teve efeito: a rotacao para espaco de vista nao foi aplicada"
 
@@ -307,16 +260,7 @@ def test_envmap_roughness_blurs_the_reflection():
 
 
 def test_a5_envmap_gradient_finite_near_poles():
-    """A-5: direcao_to_equirect_uv nao pode devolver gradiente NaN/Inf perto dos polos.
-
-    Achado no run E1 (Truck, --brdf --light_frame world): loss finito ate a iteracao
-    3010, NaN a partir da 3020 -- exatamente as primeiras iteracoes com o ramo especular
-    ligado (brdf_from_iter=3000). Causa raiz: acos (v) e atan2 (u) tem gradiente que
-    diverge/vira 0/0 no polo do envmap (x=z=0, y=+-1). Com >1e5 Gaussianas por
-    iteracao, bastou uma cair perto o bastante do polo para contaminar rotation/scaling
-    dela via Adam, e dai a imagem inteira. Este teste reproduz exatamente o gatilho:
-    algumas direcoes EXATAMENTE no polo dentro de um lote grande.
-    """
+    """A-5: direcao_to_equirect_uv nao pode devolver gradiente NaN/Inf perto dos polos."""
     from scene.lighting import direction_to_equirect_uv
 
     # ponto exato do polo, isolado
@@ -356,11 +300,7 @@ def test_sh_lighting_attenuates_high_frequency_with_roughness():
 
 
 def test_t6_lighting_roundtrip(tmp_path):
-    """T6: a iluminacao aprendida tem de sobreviver a save/load.
-
-    Sem isto, avaliar um modelo treinado usaria um envmap cinza -- mesma classe de erro
-    que o bug A-3 do PLY.
-    """
+    """T6: a iluminacao aprendida tem de sobreviver a save/load."""
     model = make_scene()
     args = default_args(brdf=True)
     model.setup_lighting(args)
@@ -394,12 +334,7 @@ def test_lighting_repr_mismatch_is_loud(tmp_path):
 
 
 def test_t7_recovers_planted_specular_signal():
-    """T7: o otimizador consegue recuperar um material especular plantado?
-
-    Monta um alvo sintetico com s e rho conhecidos, parte de uma inicializacao errada e
-    checa que a otimizacao anda na direcao certa. Nao e um teste de convergencia exata --
-    e um teste de que os gradientes tem o sinal e a magnitude corretos ponta a ponta.
-    """
+    """T7: o otimizador consegue recuperar um material especular plantado?"""
     torch.manual_seed(0)
     model = make_scene(num_points=2000, sh_degree=0)
     cam = make_camera()

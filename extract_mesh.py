@@ -14,22 +14,27 @@ from tetranerf.utils.extension import cpp
 from utils.tetmesh import marching_tetrahedra
 
 @torch.no_grad()
-def evaluage_alpha(points, views, gaussians, pipeline, background, kernel_size, return_color=False, brdf_args=None):
+def evaluage_alpha(points, views, gaussians, pipeline, background, kernel_size, return_color=False, brdf_args=None, chunk_size=500_000):
+    """Avalia alpha/cor em lotes de pontos para caber na VRAM, sem alterar o resultado."""
     final_alpha = torch.ones((points.shape[0]), dtype=torch.float32, device="cuda")
     if return_color:
         final_color = torch.ones((points.shape[0], 3), dtype=torch.float32, device="cuda")
-    
+
     with torch.no_grad():
         for _, view in enumerate(tqdm(views, desc="Rendering progress")):
-            ret = integrate(points, view, gaussians, pipeline, background, kernel_size=kernel_size, brdf_args=brdf_args)
-            alpha_integrated = ret["alpha_integrated"]
-            if return_color:
-                color_integrated = ret["color_integrated"]
-                final_color = torch.where((alpha_integrated < final_alpha).reshape(-1, 1), color_integrated, final_color)
-            final_alpha = torch.min(final_alpha, alpha_integrated)
-            del ret, alpha_integrated
+            for start in range(0, points.shape[0], chunk_size):
+                end = min(start + chunk_size, points.shape[0])
+                ret = integrate(points[start:end], view, gaussians, pipeline, background, kernel_size=kernel_size, brdf_args=brdf_args)
+                alpha_integrated = ret["alpha_integrated"]
+                if return_color:
+                    color_integrated = ret["color_integrated"]
+                    final_color[start:end] = torch.where(
+                        (alpha_integrated < final_alpha[start:end]).reshape(-1, 1),
+                        color_integrated, final_color[start:end])
+                final_alpha[start:end] = torch.min(final_alpha[start:end], alpha_integrated)
+                del ret, alpha_integrated
             torch.cuda.empty_cache()
-            
+
         alpha = 1 - final_alpha
     if return_color:
         return alpha, final_color
@@ -46,30 +51,33 @@ def marching_tetrahedra_with_binary_search(model_path, name, iteration, views, g
     # load cell if exists
     if os.path.exists(os.path.join(render_path, "cells.pt")):
         print("load existing cells")
-        cells = torch.load(os.path.join(render_path, "cells.pt"))
+        cells = torch.load(os.path.join(render_path, "cells.pt")).cpu()
     else:
         # create cell and save cells
         print("create cells and save")
-        cells = cpp.triangulate(points)
+        # .cpu() na criacao tira as cells da VRAM (o upcast p/ int64 ocuparia ~2,4 GB).
+        cells = cpp.triangulate(points).cpu()
         # we should filter the cell if it is larger than the gaussians
         torch.save(cells, os.path.join(render_path, "cells.pt"))
     
     # evaluate alpha
     alpha = evaluage_alpha(points, views, gaussians, pipeline, background, kernel_size, brdf_args=brdf_args)
 
-    vertices = points.cuda()[None]
-    tets = cells.cuda().long()
+    # marching_tetrahedra nao usa CUDA; roda em CPU para poupar VRAM.
+    vertices = points.cpu()[None]
+    tets = cells.long()
+    alpha_cpu = alpha.cpu()
 
-    print(vertices.shape, tets.shape, alpha.shape)
-    def alpha_to_sdf(alpha):    
+    print(vertices.shape, tets.shape, alpha_cpu.shape)
+    def alpha_to_sdf(alpha):
         sdf = alpha - 0.5
         sdf = sdf[None]
         return sdf
-    
-    sdf = alpha_to_sdf(alpha)
-    
+
+    sdf = alpha_to_sdf(alpha_cpu)
+
     torch.cuda.empty_cache()
-    verts_list, scale_list, faces_list, _ = marching_tetrahedra(vertices, tets, sdf, points_scale[None])
+    verts_list, scale_list, faces_list, _ = marching_tetrahedra(vertices, tets, sdf, points_scale.cpu()[None])
     torch.cuda.empty_cache()
     
     end_points, end_sdf = verts_list[0]
@@ -91,7 +99,8 @@ def marching_tetrahedra_with_binary_search(model_path, name, iteration, views, g
     for step in range(n_binary_steps):
         print("binary search in step {}".format(step))
         mid_points = (left_points + right_points) / 2
-        alpha = evaluage_alpha(mid_points, views, gaussians, pipeline, background, kernel_size, brdf_args=brdf_args)
+        # Pontos estao em CPU; o rasterizador exige CUDA.
+        alpha = evaluage_alpha(mid_points.cuda(), views, gaussians, pipeline, background, kernel_size, brdf_args=brdf_args).cpu()
         mid_sdf = alpha_to_sdf(alpha).squeeze().unsqueeze(-1)
         
         ind_low = ((mid_sdf < 0) & (left_sdf < 0)) | ((mid_sdf > 0) & (left_sdf > 0))
@@ -106,7 +115,7 @@ def marching_tetrahedra_with_binary_search(model_path, name, iteration, views, g
             continue
         
         if texture_mesh:
-            _, color = evaluage_alpha(points, views, gaussians, pipeline, background, kernel_size, return_color=True, brdf_args=brdf_args)
+            _, color = evaluage_alpha(points.cuda(), views, gaussians, pipeline, background, kernel_size, return_color=True, brdf_args=brdf_args)
             vertex_colors=(color.cpu().numpy() * 255).astype(np.uint8)
         else:
             vertex_colors=None

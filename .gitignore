@@ -43,3 +43,4 @@ __pycache__
 # Sem isso, nenhum número do artigo é rastreável até um commit.
 !docs/experiments/
 !docs/experiments/**
+release

@@ -77,9 +77,7 @@ class Scene:
             print("Loading Test Cameras")
             self.test_cameras[resolution_scale] = cameraList_from_camInfos(scene_info.test_cameras, resolution_scale, args)
 
-        # Iluminacao: criada antes de carregar/inicializar, para que load_lighting tenha
-        # onde escrever. Se args.brdf for False, build_lighting ainda cria o modulo (custa
-        # ~200 KB) mas nada o usa.
+        # Iluminacao criada antes do load para que load_lighting tenha onde escrever.
         if getattr(args, "brdf", False):
             self.gaussians.setup_lighting(args)
 
@@ -93,8 +91,6 @@ class Scene:
     def save(self, iteration):
         point_cloud_path = os.path.join(self.model_path, "point_cloud/iteration_{}".format(iteration))
         self.gaussians.save_ply(os.path.join(point_cloud_path, "point_cloud.ply"))
-        # Sem isto, avaliar um modelo treinado com BRDF usaria um envmap cinza recem
-        # criado em vez do aprendido -- exatamente a classe de erro do bug A-3.
         self.gaussians.save_lighting(os.path.join(point_cloud_path, "lighting.pth"))
 
     def getTrainCameras(self, scale=1.0):

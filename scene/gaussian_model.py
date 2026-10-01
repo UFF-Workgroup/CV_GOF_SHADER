@@ -141,15 +141,7 @@ def get_frustum_mask(points: torch.Tensor, cameras: list, near: float = 0.02, fa
 
 class GaussianModel:
 
-    # Parametros de material do BRDF, por Gaussiana.
-    #
-    # Esta tabela e a FONTE UNICA DA VERDADE: inicializacao, otimizador, densificacao,
-    # poda, checkpoint e PLY sao todos derivados dela. A auditoria de 2026-08-10 achou
-    # tres bugs (A-1/A-2/A-3) causados exatamente por manter essas listas em sincronia
-    # na mao -- um parametro foi adicionado ao otimizador mas esquecido em prune_points,
-    # em capture/restore e no PLY. Adicionar um parametro novo aqui o propaga para todos
-    # os caminhos automaticamente.
-    #
+    # Material do BRDF por Gaussiana; fonte unica para otimizador, densificacao, poda, checkpoint e PLY.
     #   atributo -> (nome no otimizador/PLY, canais, valor inicial POS-ativacao, ativacao)
     MATERIAL_PARAMS = {
         "_specular_tint":   ("specular_tint",   3, 0.05, "sigmoid"),
@@ -157,9 +149,7 @@ class GaussianModel:
         "_normal_residual": ("normal_residual", 3, 0.00, "identity"),
     }
 
-    # Grupos do otimizador que NAO sao por-Gaussiana e portanto tem de ser pulados na
-    # densificacao e na poda. Esquecer "lighting" aqui faria cat_tensors_to_optimizer
-    # tentar concatenar novas Gaussianas ao environment map.
+    # Grupos do otimizador que nao sao por-Gaussiana (pulados na densificacao e na poda).
     NON_GAUSSIAN_GROUPS = ["appearance_embeddings", "appearance_network", "lighting"]
 
     @staticmethod
@@ -214,20 +204,11 @@ class GaussianModel:
         for attr in self.MATERIAL_PARAMS:
             setattr(self, attr, torch.empty(0))
 
-        # Iluminacao (envmap ou SH). Criada por setup_lighting(args), porque depende de
-        # flags que so existem depois do parse dos argumentos.
+        # Iluminacao (envmap ou SH), criada por setup_lighting(args).
         self.lighting = None
 
     def capture(self):
-        # A-4 (mesma classe de A-2, achado ao auditar o checkpoint para retomada):
-        # self.lighting (envmap/SH) e self.appearance_network/_appearance_embeddings sao
-        # registrados no otimizador por training_setup (linhas 654-656 e 649-652), mas ate
-        # aqui nao eram salvos em capture(). optimizer.state_dict() so guarda o MOMENTO do
-        # Adam (exp_avg/exp_avg_sq), nao o VALOR dos parametros -- os valores vivem nos
-        # proprios objetos nn.Module/nn.Parameter. Sem isto, retomar de um checkpoint com
-        # --brdf reiniciaria o envmap/SH aprendido para o ruido inicial (silenciosamente,
-        # sem excecao) enquanto reaplicaria o momento do Adam calculado para os valores
-        # antigos -- descartando o material de iluminacao aprendido em toda a run anterior.
+        # optimizer.state_dict() guarda so o momento do Adam; iluminacao e aparencia precisam ser salvas a parte.
         lighting_state = None
         if self.lighting is not None:
             lighting_state = {"class": type(self.lighting).__name__,
@@ -249,8 +230,7 @@ class GaussianModel:
             self.denom,
             self.optimizer.state_dict(),
             self.spatial_lr_scale,
-            # A-2: sem isto, retomar de checkpoint restaura material vazio e o Adam
-            # e montado sobre parametros de tamanho 0.
+            # Sem isto o checkpoint restauraria material vazio.
             {attr: getattr(self, attr) for attr in self.MATERIAL_PARAMS},
             lighting_state,
             appearance_state,
@@ -275,12 +255,7 @@ class GaussianModel:
         for attr, tensor in material.items():
             setattr(self, attr, nn.Parameter(tensor.requires_grad_(True)))
 
-        # A-4: iluminacao precisa ser reconstituida ANTES de training_setup registrar
-        # self.lighting.parameters() no otimizador -- senao os grupos do Adam apontariam
-        # para os tensores certos mas com os valores errados (ruido inicial em vez do
-        # envmap/SH treinado). Falha alta em vez de silenciosa, no mesmo espirito de
-        # load_lighting: um checkpoint com iluminacao so faz sentido restaurado num modelo
-        # configurado com os mesmos flags (--brdf, --light_repr) que o geraram.
+        # Iluminacao restaurada antes de training_setup; exige os mesmos flags (--brdf, --light_repr) do treino.
         if lighting_state is not None:
             if self.lighting is None:
                 raise RuntimeError(
@@ -369,19 +344,11 @@ class GaussianModel:
         """Residuo Delta-n somado a normal geometrica antes de normalizar (GaussianShader Eq. 4)."""
         return self._normal_residual
 
-    # NOTA (B-2): _residual_color foi removido. O artigo define o residual como
-    # c_r(omega_o) -- uma FUNCAO da direcao de vista -- e a implementacao anterior era
-    # um RGB fixo por Gaussiana, que apenas duplicava o termo difuso e agravava a
-    # ambiguidade difuso/especular. O papel de c_r(omega_o) passa a ser cumprido pelos
-    # graus >= 1 das SH que o 3DGS ja carrega em _features_rest (ver get_shading_colors).
+    # c_r(omega_o) e dado pelas SH de grau >= 1 em _features_rest (ver get_shading_colors).
 
     @property
     def get_albedo(self):
-        """Albedo difuso c_d em [0,1], vindo do termo DC das SH.
-
-        Exposto para logging e relighting; o forward de sombreamento NAO usa esta
-        propriedade (ver get_shading_colors e a nota sobre equivalencia exata).
-        """
+        """Albedo difuso c_d em [0,1] (termo DC das SH); nao usado no forward."""
         from utils.sh_utils import SH2RGB
         return torch.clamp(SH2RGB(self._features_dc[:, 0, :]), 0.0, 1.0)
 
@@ -414,28 +381,14 @@ class GaussianModel:
         self.lighting.load_state_dict(payload["state_dict"])
 
     def get_shading_colors(self, viewpoint_camera, args):
-        """Cor por-Gaussiana pela equacao de sombreamento; entra como colors_precomp.
-
-            c(wo) = gamma( c_d + c_r(wo) + F(n.wo, s) * L_s(r, rho) )
-
-        EQUIVALENCIA EXATA COM O BASELINE (ADR-004, teste T1)
-        c_d e c_r(wo) NAO sao calculados em separado: eval_sh sobre todas as SH ja
-        devolve exatamente a soma dos dois (grau 0 = c_d, graus >=1 = c_r(wo)). Isso faz
-        com que, com s=0 e gamma=identidade, esta funcao reproduza bit a bit o caminho
-        convert_SHs_python do GOF. Sem essa propriedade nao daria para atribuir uma
-        diferenca de PSNR ao termo especular em vez de a uma mudanca acidental na cor
-        difusa -- e a ablacao perderia o sentido.
-
-        Tudo em espaco de vista quando light_frame="view" (ver scene/brdf.py).
-        """
+        """Cor por Gaussiana c = gamma(c_d + c_r(wo) + F(n.wo, s) * L_s(r, rho)); com s=0 reproduz o GOF."""
         from scene import brdf
         from utils.sh_utils import eval_sh
 
         xyz = self.get_xyz
         campos = viewpoint_camera.camera_center
 
-        # Direcao camera -> Gaussiana. Mesma convencao do caminho SH original do GOF
-        # (gaussian_renderer/__init__.py), requisito para a equivalencia exata.
+        # Mesma convencao do caminho SH original do GOF.
         dir_pp = xyz - campos.repeat(xyz.shape[0], 1)
         dir_pp = dir_pp / dir_pp.norm(dim=1, keepdim=True)
 
@@ -456,10 +409,7 @@ class GaussianModel:
 
         reflect_dirs = brdf.reflect(view_dirs, normals)
 
-        # Mesa giratoria: o envmap correto vive no referencial da sala, que difere do de
-        # vista por uma rotacao global constante -- absorvida pelo mapa aprendido. Ver
-        # docs/03_FORMULACAO.md. light_frame="world" recupera o GaussianShader padrao,
-        # valido quando o objeto esta parado e a camera orbita (cena de controle Truck).
+        # "view": rotacao sala->camera e constante e absorvida pelo envmap; "world" e o GaussianShader padrao.
         if getattr(args, "light_frame", "view") == "view":
             R_w2v = brdf.world_to_view_rotation(viewpoint_camera)
             reflect_dirs = reflect_dirs @ R_w2v.transpose(0, 1)
@@ -615,13 +565,7 @@ class GaussianModel:
         return m
 
     def _assert_optimizer_binding(self):
-        """Invariante: o tensor que o modelo usa e o MESMO objeto que o Adam atualiza.
-
-        Esta e a defesa estrutural contra o bug A-1. Quebrar essa identidade nao gera
-        excecao nem muda formas -- so faz o parametro parar de aprender em silencio, o
-        que e praticamente indetectavel numa curva de loss. Por isso a checagem e um
-        assert em tempo de execucao, e nao apenas um teste.
-        """
+        """Garante que o tensor usado pelo modelo e o mesmo objeto atualizado pelo Adam."""
         attr_map = self._optimizer_attr_map()
         for group in self.optimizer.param_groups:
             attr = attr_map.get(group["name"])
@@ -658,12 +602,7 @@ class GaussianModel:
 
         opacities = self.inverse_opacity_activation(0.1 * torch.ones((fused_point_cloud.shape[0], 1), dtype=torch.float, device="cuda"))
 
-        # B-3: material comeca quase totalmente difuso. A inicializacao anterior era
-        # s=0.5 (50% de especular em TODAS as Gaussianas na iteracao 0) e rho=0.5
-        # (lobulo ja estreito), o que poe o ramo especular competindo com o difuso
-        # antes de a geometria existir e favorece highlights espurios. Comecamos com
-        # s=0.05 e rho=0.7 (lobulo largo) e deixamos a otimizacao subir o especular
-        # apenas onde a foto exigir.
+        # Material inicial quase totalmente difuso (s=0.05, rho=0.7).
         self._init_material_params(fused_point_cloud.shape[0])
 
         self._xyz = nn.Parameter(fused_point_cloud.requires_grad_(True))
@@ -690,9 +629,7 @@ class GaussianModel:
             {'params': [self._rotation], 'lr': training_args.rotation_lr, "name": "rotation"},
         ]
 
-        # Material do BRDF. Precisa vir ANTES dos grupos de aparencia: _prune_optimizer e
-        # cat_tensors_to_optimizer iteram todos os grupos pulando apenas appearance_*, e
-        # esperam uma entrada por grupo no dicionario de densificacao.
+        # Material antes dos grupos de aparencia, que _prune_optimizer e cat_tensors_to_optimizer pulam.
         for attr, (name, _, _, _) in self.MATERIAL_PARAMS.items():
             l.append({'params': [getattr(self, attr)],
                       'lr': getattr(training_args, f"{name}_lr"),
@@ -742,13 +679,7 @@ class GaussianModel:
         return l
 
     def save_ply(self, path):
-        """A-3: o PLY precisa carregar o material.
-
-        Todo o pipeline a jusante (render.py, extract_mesh.py, metrics.py) recarrega o
-        modelo por load_ply. Sem persistir o material, as imagens de avaliacao sairiam
-        renderizadas com material default -- diferentes das de treino -- sem nenhum erro
-        no log. E o bug mais perigoso para a validade dos numeros do artigo.
-        """
+        """Grava o PLY incluindo o material, que render/extract_mesh recarregam via load_ply."""
         mkdir_p(os.path.dirname(path))
 
         xyz = self._xyz.detach().cpu().numpy()
@@ -783,9 +714,7 @@ class GaussianModel:
         
         rotation = self._rotation.detach().cpu().numpy()
 
-        # include_material=False de proposito: o PLY "fundido" existe para ser aberto por
-        # visualizadores de 3DGS vanilla (opacidade e escala ja com o filtro 3D embutido).
-        # Material do BRDF nao faz sentido nesse formato e so o poluiria.
+        # Sem material: o PLY fundido e feito para visualizadores de 3DGS vanilla.
         dtype_full = [(attribute, 'f4') for attribute in self.construct_list_of_attributes(exclude_filter=True, include_material=False)]
 
         elements = np.empty(xyz.shape[0], dtype=dtype_full)
@@ -802,12 +731,12 @@ class GaussianModel:
         rots = build_rotation(self._rotation)
         xyz = self.get_xyz
         scale = self.get_scaling_with_3D_filter * 3. # TODO test
-        # filter points with small opacity for bicycle scene
-        # opacity = self.get_opacity_with_3D_filter
-        # mask = (opacity > 0.1).squeeze(-1)
-        # xyz = xyz[mask]
-        # scale = scale[mask]
-        # rots = rots[mask]
+        # Filtro de opacidade (do GOF, antes comentado) para reduzir pontos tetra e a VRAM.
+        opacity = self.get_opacity_with_3D_filter
+        mask = (opacity > 0.1).squeeze(-1)
+        xyz = xyz[mask]
+        scale = scale[mask]
+        rots = rots[mask]
         
         vertices = M.vertices.T    
         vertices = torch.from_numpy(vertices).float().cuda().unsqueeze(0).repeat(xyz.shape[0], 1, 1)
@@ -892,10 +821,7 @@ class GaussianModel:
         self._rotation = nn.Parameter(torch.tensor(rots, dtype=torch.float, device="cuda").requires_grad_(True))
         self.filter_3D = torch.tensor(filter_3D, dtype=torch.float, device="cuda")
 
-        # A-3 (leitura): material com fallback. PLYs antigos -- inclusive o baseline de
-        # 30k ja treinado em output/fase2_linux_validacao -- nao tem esses atributos.
-        # Ausencia => default de MATERIAL_PARAMS, para que checkpoints antigos continuem
-        # carregando em vez de estourar.
+        # PLYs antigos nao tem material; usa o default de MATERIAL_PARAMS.
         present = {p.name for p in plydata.elements[0].properties}
         self._init_material_params(xyz.shape[0])
         for attr, (name, channels, _, _) in self.MATERIAL_PARAMS.items():
@@ -964,14 +890,7 @@ class GaussianModel:
         self.denom = self.denom[valid_points_mask]
         self.max_radii2D = self.max_radii2D[valid_points_mask]
 
-        # A-1: o codigo anterior fazia
-        #     self._specular_tint = nn.Parameter(self._specular_tint[valid_points_mask])
-        # descartando o tensor que _prune_optimizer ja tinha podado e criando um
-        # nn.Parameter DIFERENTE. A partir dai self._specular_tint e
-        # optimizer.param_groups[...]["params"][0] eram objetos distintos: o Adam
-        # atualizava um tensor orfao e o parametro que o modelo de fato usa nunca mais
-        # era atualizado. As formas continuavam certas, entao nao havia excecao -- os
-        # parametros simplesmente congelavam a partir da iteracao 600.
+        # Nao recriar nn.Parameter aqui: o Adam deixaria de atualizar o tensor do modelo.
         for attr, (name, _, _, _) in self.MATERIAL_PARAMS.items():
             setattr(self, attr, optimizable_tensors[name])
 

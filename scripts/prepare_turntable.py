@@ -1,31 +1,4 @@
-"""Preparo da cena de testemunho em roletes: verificacao da captura e imagens de treino.
-
-**A captura.** O testemunho gira sobre dois roletes enquanto a camera fotografa faixa a
-faixa, do topo para a base. Dentro de uma faixa a camera fica parada e so o objeto gira;
-entre faixas a camera desliza paralela ao eixo do cilindro, **sem mudar de orientacao**.
-Essa ultima propriedade e o que sustenta `--light_frame view` (ver `03_FORMULACAO.md` §6):
-a derivaçao exige que a rotacao sala->camera seja constante, e translacao nao a altera.
-
-**`check`** confirma essa estrutura a partir dos pixels, nao do relato. Por correlacao de
-fase, o passo entre quadros consecutivos e constante dentro de uma faixa (o giro) e
-destoa exatamente na troca de faixa (o deslize). Se os passos atipicos nao cairem nas
-fronteiras esperadas, a premissa da captura esta errada -- e e melhor descobrir isso em
-noventa segundos do que depois de um treino de sete horas.
-
-**`images`** gera as imagens de treino reduzidas a partir de `images/` (a saida nao
-distorcida do COLMAP). As fotos originais tem 9504x6336; treinar exige reduzir, e fazer
-isso uma vez so evita redecodificar 60 MP a cada run.
-
-    python scripts/prepare_turntable.py check  -s ~/Documentos/rocha_fs16_16cm
-    python scripts/prepare_turntable.py images -s ~/Documentos/rocha_fs16_16cm --downscale 8
-
-*Nota sobre mascaras de fundo.* A primeira versao deste script mascarava o fundo por
-variancia temporal, pelo raciocinio de que camera parada + objeto girando torna o fundo
-estatico um degenerado de paralaxe zero para o SfM. A medicao derrubou a premissa: o
-fundo aparece em **um** quadro dos 72 (o 001, com 33% do quadro), e o que parecia fundo
-nos demais e a propria borda do cilindro girando para fora de vista. Sem fundo estatico
-nao ha o que mascarar. O registro completo esta em ADR-009.
-"""
+"""Verifica a captura em roletes (`check`) e gera as imagens de treino reduzidas (`images`)."""
 import json
 import os
 from argparse import ArgumentParser

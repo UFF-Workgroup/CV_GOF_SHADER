@@ -1,11 +1,4 @@
-"""Testes do ciclo de vida dos parametros de material (Fase 1 da auditoria).
-
-Cobre T3, T4 e T5 do plano. Cada teste corresponde a um bug real encontrado na
-auditoria de 2026-08-10, e todos os tres falhavam EM SILENCIO no codigo anterior:
-formas corretas, nenhuma excecao, resultado errado.
-
-Requer GPU (o GaussianModel fixa device="cuda").
-"""
+"""Testes do ciclo de vida dos parametros de material (Fase 1 da auditoria)."""
 import os
 import sys
 from argparse import ArgumentParser
@@ -50,12 +43,7 @@ def test_material_init_values():
 
 
 def test_t3_optimizer_binding_survives_prune():
-    """T3/A-1: apos podar, o tensor do modelo tem de ser o MESMO objeto que o Adam atualiza.
-
-    No codigo anterior prune_points recriava self._specular_tint a partir do tensor
-    antigo, descartando o que _prune_optimizer havia podado. O Adam passava a atualizar
-    um orfao e o parametro do modelo congelava a partir da iteracao 600.
-    """
+    """T3/A-1: apos podar, o tensor do modelo tem de ser o MESMO objeto que o Adam atualiza."""
     model, _ = make_model()
     mask = torch.zeros(model.get_xyz.shape[0], dtype=torch.bool, device="cuda")
     mask[:100] = True  # poda 100 pontos
@@ -72,11 +60,7 @@ def test_t3_optimizer_binding_survives_prune():
 
 
 def test_t3_material_actually_learns_after_prune():
-    """A-1, o efeito observavel: um passo do Adam apos a poda tem de MOVER o material.
-
-    Este e o teste que teria pego o bug original. A checagem de identidade acima e
-    estrutural; esta aqui e comportamental.
-    """
+    """A-1, o efeito observavel: um passo do Adam apos a poda tem de MOVER o material."""
     model, _ = make_model()
     mask = torch.zeros(model.get_xyz.shape[0], dtype=torch.bool, device="cuda")
     mask[:100] = True
@@ -113,11 +97,7 @@ def test_t3_binding_survives_densification():
 
 
 def test_t4_ply_roundtrip_preserves_material(tmp_path):
-    """T4/A-3: o material tem de sobreviver a save_ply -> load_ply.
-
-    Sem isto, render.py/extract_mesh.py avaliariam com material default -- diferente do
-    de treino -- e nada no log denunciaria.
-    """
+    """T4/A-3: o material tem de sobreviver a save_ply -> load_ply."""
     model, _ = make_model()
     with torch.no_grad():
         model._specular_tint += torch.randn_like(model._specular_tint)
@@ -184,11 +164,7 @@ def test_t5_checkpoint_roundtrip(tmp_path):
 
 
 def make_model_with_lighting(num_points=500, sh_degree=0, seed=0, light_repr="sh"):
-    """Como make_model, mas com --brdf ligado e a iluminacao configurada.
-
-    setup_lighting precisa vir ANTES de training_setup, para que a iluminacao entre
-    no grupo 'lighting' do Adam -- mesma ordem que scene/__init__.py + train.py usam.
-    """
+    """Como make_model, mas com --brdf ligado e a iluminacao configurada."""
     model, training_args = make_model(num_points=num_points, sh_degree=sh_degree, seed=seed)
     parser = ArgumentParser()
     lp = ModelParams(parser)
@@ -200,16 +176,7 @@ def make_model_with_lighting(num_points=500, sh_degree=0, seed=0, light_repr="sh
 
 
 def test_t5_checkpoint_roundtrip_preserves_lighting(tmp_path):
-    """A-4: capture -> restore com --brdf tem que trazer o envmap/SH aprendido de volta.
-
-    Achado ao auditar o checkpoint para retomada apos interrupcao (mesma classe do A-2:
-    parametro desconectado do otimizador, agora na iluminacao). Antes desta correcao,
-    capture()/restore() nao tocavam em self.lighting -- retomar de checkpoint reiniciava
-    a iluminacao para o ruido inicial, silenciosamente, enquanto reaplicava o MOMENTO do
-    Adam calculado para os valores antigos. Isso descartaria toda a iluminacao aprendida
-    exatamente nos runs que mais precisam de checkpoint (E1/E2, --brdf, 30k iteracoes,
-    maquina sem no-break).
-    """
+    """A-4: capture -> restore com --brdf tem que trazer o envmap/SH aprendido de volta."""
     model, training_args = make_model_with_lighting(light_repr="sh")
     with torch.no_grad():
         model.lighting.coeffs += torch.randn_like(model.lighting.coeffs)
@@ -228,8 +195,7 @@ def test_t5_checkpoint_roundtrip_preserves_lighting(tmp_path):
 
 
 def test_restore_lighting_mismatch_fails_loud():
-    """Restaurar um checkpoint com iluminacao num modelo sem --brdf tem que falhar alto,
-    nunca descartar a iluminacao aprendida em silencio (mesmo espirito de load_lighting)."""
+    """Restaurar um checkpoint com iluminacao num modelo sem --brdf tem que falhar alto, nunca descartar a iluminacao aprendida em silencio (mesmo espirito de load_lighting)."""
     model, training_args = make_model_with_lighting(light_repr="sh")
     params = model.capture()
 
@@ -239,8 +205,7 @@ def test_restore_lighting_mismatch_fails_loud():
 
 
 def test_restore_lighting_class_mismatch_fails_loud():
-    """Checkpoint com envmap restaurado num modelo configurado para SH (ou vice-versa)
-    tambem tem que falhar alto -- confundir as duas classes invalidaria os numeros."""
+    """Checkpoint com envmap restaurado num modelo configurado para SH (ou vice-versa) tambem tem que falhar alto -- confundir as duas classes invalidaria os numeros."""
     model, training_args = make_model_with_lighting(light_repr="envmap")
     params = model.capture()
 
