@@ -1,5 +1,21 @@
 # Changelog
 
+## 2026-09-23 — ADR-011: escopo restrito a Truck/Tanks&Temples, rocha fora por falta de autorização
+
+**Mudança.** Não há autorização de uso do dataset `~/Documentos/rocha_fs16_16cm`. Todo o
+desenho experimental que dependia dele — B2 (controle em rocha), E2 (run principal,
+`--light_frame view`), a investigação da fragmentação do COLMAP dessa cena — sai do
+caminho crítico do projeto. Ver `02_DECISOES.md` ADR-011 para o raciocínio completo.
+
+**Reformulação da contribuição.** De "validar a fusão GOF+GaussianShader no caso de uso
+de gêmeos digitais de rocha" para "validar a fusão em si (GOF puro vs. GOF+BRDF), com
+seeds, ablações e geometria, em Truck/Tanks&Temples". As ablações E3–E7 passam a rodar
+sobre E1 em vez de E2. `--light_frame view` (ADR-002) permanece documentado como
+contribuição teórica, sem validação empírica nesta fase.
+
+**Docs atualizados:** `00_VISAO_GERAL.md`, `04_PROTOCOLO.md`, `05_EXPERIMENTOS.md`,
+`07_LIMITACOES.md`, `09_RESUMO_EXECUTIVO.md`, `02_DECISOES.md` (ADR-011, novo).
+
 ## 2026-09-01 (2) — Fix A-5: NaN no polo do envmap, achado na primeira tentativa de E1
 
 **Achado.** A primeira tentativa do run E1 (Truck, `--brdf --light_frame world`) foi a

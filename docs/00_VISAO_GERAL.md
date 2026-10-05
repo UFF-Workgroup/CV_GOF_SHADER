@@ -1,8 +1,12 @@
 # GOF + Sombreamento Especular — Visão Geral
 
 Integração do sombreamento fisicamente baseado do **GaussianShader** na arquitetura
-volumétrica do **Gaussian Opacity Fields (GOF)**, para reconstrução de gêmeos digitais de
-**testemunhos de rocha**, onde tanto a topologia quanto a resposta à luz importam.
+volumétrica do **Gaussian Opacity Fields (GOF)**, sem modificar o rasterizador. A motivação
+original era reconstrução de gêmeos digitais de **testemunhos de rocha**; desde 2026-09-23
+(ADR-011) o escopo ativo está restrito a **Truck/Tanks&Temples**, por falta de autorização
+de uso do dataset de rocha — a contribuição passou a ser metodológica: a fusão GOF+BRDF em
+si, validada com múltiplas seeds, ablações e geometria numa cena pública. A motivação de
+rocha permanece como trabalho futuro condicionado a autorização (ver ADR-011).
 
 ---
 
@@ -58,12 +62,14 @@ explícito, de quanta SH ainda se precisa?* (ADR-003)
 | 3 · Módulo de sombreamento | concluída |
 | 4 · Perdas e regularização | concluída |
 | 5 · Otimização/instrumentação de VRAM | concluída |
-| Testes | 25 passando (T1–T7) |
-| Validação ponta a ponta | smoke test OK; runs do protocolo **pendentes** |
+| Testes | 36 passando (5 bugs silenciosos corrigidos — ver `06_AUDITORIA.md`) |
+| Validação ponta a ponta | B1 e E1 concluídos em Truck (1 seed, +0,41 dB PSNR) — ver `05_EXPERIMENTOS.md` |
+| Escopo | restrito a Truck/Tanks&Temples desde 2026-09-23 (ADR-011) |
 | Documentação | concluída |
 
-**Próximo passo:** rodar B0/B1 conforme `04_PROTOCOLO.md`. E1/E2 dependem das cenas de
-rocha e de uma informação de captura (nº de estações de câmera — ver `07_LIMITACOES.md` §3).
+**Próximo passo:** repetir E1 (e B1, se necessário) com ≥2 seeds, rodar as ablações E3–E7
+sobre E1 e viabilizar a comparação geométrica (Chamfer/F1) — ver `04_PROTOCOLO.md` e
+`09_RESUMO_EXECUTIVO.md` §6.
 
 ---
 

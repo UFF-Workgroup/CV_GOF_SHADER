@@ -144,11 +144,11 @@ representação explícita de luz é o componente de maior impacto.
 4. Não discute captura com objeto girando/luz parada — assume implicitamente envmap fixo
    no mundo com câmera orbitando (a lacuna que o ADR-002 do projeto preenche).
 
-**Relevância para rocha fosca:** o ganho do método escala com a especularidade da cena
-(+1,10 dB em objetos vítreos/metálicos vs. +0,19 dB em cenas reais difusas). Isso é
-consistente com o "Marco de decisão" de `04_PROTOCOLO.md` — se E2 não superar B2 por muito,
-não é necessariamente falha de implementação: o próprio artigo-fonte mostra retornos
-decrescentes em baixa especularidade.
+**Relevância para Truck (cena majoritariamente fosca, ADR-011):** o ganho do método escala
+com a especularidade da cena (+1,10 dB em objetos vítreos/metálicos vs. +0,19 dB em cenas
+reais difusas). Isso é consistente com o "Marco de decisão" de `04_PROTOCOLO.md` — se E1
+não superar B1 por muito, não é necessariamente falha de implementação: o próprio
+artigo-fonte mostra retornos decrescentes em baixa especularidade.
 
 ---
 

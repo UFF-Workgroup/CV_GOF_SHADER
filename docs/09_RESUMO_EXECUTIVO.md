@@ -21,9 +21,12 @@ cor é aquela" — separa a aparência em difuso + especular (com Fresnel, rugos
 mapa de iluminação), mas não tem a extração de malha nem o campo de opacidade do GOF.
 
 **A proposta deste trabalho:** fundir os dois — a geometria confiável do GOF com o
-sombreamento físico do GaussianShader — para reconstruir **gêmeos digitais de testemunhos
-de rocha**, onde tanto a forma quanto a resposta à luz importam (a rocha tem brilho de
-borda, veios minerais reflexivos, texturas que um modelo puramente difuso apaga).
+sombreamento físico do GaussianShader — sem modificar o rasterizador. A motivação original
+era reconstruir **gêmeos digitais de testemunhos de rocha** (brilho de borda, veios
+minerais reflexivos, texturas que um modelo puramente difuso apaga); desde 2026-09-23,
+porém, não há autorização de uso desse dataset (ADR-011), e o escopo ativo do projeto ficou
+restrito a validar a fusão em si — GOF puro vs. GOF+BRDF — na cena pública **Truck**
+(Tanks&Temples). A motivação de rocha permanece como trabalho futuro.
 
 ---
 
@@ -57,18 +60,20 @@ exatamente na cor do GOF original** — testado por código, não assumido (`max
 especular" poderia vir de qualquer mudança acidental, não do especular em si — e a
 comparação não significaria nada.
 
-**A adaptação mais específica e publicável do trabalho (ADR-002).** Os testemunhos de
-rocha são fotografados numa **mesa giratória**: o objeto gira, a câmera e as luzes ficam
-paradas na sala. Isso parece um detalhe de bancada, mas quebra uma suposição que toda a
-literatura de sombreamento em 3DGS faz: que o mapa de iluminação é fixo *no mundo*. Numa
-mesa giratória, no referencial que o COLMAP reconstrói (o do objeto), **a luz gira junto
-com a câmera** — um mapa fixo no mundo estaria tentando explicar como parado um reflexo que
-na verdade se move, e falharia. A correção ingênua seria estimar o ângulo exato da mesa em
-cada foto; a demonstração matemática em `03_FORMULACAO.md` §6 mostra que isso é
-desnecessário: **consultar o mapa de luz pela direção de reflexão em espaço de vista (da
-câmera) é exato**, porque a rotação desconhecida entre a sala e a câmera é global e
-constante — o próprio mapa aprendido a absorve. Uma linha de código resolve um erro de
-modelagem que, sem ela, invalidaria todos os reflexos da cena de rocha.
+**A adaptação mais específica do trabalho, hoje teórica e não validada empiricamente
+(ADR-002, ver ressalva em ADR-011).** Foi desenhada para testemunhos de rocha fotografados
+numa **mesa giratória**: o objeto gira, a câmera e as luzes ficam paradas na sala. Isso
+parece um detalhe de bancada, mas quebra uma suposição que toda a literatura de
+sombreamento em 3DGS faz: que o mapa de iluminação é fixo *no mundo*. Numa mesa giratória,
+no referencial que o COLMAP reconstrói (o do objeto), **a luz gira junto com a câmera** —
+um mapa fixo no mundo estaria tentando explicar como parado um reflexo que na verdade se
+move, e falharia. A correção ingênua seria estimar o ângulo exato da mesa em cada foto; a
+demonstração matemática em `03_FORMULACAO.md` §6 mostra que isso é desnecessário:
+**consultar o mapa de luz pela direção de reflexão em espaço de vista (da câmera) é
+exato**, porque a rotação desconhecida entre a sala e a câmera é global e constante — o
+próprio mapa aprendido a absorve. Fica registrada como contribuição teórica do projeto;
+sem autorização de uso de uma cena em mesa giratória (ADR-011), não há hoje como validar
+empiricamente que `--light_frame view` funciona como previsto.
 
 ---
 
@@ -151,43 +156,43 @@ O que falta para chamar isso de resultado citável:
 1. **Uma única execução.** O próprio protocolo do projeto (`04_PROTOCOLO.md`) exige **duas
    ou mais seeds** para qualquer número de destaque, justamente porque o rasterizador não é
    bit-reprodutível. Este é um resultado de **uma** seed — indicativo, não definitivo.
-2. **A cena errada para a pergunta principal.** Truck é a cena de *controle*, escolhida
-   porque tem `--light_frame world` fisicamente correto e permite comparar com a
-   literatura — não é um teste duro de especularidade (é um caminhão, majoritariamente
-   fosco). A pergunta que este trabalho existe para responder — *o sombreamento especular
-   ajuda a reconstruir testemunhos de rocha fotografados em mesa giratória?* — só é
-   respondida por **E2** (`--light_frame view`, cena de rocha), que ainda não rodou.
-3. **E2 está bloqueado**, não por falta de dados (a cena `~/Documentos/rocha_fs16_16cm`
-   já existe, com 72 fotos capturadas e verificadas — 8 faixas × 9 poses, confirmado por
-   correlação de fase, ver ADR-010), mas porque a reconstrução COLMAP dela saiu
-   **fragmentada em 4 sub-modelos** (`distorted/sparse/{0,1,2,3}`) em vez de um único
-   modelo — algo que precisa ser investigado e resolvido antes de treinar.
-4. **Sem comparação de geometria.** A extração de malha para E1 falhou por limite de VRAM
-   (`07_LIMITACOES.md` §7) — não é possível ainda comparar Chamfer/F1 entre B1 e E1 nesta
-   escala de cena neste hardware.
+2. **Sem as ablações que isolam o mecanismo.** E3–E7 (grau de SH, envmap vs. SH, Fresnel,
+   resíduo de normal) ainda não rodaram sobre E1 — são elas que respondem *por que* o
+   especular ajuda, não só *que* ajuda um pouco.
+3. **Sem comparação de geometria.** A extração de malha para E1 falhou por limite de VRAM
+   (`07_LIMITACOES.md` §7, corrigido em 2026-09; extração completa ainda em andamento) —
+   Chamfer/F1 entre B1 e E1 ainda não foi medido.
+
+**Sobre o escopo.** Até 2026-09-22 este trabalho previa uma segunda comparação, **E2 vs.
+B2** numa cena de rocha em mesa giratória, como a pergunta central do projeto — era ela que
+testaria especularidade de verdade (Truck é majoritariamente fosco). Por falta de
+autorização de uso desse dataset (ADR-011, 2026-09-23), essa linha foi retirada do escopo
+ativo: a contribuição do projeto passou a ser a fusão GOF+BRDF em si, validada só em Truck.
+Isso não é uma limitação a "resolver" — é o desenho atual do trabalho.
 
 **Em uma frase:** há evidência preliminar, honesta e encorajadora de que a metodologia
-funciona e ajuda — mas a validação científica completa depende de repetir E1 com mais
-seeds e, principalmente, de rodar E2 na cena que de fato importa para este trabalho.
+funciona e ajuda — a validação completa depende de repetir E1 com mais seeds, rodar as
+ablações E3–E7 e medir a geometria, tudo dentro do escopo Truck-only.
 
 ---
 
 ## 6. Próximos passos, em ordem
 
-1. **Resolver a fragmentação do COLMAP** da cena de rocha (`rocha_fs16_16cm`) — bloqueio
-   número um para qualquer progresso na pergunta central do trabalho.
-2. **Rodar E2** (`--brdf --light_frame view`, rocha) assim que o COLMAP estiver
-   consolidado — esta é a run que responde à pergunta que dá título ao projeto.
-3. **Repetir E1 com ≥2 seeds**, para que o +0,41 dB vire um número citável com
-   média ± desvio, conforme o protocolo já exige.
-4. Se E2 confirmar o ganho, seguir para as ablações (E3–E7) que isolam *por que* o
-   especular ajuda: grau de SH, envmap vs. SH, Fresnel, resíduo de normal.
-5. Endereçar a limitação de VRAM em `extract_mesh.py` (processar pontos tetra em lotes)
-   para viabilizar comparação geométrica.
+1. **Repetir E1 (e B1, se necessário) com ≥2 seeds**, para que o +0,41 dB vire um número
+   citável com média ± desvio, conforme o protocolo já exige.
+2. Se o ganho se confirmar, seguir para as ablações (E3–E7, agora sobre E1/Truck) que
+   isolam *por que* o especular ajuda: grau de SH, envmap vs. SH, Fresnel, resíduo de
+   normal.
+3. **Concluir a extração de malha texturizada de E1** (a correção de VRAM em
+   `extract_mesh.py` já processa em lotes — `07_LIMITACOES.md` §7 — extração em andamento)
+   e estender ao B1, para viabilizar Chamfer/F1 entre os dois.
+4. A linha de rocha (COLMAP fragmentado, E2/B2) fica arquivada, não descartada — ver
+   ADR-011 — condicionada a autorização futura de uso do dataset.
 
 ---
 
-*Este documento reflete o estado do projeto em 2026-09-02, commit `b06bb05`. Para a
-matemática completa, ver `03_FORMULACAO.md`; para o log de decisões, `02_DECISOES.md`;
-para o registro de todos os bugs com detalhe técnico, `06_AUDITORIA.md`; para a matriz de
+*Este documento reflete o estado do projeto em 2026-09-23, após ADR-011 (restrição de
+escopo a Truck/Tanks&Temples). Commit-base do resultado E1: `b06bb05`. Para a matemática
+completa, ver `03_FORMULACAO.md`; para o log de decisões, `02_DECISOES.md`; para o
+registro de todos os bugs com detalhe técnico, `06_AUDITORIA.md`; para a matriz de
 experimentos e seus resultados, `05_EXPERIMENTOS.md`.*

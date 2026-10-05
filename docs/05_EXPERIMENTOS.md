@@ -7,8 +7,12 @@ Formato do ID: `EXP-AAAAMMDD-NN-<slug>` · Artefatos em `docs/experiments/<RUN_I
 > **Aviso de reprodutibilidade.** O rasterizador usa `atomicAdd`, então a ordem de
 > acumulação dos gradientes varia entre execuções e o treino **não é bit-reprodutível**
 > mesmo com seeds fixas. Diferenças de PSNR abaixo de ~0,1 dB **não são interpretáveis**
-> a partir de uma execução única. Números de destaque (B0, E2) exigem ≥ 2 seeds com média
+> a partir de uma execução única. Números de destaque (B0, E1) exigem ≥ 2 seeds com média
 > ± desvio.
+>
+> **Escopo restrito a Truck/Tanks&Temples desde 2026-09-23 (ADR-011)** — sem autorização de
+> uso do dataset de rocha. B2/E2 (controle e run principal em rocha) saem do plano ativo;
+> ver `02_DECISOES.md` ADR-011 e `04_PROTOCOLO.md`.
 
 ---
 
@@ -53,7 +57,8 @@ qualquer uma delas suficiente:
 4. **800 iterações**, das quais só 500 com o BRDF ativo, e `-r 4`. Nada aqui se parece com
    o regime de treino real (30k, `-r 2`).
 
-O número correto a citar virá de B0/B1/E1/E2 conforme `04_PROTOCOLO.md`.
+O número correto a citar virá de B0/B1/E1 conforme `04_PROTOCOLO.md` (B2/E2, em rocha,
+saíram do escopo ativo — ADR-011).
 
 ---
 
@@ -224,12 +229,15 @@ não conclusão; não investigada a fundo aqui.
 
 **O que este resultado NÃO é, ainda:**
 1. **Execução única.** `04_PROTOCOLO.md` exige ≥2 seeds para qualquer número de
-   destaque (B0, E2 — e por extensão E1). Este é um resultado de **uma** seed.
-2. **Cena de controle, não a cena-alvo.** Truck é veículo com superfícies
-   majoritariamente foscas/metal semi-fosco — não um teste duro de especularidade. A
-   pergunta que importa de verdade (rocha, `--light_frame view`) é **E2**, ainda
-   pendente.
+   destaque (B0, E1). Este é um resultado de **uma** seed.
+2. **Sem as ablações que isolam o mecanismo.** E3–E7 (grau de SH, envmap vs. SH, Fresnel,
+   resíduo de normal) ainda não rodaram sobre E1.
 3. Malha extraída para comparação geométrica (Chamfer/F1) — ver nota abaixo.
+
+Truck é a única cena do escopo ativo (ADR-011, 2026-09-23) — superfícies majoritariamente
+foscas/metal semi-fosco, não um teste duro de especularidade; um ganho modesto é o
+resultado esperado pela própria literatura (`08_ARTIGOS_REFERENCIA.md` §1.7), não uma
+limitação a corrigir.
 
 **Malha não extraída — limitação de VRAM, não bug do BRDF.** `extract_mesh.py` deu
 `CUDA OutOfMemoryError` (4,71 GB alocados, 95 MB livres dos 4,98 GB reservados,
@@ -257,15 +265,13 @@ Ver a matriz completa em `04_PROTOCOLO.md`.
 |---|---|---|
 | B0 | pendente | GOF upstream — referência da literatura |
 | B1 | **concluído e fechado** (`EXP-20260811-02-b1`) — PSNR 25.2200 vs 25.2358 (Δ 0,016 dB), SSIM e LPIPS idem: **reversão neutra** | árvore atual sem BRDF — a reversão CUDA foi neutra? |
-| E1 | **concluído** (`EXP-20260901-02-e1`) — PSNR +0,41 dB vs. B1, 1 seed só, ver leitura completa acima | BRDF `light_frame=world` em Truck |
-| E2 | pendente | BRDF `light_frame=view` na cena de rocha — **contribuição principal** |
-| E3 | pendente | `sh_degree ∈ {0,1,2,3}` — quanto de $c_r$ é preciso? |
-| E4 | pendente | `light_repr=sh` vs `envmap` |
-| E5 | pendente | sem Fresnel |
-| E6 | pendente | sem resíduo de normal |
-| E7 | pendente | com `L_shading_normal` |
+| E1 | **concluído** (`EXP-20260901-02-e1`) — PSNR +0,41 dB vs. B1, 1 seed só, ver leitura completa acima | BRDF `light_frame=world` em Truck — **comparação central do projeto (ADR-011)** |
+| E1 (seed 2) | pendente | repetição para tornar o +0,41 dB citável (média ± desvio) |
+| E3 | pendente | `sh_degree ∈ {0,1,2,3}` sobre E1/Truck — quanto de $c_r$ é preciso? |
+| E4 | pendente | `light_repr=sh` vs `envmap` sobre E1/Truck |
+| E5 | pendente | sem Fresnel, sobre E1/Truck |
+| E6 | pendente | sem resíduo de normal, sobre E1/Truck |
+| E7 | pendente | com `L_shading_normal`, sobre E1/Truck |
 
-**Bloqueio conhecido para E2.** As cenas de rocha ainda não estão disponíveis neste
-ambiente, e falta uma informação da captura: **quantas estações de câmera** foram usadas.
-A derivação da mesa giratória (`03_FORMULACAO.md` §6) supõe uma só; com múltiplos anéis é
-preciso uma rotação aprendível por estação.
+~~B2~~/~~E2~~ (controle e run principal em rocha) saíram do plano ativo por falta de
+autorização de uso do dataset (ADR-011, 2026-09-23) — arquivadas, não descartadas.

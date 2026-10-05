@@ -282,3 +282,56 @@ falsa. Testá-la custou noventa segundos de estatística; aceitá-la teria custa
 sobre máscaras que cortam a amostra — e, pior, uma reconstrução plausível o bastante para
 não levantar suspeita. Vale como precedente: **premissa sobre os dados se mede antes de
 virar etapa de pipeline.**
+
+---
+
+## ADR-011 — Escopo restrito a Truck/Tanks&Temples; testemunho de rocha fica fora por falta de autorização
+
+**Data:** 2026-09-23 · **Status:** aceito
+
+**Contexto.** Todo o desenho experimental até aqui (`04_PROTOCOLO.md`) girava em torno de
+**E2** — `--brdf --light_frame view` na cena `rocha_fs16_16cm` — como a run que responde à
+pergunta central do projeto (*o sombreamento especular ajuda a reconstruir testemunhos de
+rocha fotografados em mesa giratória?*). B2 (controle na mesma cena), a investigação da
+fragmentação do COLMAP e os passos 1–2 de `09_RESUMO_EXECUTIVO.md` §6 dependiam todos dela.
+
+**O que mudou.** Não há autorização de uso do dataset de rocha (`~/Documentos/rocha_fs16_16cm`).
+Isso não é uma limitação técnica (como o COLMAP fragmentado) — é um impedimento de uso dos
+dados em si, e não se resolve investigando ou reprocessando nada.
+
+**Opções consideradas.**
+1. Buscar outra cena pública/autorizada com especularidade forte (ex.: as cenas do próprio
+   artigo do GaussianShader — Glossy Synthetic, Shiny Blender) para preservar a pergunta
+   "especular ajuda em superfícies reflexivas?" com um substituto da rocha.
+2. Pausar a definição de escopo e só marcar a rocha como bloqueada, sem redefinir o que a
+   substitui.
+3. **Reformular a contribuição como metodológica, restrita a Truck/Tanks&Temples.**
+
+**Decisão.** Opção 3. O projeto passa a comparar **só GOF puro (B1) vs. GOF+BRDF (E1)**,
+ambos em Truck — já é, por construção, a comparação "método separado vs. método mesclado"
+que a pergunta original buscava (ADR local, não precisa de uma reprodução à parte do
+GaussianShader original, que teria um backbone diferente — sem campo de opacidade nem
+extração de malha — e não daria uma comparação limpa). A contribuição do projeto deixa de
+ser "validar a fusão no caso de uso de gêmeos digitais de rocha" e passa a ser:
+
+1. A fusão em si (GOF + sombreamento BRDF do GaussianShader, sem modificar o rasterizador —
+   ADR-001) e sua validação em NVS + geometria, com múltiplas seeds, em Truck.
+2. As ablações E3–E7 (grau de SH, envmap vs. SH, Fresnel, resíduo de normal), agora rodadas
+   sobre **E1** em vez de E2 — mesma pergunta científica (*por que o especular ajuda, quando
+   ajuda*), só que sem depender da rocha.
+3. A correção do referencial de luz para mesa giratória (ADR-002, `03_FORMULACAO.md` §6)
+   permanece documentada como contribuição teórica, com a ressalva explícita de que **não
+   foi validada empiricamente** nesta fase — fica como trabalho futuro, condicionado a
+   autorização de uso de uma cena em mesa giratória.
+
+**Consequências.**
+- `04_PROTOCOLO.md`: B2 e E2–E7 (rocha) saem da matriz ativa; E3–E7 são redefinidas sobre
+  E1/Truck. O "marco de decisão" (parar e diagnosticar se o especular não ajudar) passa a
+  valer para E1 vs. B1.
+- A investigação da fragmentação do COLMAP da rocha (bloqueio nº1 do plano anterior) **não
+  é mais necessária** para o caminho crítico do projeto — fica arquivada, não descartada,
+  caso uma autorização futura reabra essa linha.
+- O orçamento de tempo do projeto cai (não há mais B2/E2 nem as extrações de malha
+  correspondentes) — ver `04_PROTOCOLO.md` para a matriz atualizada.
+- `00_VISAO_GERAL.md` e `09_RESUMO_EXECUTIVO.md` precisam de reescrita para não apresentar
+  "gêmeos digitais de testemunhos de rocha" como o objetivo corrente do trabalho.

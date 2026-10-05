@@ -128,11 +128,18 @@ qualitativa de malhas em cenas menores (como o *smoke test* que validou T8).
 ## Trabalho futuro
 
 1. Sombreamento por pixel em CUDA, acoplado à normal por raio do GOF (§1).
-2. Estimativa explícita do eixo da mesa giratória, removendo a suposição de estação única (§3).
-3. Rotação aprendível de iluminação por estação de câmera.
-4. Validação dos mapas de material contra medidas petrofísicas independentes — o que
+2. Medir quantitativamente a divergência entre as duas definições de normal (por raio vs.
+   por Gaussiana) ao longo do treino: é uma contribuição própria ainda não explorada, e não
+   depende de nenhuma cena específica.
+3. Reescrever `evaluage_alpha`/`integrate()` em `extract_mesh.py` para processar pontos
+   tetra em lotes, para viabilizar Chamfer/F1 em cenas com muitas Gaussianas em 6 GB (§7) —
+   **em andamento desde 2026-09**, `chunk_size` configurável.
+
+**Itens abaixo dependem da cena de mesa giratória (rocha) e ficam arquivados por falta de
+autorização de uso do dataset (ADR-011, 2026-09-23) — não fazem parte do caminho crítico
+atual:**
+
+4. Estimativa explícita do eixo da mesa giratória, removendo a suposição de estação única (§3).
+5. Rotação aprendível de iluminação por estação de câmera.
+6. Validação dos mapas de material contra medidas petrofísicas independentes — o que
    exigiria ground-truth de reflectância que hoje não existe.
-5. Medir quantitativamente a divergência entre as duas definições de normal (por raio vs.
-   por Gaussiana) ao longo do treino: é uma contribuição própria ainda não explorada.
-6. Reescrever `evaluage_alpha`/`integrate()` em `extract_mesh.py` para processar pontos
-   tetra em lotes, para viabilizar Chamfer/F1 em cenas com muitas Gaussianas em 6 GB (§7).

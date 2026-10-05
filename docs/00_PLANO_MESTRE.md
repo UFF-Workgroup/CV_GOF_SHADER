@@ -1,5 +1,11 @@
 # Plano: GOF + Sombreamento Especular (GaussianShader) para Rocha Digital
 
+> **Parcialmente superseded (2026-09-23, ADR-011 em `02_DECISOES.md`).** Este é o plano
+> original — mantido por registro histórico. A partir de 2026-09-23 não há autorização de
+> uso do dataset de rocha; tudo aqui que depende de B2/E2/cena de rocha (matriz de runs,
+> marco de decisão, motivação) está fora do escopo ativo. Para o plano corrente, ver
+> `04_PROTOCOLO.md`, `09_RESUMO_EXECUTIVO.md` e `02_DECISOES.md` ADR-011.
+
 ## Contexto
 
 **Objetivo da pesquisa.** Integrar o sombreamento fisicamente baseado do *GaussianShader* na
