@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+# Renderiza as vistas de teste das execucoes do NeRO e registra o tempo de cada renderizacao; pula as ja renderizadas.
+#   METODOS="gof gof_brdf gaussianshader" ./scripts/render_nero.sh bell cat teapot
+set -uo pipefail
+export LC_ALL=C
+REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+METODOS="${METODOS:-gof_brdf gaussianshader}"
+ITER="${ITER:-30000}"
+SCENES=("$@"); [ ${#SCENES[@]} -eq 0 ] && SCENES=(bell cat teapot)
+PY_GOF="${PY_GOF:-$HOME/miniconda3/envs/gof/bin/python}"
+PY_GS="${PY_GS:-$HOME/miniconda3/envs/gs/bin/python}"
+GS_DIR="${GS_DIR:-$HOME/Documentos/GaussianShader}"
+OUT="${OUT:-$REPO/output/nero}"
+export PATH=/usr/local/cuda-11.8/bin:$PATH CUDA_HOME=/usr/local/cuda-11.8
+for s in "${SCENES[@]}"; do
+  for m in $METODOS; do
+    D="$OUT/$s/$m"
+    [ -f "$D/render_tempo.json" ] && grep -q '"retorno": 0' "$D/render_tempo.json" && { echo "[render] pula $s/$m"; continue; }
+    t0=$(date +%s.%N)
+    if [ "$m" = gaussianshader ]; then
+      (cd "$GS_DIR" && "$PY_GS" render.py -m "$D" --skip_train --iteration "$ITER" --brdf_dim 0 --sh_degree -1 --brdf_mode envmap --brdf_env 512) > "$D/render.log" 2>&1
+    else
+      (cd "$REPO" && "$PY_GOF" render.py -m "$D" --skip_train --iteration "$ITER") > "$D/render.log" 2>&1
+    fi
+    rc=$?
+    printf '{"retorno": %d, "tempo_s": %.1f}\n' $rc "$(echo "$(date +%s.%N) - $t0" | bc)" > "$D/render_tempo.json"
+    echo "[render] $s/$m rc=$rc"
+  done
+done
