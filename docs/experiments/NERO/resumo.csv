@@ -1,0 +1,7 @@
+cena,metodo,PSNR,SSIM,LPIPS,tempo_h,energia_wh,potencia_media_w,vram_gb,render_s,psnr_por_wh
+bell,GOF + BRDF,24.805,0.8928,0.1159,3.18,152.61,48.0,2.83,23.2,0.163
+bell,GaussianShader,29.838,0.9405,0.0834,6.09,413.73,68.0,5.34,49.8,0.072
+cat,GOF + BRDF,32.365,0.9665,0.0541,2.23,106.91,48.0,2.59,21.0,0.303
+cat,GaussianShader,31.317,0.9607,0.0578,6.08,413.94,68.1,5.47,52.3,0.076
+teapot,GOF + BRDF,23.078,0.8889,0.0982,3.77,179.83,47.7,2.58,22.7,0.128
+teapot,GaussianShader,23.825,0.9021,0.0946,6.47,439.38,67.9,5.55,50.4,0.054

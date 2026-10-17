@@ -1,0 +1,34 @@
+{
+  "medias": {
+    "GOF+BRDF": {
+      "PSNR": 32.36513090133667,
+      "SSIM": 0.966485533863306,
+      "LPIPS": 0.05413766810670495
+    },
+    "GaussianShader": {
+      "PSNR": 31.316666781902313,
+      "SSIM": 0.9606603477150202,
+      "LPIPS": 0.057815841981209815
+    }
+  },
+  "pares": {
+    "GaussianShader - GOF+BRDF": {
+      "PSNR": {
+        "media": -1.0484641194343567,
+        "vistas_b_melhor": 1,
+        "vistas": 32
+      },
+      "SSIM": {
+        "media": -0.005825186148285866,
+        "vistas_b_melhor": 2,
+        "vistas": 32
+      },
+      "LPIPS": {
+        "media": 0.003678173874504864,
+        "vistas_b_melhor": 2,
+        "vistas": 32
+      }
+    }
+  },
+  "n_vistas": 32
+}
