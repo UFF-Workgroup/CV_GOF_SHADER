@@ -9,7 +9,10 @@ import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
-METHODS = [("gof_brdf", "GOF + BRDF", "#B85C0F"), ("gaussianshader", "GaussianShader", "#1D6A8A")]
+# (pasta, rotulo, chave em results.json, cor)
+METHODS = [("gof", "GOF sem BRDF", "GOF", "#7B6CB5"), ("gof_brdf", "GOF + BRDF", "GOF+BRDF", "#C98A2E"),
+           ("gof_brdf_ajustado", "GOF + BRDF ajustado", "GOF+BRDF ajustado", "#A1440C"),
+           ("gaussianshader", "GaussianShader", "GaussianShader", "#1F7AA0")]
 SCENES = ["bell", "cat", "teapot"]
 INK, MUTED, GRID = "#14202E", "#4A5568", "#DDD8CB"
 
@@ -17,13 +20,12 @@ INK, MUTED, GRID = "#14202E", "#4A5568", "#DDD8CB"
 def load(root):
     data = {}
     for s in SCENES:
-        for m, _, _ in METHODS:
+        for m, _, key, _ in METHODS:
             d = os.path.join(root, s, m)
             perfil = json.load(open(os.path.join(d, "perfil.json")))
             render = json.load(open(os.path.join(d, "render_tempo.json")))
             med = json.load(open(os.path.join(root, s, "metricas", "results.json")))["medias"]
-            name = dict((k, n) for k, n, _ in METHODS)[m]
-            data[(s, m)] = {**perfil, "render_s": render["tempo_s"], **med[name.replace(" + ", "+")]}
+            data[(s, m)] = {**perfil, "render_s": render["tempo_s"], **med[key]}
     return data
 
 
@@ -36,26 +38,26 @@ def style(ax):
 
 
 def grouped(ax, data, key, scale, fmt, title, unit):
-    w = 0.38
-    for j, (m, n, c) in enumerate(METHODS):
-        xs = [i + (j - 0.5) * w for i in range(len(SCENES))]
+    w = 0.84 / len(METHODS)
+    for j, (m, n, _, c) in enumerate(METHODS):
+        xs = [i + (j - (len(METHODS) - 1) / 2) * w for i in range(len(SCENES))]
         vals = [data[(s, m)][key] * scale for s in SCENES]
         bars = ax.bar(xs, vals, w - 0.04, color=c, label=n)
         for b, v in zip(bars, vals):
-            ax.text(b.get_x() + b.get_width() / 2, v, fmt.format(v), ha="center", va="bottom", fontsize=9, color=INK)
+            ax.text(b.get_x() + b.get_width() / 2, v, fmt.format(v), ha="center", va="bottom", fontsize=7, color=INK)
     ax.set_xticks(range(len(SCENES)), SCENES)
     ax.set_title(f"{title} ({unit})", loc="left", color=INK, fontsize=12)
     style(ax)
 
 
 def fig_panels(data, keys, out, suptitle, ylim=None):
-    fig, axes = plt.subplots(1, len(keys), figsize=(5 * len(keys), 4.2))
+    fig, axes = plt.subplots(1, len(keys), figsize=(6 * len(keys), 4.6))
     for ax, (key, scale, fmt, title, unit) in zip(axes, keys):
         grouped(ax, data, key, scale, fmt, title, unit)
     for ax in axes:
         ax.set_ylim(top=ax.get_ylim()[1] * 1.08)
     handles, labels = axes[0].get_legend_handles_labels()
-    fig.legend(handles, labels, frameon=False, loc="upper right", ncol=2)
+    fig.legend(handles, labels, frameon=False, loc="upper right", ncol=len(METHODS))
     fig.suptitle(suptitle, x=0.01, ha="left", color=INK, fontsize=13)
     fig.tight_layout()
     fig.savefig(out, dpi=150)
@@ -81,21 +83,21 @@ def main():
     fig, axes = plt.subplots(1, 3, figsize=(15, 4))
     for ax, s in zip(axes, SCENES):
         pv = json.load(open(os.path.join(a.root, s, "metricas", "per_view.json")))
-        g, o = pv["GaussianShader"], pv["GOF+BRDF"]
+        g, o = pv["GaussianShader"], pv["GOF+BRDF ajustado"]
         d = sorted(g[k]["PSNR"] - o[k]["PSNR"] for k in g)
-        ax.bar(range(len(d)), d, color=["#1D6A8A" if x >= 0 else "#B85C0F" for x in d])
+        ax.bar(range(len(d)), d, color=["#1F7AA0" if x >= 0 else "#A1440C" for x in d])
         ax.axhline(0, color=MUTED, linewidth=1)
-        ax.set_title(f"{s}: GaussianShader menos GOF + BRDF (dB)", loc="left", color=INK, fontsize=11)
+        ax.set_title(f"{s}: GaussianShader menos GOF + BRDF ajustado (dB)", loc="left", color=INK, fontsize=11)
         ax.set_xlabel("vistas em ordem crescente", color=MUTED)
         style(ax)
-    fig.suptitle("Diferenca de PSNR por vista (azul: GaussianShader melhor; laranja: GOF + BRDF melhor)", x=0.01, ha="left", color=INK, fontsize=13)
+    fig.suptitle("Diferenca de PSNR por vista (azul: GaussianShader melhor; laranja: GOF + BRDF ajustado melhor)", x=0.01, ha="left", color=INK, fontsize=13)
     fig.tight_layout()
     fig.savefig(os.path.join(a.out, "diferenca_psnr_por_vista.png"), dpi=150)
     plt.close(fig)
 
     fig, axes = plt.subplots(1, 3, figsize=(15, 4), sharey=True)
     for ax, s in zip(axes, SCENES):
-        for m, n, c in METHODS:
+        for m, n, _, c in METHODS:
             rows = []
             with open(os.path.join(a.root, s, m, "gpu.csv")) as f:
                 for r in csv.reader(f):
@@ -121,7 +123,7 @@ def main():
         w = csv.writer(f)
         w.writerow(cols)
         for s in SCENES:
-            for m, n, _ in METHODS:
+            for m, n, _, _ in METHODS:
                 d = data[(s, m)]
                 w.writerow([s, n, round(d["PSNR"], 3), round(d["SSIM"], 4), round(d["LPIPS"], 4), round(d["tempo_s"] / 3600, 2), d["energia_wh"],
                             d["potencia_media_w"], round(d["vram_max_mib"] / 1024, 2), d["render_s"], round(d["PSNR"] / d["energia_wh"], 3)])
