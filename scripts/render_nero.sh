@@ -1,17 +1,19 @@
 #!/usr/bin/env bash
 # Renderiza as vistas de teste das execucoes do NeRO e registra o tempo de cada renderizacao; pula as ja renderizadas.
-#   METODOS="gof gof_brdf gaussianshader" ./scripts/render_nero.sh bell cat teapot
+#   [GS_DIR=<clone> PY_GS=<python>] METODOS="gof gof_brdf_ajustado gaussianshader" ./scripts/render_nero.sh bell cat teapot
 set -uo pipefail
 export LC_ALL=C
 REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 METODOS="${METODOS:-gof_brdf gaussianshader}"
 ITER="${ITER:-30000}"
 SCENES=("$@"); [ ${#SCENES[@]} -eq 0 ] && SCENES=(bell cat teapot)
-PY_GOF="${PY_GOF:-$HOME/miniconda3/envs/gof/bin/python}"
-PY_GS="${PY_GS:-$HOME/miniconda3/envs/gs/bin/python}"
-GS_DIR="${GS_DIR:-$HOME/Documentos/GaussianShader}"
+PY_GOF="${PY_GOF:-python}"
+if [[ " $METODOS " == *" gaussianshader "* ]]; then
+  : "${GS_DIR:?defina GS_DIR com o clone do GaussianShader}" "${PY_GS:?defina PY_GS com o python do ambiente do GaussianShader}"
+fi
 OUT="${OUT:-$REPO/output/nero}"
-export PATH=/usr/local/cuda-11.8/bin:$PATH CUDA_HOME=/usr/local/cuda-11.8
+CUDA_HOME="${CUDA_HOME:-/usr/local/cuda-11.8}"
+export CUDA_HOME PATH="$CUDA_HOME/bin:$PATH"
 for s in "${SCENES[@]}"; do
   for m in $METODOS; do
     D="$OUT/$s/$m"

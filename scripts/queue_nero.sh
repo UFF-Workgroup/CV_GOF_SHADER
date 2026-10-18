@@ -1,18 +1,20 @@
 #!/usr/bin/env bash
 # Fila serial de treinos no NeRO GlossySynthetic com perfil de tempo/energia/VRAM; pula execucoes ja concluidas.
-#   METODOS="gof gof_brdf gof_brdf_ajustado gaussianshader" ITERS=30000 ./scripts/queue_nero.sh bell cat teapot
+#   NERO_DATA=<pasta> [GS_DIR=<clone> PY_GS=<python>] METODOS="gof gof_brdf_ajustado gaussianshader" ./scripts/queue_nero.sh bell cat teapot
 set -uo pipefail
 REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 ITERS="${ITERS:-30000}"
 METODOS="${METODOS:-gof_brdf gaussianshader}"
 TAG="${TAG:-}"
 SCENES=("$@"); [ ${#SCENES[@]} -eq 0 ] && SCENES=(bell cat teapot)
-DATA="${NERO_DATA:-$HOME/Documentos/datasets/NeRO/extract/GlossySynthetic}"
-GS_DIR="${GS_DIR:-$HOME/Documentos/GaussianShader}"
-PY_GOF="${PY_GOF:-$HOME/miniconda3/envs/gof/bin/python}"
-PY_GS="${PY_GS:-$HOME/miniconda3/envs/gs/bin/python}"
+DATA="${NERO_DATA:?defina NERO_DATA com a pasta do GlossySynthetic convertido}"
+PY_GOF="${PY_GOF:-python}"
+if [[ " $METODOS " == *" gaussianshader "* ]]; then
+  : "${GS_DIR:?defina GS_DIR com o clone do GaussianShader}" "${PY_GS:?defina PY_GS com o python do ambiente do GaussianShader}"
+fi
 OUT="${OUT:-$REPO/output/nero}"
-export PATH=/usr/local/cuda-11.8/bin:$PATH CUDA_HOME=/usr/local/cuda-11.8
+CUDA_HOME="${CUDA_HOME:-/usr/local/cuda-11.8}"
+export CUDA_HOME PATH="$CUDA_HOME/bin:$PATH"
 CK=$((ITERS/3))
 GOF_COMUM=(--eval -w --sh_degree 0 --iterations "$ITERS" --test_iterations "$ITERS" --save_iterations "$ITERS"
            --checkpoint_iterations $CK $((2*CK)) "$ITERS")
