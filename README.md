@@ -60,6 +60,41 @@ e carimba commit, config e hardware em `docs/experiments/<RUN_ID>/`.
 
 ---
 
+## Objetos brilhantes (NeRO GlossySynthetic)
+
+Benchmark contra o GaussianShader em cenas sintéticas espelhadas, com tempo, energia e VRAM
+medidos por treino (`nvidia-smi` a cada 2 s). Requer um clone do
+[GaussianShader](https://github.com/Asparagus15/GaussianShader) com seu próprio ambiente.
+
+```bash
+# 1. Dados: GlossySynthetic do NeRO convertido pelo nero2blender.py do GaussianShader
+#    (precisa de configs/synthetic_split_128.pkl do NeRO); depois a versão lida pelo GOF
+python scripts/nero_to_gof.py --src <GlossySynthetic>/bell_blender --dst <GlossySynthetic>/bell_gof
+
+# 2. Treinos em fila serial (pula os já concluídos); GS_DIR e PY_GS só para o GaussianShader
+export NERO_DATA=<GlossySynthetic> GS_DIR=<clone do GaussianShader> PY_GS=<python do ambiente gs>
+METODOS="gof gof_brdf gof_brdf_ajustado gaussianshader" ./scripts/queue_nero.sh bell cat teapot
+
+# 3. Render das vistas de teste, métricas e gráficos
+METODOS="gof gof_brdf gof_brdf_ajustado gaussianshader" ./scripts/render_nero.sh bell cat teapot
+python scripts/compare_preds.py --gt output/nero/bell/gof/test/ours_30000/gt_-1 \
+    -m GOF=output/nero/bell/gof/test/ours_30000/test_preds_-1 \
+    -m GOF+BRDF=output/nero/bell/gof_brdf/test/ours_30000/test_preds_-1 \
+    -m "GOF+BRDF ajustado=output/nero/bell/gof_brdf_ajustado/test/ours_30000/test_preds_-1" \
+    -m GaussianShader=output/nero/bell/gaussianshader/test/ours_30000/renders \
+    --out output/nero/bell/metricas
+python scripts/nero_report.py --root output/nero --out output/nero/relatorio
+```
+
+`gof_brdf` usa a configuração do Truck. `gof_brdf_ajustado` acrescenta
+`--envmap_res 512 --lambda_specular_sparse 0 --depth_normal_from_iter 3000`, para que o
+reflexo de superfícies espelhadas não seja borrado nem zerado pela regularização. Variáveis
+opcionais: `PY_GOF` (padrão `python`), `CUDA_HOME` (padrão `/usr/local/cuda-11.8`), `ITERS`
+(padrão 30000) e `OUT` (padrão `output/nero`). `nero_report.py` espera as quatro variantes
+nas três cenas.
+
+---
+
 ## Testes
 
 ```bash
