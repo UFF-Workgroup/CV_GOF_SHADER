@@ -15,6 +15,7 @@
 - Cherry-pick de commit que mexe em `docs/` ou cita `docs/` no codigo/README/scripts: ajustar para que a `prd` fique sem nenhuma referencia (`git grep -n "docs/"` deve vir vazio, salvo URLs externas).
 - Na `prd`, metadados de run ficam em `output/<RUN_ID>/meta/` (nao em `docs/experiments/`).
 - Imagens e resultados (`output/`, `release/`) nunca entram no git; sao enviados manualmente.
+- O manuscrito (`docs/manuescrito/`: o .zip e tudo produzido a partir dele) pode ser versionado na dev, mas nunca vai para o PRD. Na `prd`, nada de `git add -A`/`git add .`: a pasta, se nao rastreada, continua no disco ao trocar de branch.
 - Submodulos (`submodules/`) ficam vendored como pastas comuns, nao como git submodule.
 - Push para `origin` e para `upstream`, e qualquer force push, so quando o usuario pedir. Force push no PRD com `--force-with-lease` apontando o commit esperado.
 - Comentarios no codigo: no maximo uma frase.
