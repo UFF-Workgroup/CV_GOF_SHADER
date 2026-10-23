@@ -1,0 +1,264 @@
+\relax 
+\providecommand \babel@aux [2]{\global \let \babel@toc \@gobbletwo }
+\@nameuse{bbl@beforestart}
+\catcode `"\active 
+\providecommand\hyper@newdestlabel[2]{}
+\providecommand\HyField@AuxAddToFields[1]{}
+\providecommand\HyField@AuxAddToCoFields[2]{}
+\def\@LN@column{1}
+\babel@aux{brazilian}{}
+\citation{mildenhall2020nerf}
+\citation{kerbl2023gaussian,bao2025survey}
+\citation{verbin2022refnerf,mezieres2022hvl}
+\citation{jiang2024gaussianshader,wu2025deferredgs}
+\citation{liu2023nero,li2026pdrgs}
+\citation{guedon2024sugar}
+\citation{huang2024twodgs}
+\citation{yu2024gof}
+\citation{jiang2024gaussianshader}
+\citation{liang2024gsir,shi2025gir,yao2025refgaussian,gu2025irgs}
+\def\@LN@column{1}
+\@writefile{toc}{\contentsline {section}{\numberline {1}Introdução}{2}{section.1}\protected@file@percent }
+\citation{jiang2024gaussianshader}
+\citation{verbin2022refnerf}
+\citation{karis2013ue4,munkberg2022nvdiffrec}
+\citation{kerbl2023gaussian}
+\citation{guedon2024sugar}
+\citation{huang2024twodgs}
+\citation{yu2024gof}
+\citation{yu2024mipsplatting}
+\citation{zhang2024radegs}
+\citation{lyu2024dgsr}
+\citation{guedon2025milo}
+\citation{jiang2025geometryfield}
+\citation{moenne2024gaussianrt}
+\citation{li2026pdrgs}
+\def\@LN@column{1}
+\@writefile{toc}{\contentsline {section}{\numberline {2}Trabalhos relacionados}{3}{section.2}\protected@file@percent }
+\newlabel{sec:relacionados}{{2}{3}{Trabalhos relacionados}{section.2}{}}
+\@writefile{toc}{\contentsline {paragraph}{Geometria a partir de Gaussianas.}{3}{section*.1}\protected@file@percent }
+\citation{verbin2022refnerf}
+\citation{liu2023nero}
+\citation{munkberg2022nvdiffrec}
+\citation{jiang2024gaussianshader}
+\citation{shi2025gir}
+\citation{liang2024gsir}
+\citation{wu2025deferredgs,yao2025refgaussian}
+\citation{liang2025gusir,zhou2025rtrgs}
+\citation{lai2025glossygs,yang2025gogs}
+\citation{zhu2025gsror2,zhu2025dsdf}
+\citation{ye2025geosplatting}
+\citation{sun2025svgir}
+\citation{gu2025irgs,gu2026irgsext}
+\citation{zhu2026ptirgs}
+\citation{jiang2025radiosity}
+\citation{han2026radiometric}
+\citation{chen2024gigs}
+\citation{xu2026gspi}
+\citation{noras2025gains}
+\def\@LN@column{1}
+\@writefile{toc}{\contentsline {paragraph}{Aparência especular e renderização inversa.}{4}{section*.2}\protected@file@percent }
+\citation{kerbl2023gaussian}
+\citation{huang2024twodgs}
+\citation{yu2024gof}
+\citation{jiang2024gaussianshader}
+\citation{liang2024gsir}
+\citation{yao2025refgaussian}
+\citation{gu2025irgs}
+\citation{yu2024gof}
+\def\@LN@column{1}
+\@writefile{lot}{\contentsline {table}{\numberline {1}{\ignorespaces \textbf  {Comparação qualitativa com trabalhos próximos.} Descrições tiradas dos resumos e textos dos trabalhos citados; ``—'' indica que o aspecto não é tratado pelo método.}}{5}{table.1}\protected@file@percent }
+\newlabel{tab:relacionados}{{1}{5}{\textbf {Comparação qualitativa com trabalhos próximos.} Descrições tiradas dos resumos e textos dos trabalhos citados; ``—'' indica que o aspecto não é tratado pelo método}{table.1}{}}
+\@writefile{toc}{\contentsline {paragraph}{Posicionamento.}{5}{section*.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {3}Método}{5}{section.3}\protected@file@percent }
+\newlabel{sec:metodo}{{3}{5}{Método}{section.3}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.1}Preliminares: renderização no GOF}{5}{subsection.3.1}\protected@file@percent }
+\newlabel{eq:composicao}{{1}{5}{Preliminares: renderização no GOF}{equation.1}{}}
+\citation{jiang2024gaussianshader}
+\citation{jiang2024gaussianshader}
+\def\@LN@column{1}
+\@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces \textbf  {Visão geral do método.} O sombreamento (laranja) calcula, em PyTorch, uma cor $\mathbf  {c}_i$ por Gaussiana e por vista a partir dos atributos de material e de um mapa de ambiente aprendido. Essa cor entra no rasterizador do GOF pelo caminho de cor pré-computada, que já existia e já devolvia $\partial \mathcal  {L}/\partial \mathbf  {c}_i$; o restante do gradiente é obtido por diferenciação automática. Rasterizador, perdas geométricas e extração de malha são os do GOF, sem modificação.}}{6}{figure.1}\protected@file@percent }
+\newlabel{fig:pipeline}{{1}{6}{\textbf {Visão geral do método.} O sombreamento (laranja) calcula, em PyTorch, uma cor $\bc _i$ por Gaussiana e por vista a partir dos atributos de material e de um mapa de ambiente aprendido. Essa cor entra no rasterizador do GOF pelo caminho de cor pré-computada, que já existia e já devolvia $\partial \mathcal {L}/\partial \bc _i$; o restante do gradiente é obtido por diferenciação automática. Rasterizador, perdas geométricas e extração de malha são os do GOF, sem modificação}{figure.1}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.2}Função de sombreamento}{6}{subsection.3.2}\protected@file@percent }
+\newlabel{eq:sombreamento}{{2}{6}{Função de sombreamento}{equation.2}{}}
+\citation{jiang2024gaussianshader,shi2025gir}
+\citation{verbin2022refnerf}
+\citation{schlick1994fresnel}
+\citation{jiang2024gaussianshader}
+\citation{karis2013ue4,munkberg2022nvdiffrec}
+\citation{walter2007ggx}
+\def\@LN@column{1}
+\@writefile{toc}{\contentsline {paragraph}{Termos difuso e residual.}{7}{section*.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Normal.}{7}{section*.5}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Reflexão e Fresnel.}{7}{section*.6}\protected@file@percent }
+\newlabel{eq:fresnel}{{3}{7}{Reflexão e Fresnel}{equation.3}{}}
+\@writefile{toc}{\contentsline {paragraph}{Luz especular pré-filtrada.}{7}{section*.7}\protected@file@percent }
+\citation{kerbl2023gaussian}
+\citation{jiang2024gaussianshader}
+\def\@LN@column{1}
+\@writefile{toc}{\contentsline {paragraph}{Referencial da iluminação.}{8}{section*.8}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.3}Integração sem alterar o rasterizador}{8}{subsection.3.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.4}Perdas}{8}{subsection.3.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.5}Equivalência verificável}{8}{subsection.3.5}\protected@file@percent }
+\newlabel{sec:equivalencia}{{3.5}{8}{Equivalência verificável}{subsection.3.5}{}}
+\citation{knapitsch2017tanks}
+\citation{schonberger2016colmap}
+\citation{liu2023nero}
+\def\@LN@column{1}
+\@writefile{toc}{\contentsline {section}{\numberline {4}Protocolo experimental}{9}{section.4}\protected@file@percent }
+\newlabel{sec:protocolo}{{4}{9}{Protocolo experimental}{section.4}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.1}Desenho}{9}{subsection.4.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.2}Dados}{9}{subsection.4.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Truck.}{9}{section*.9}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{NeRO Glossy Synthetic.}{9}{section*.10}\protected@file@percent }
+\def\@LN@column{1}
+\@writefile{lot}{\contentsline {table}{\numberline {2}{\ignorespaces \textbf  {Configurações avaliadas.} Hiperparâmetros não listados seguem os valores-padrão do GOF. O GaussianShader usa \texttt  {-{}-brdf\_dim 0 -{}-sh\_degree -1 -{}-lambda\_predicted\_normal 2e-1 -{}-brdf\_env 512}, como no repositório dos autores, com iluminação em \emph  {cubemap} e regras próprias para normal e ativação dos termos.}}{10}{table.2}\protected@file@percent }
+\newlabel{tab:configs}{{2}{10}{\textbf {Configurações avaliadas.} Hiperparâmetros não listados seguem os valores-padrão do GOF. O GaussianShader usa \texttt {-{}-brdf\_dim 0 -{}-sh\_degree -1 -{}-lambda\_predicted\_normal 2e-1 -{}-brdf\_env 512}, como no repositório dos autores, com iluminação em \emph {cubemap} e regras próprias para normal e ativação dos termos}{table.2}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.3}Configurações}{10}{subsection.4.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Como o ajuste foi escolhido.}{10}{section*.11}\protected@file@percent }
+\citation{wang2004ssim}
+\citation{zhang2018lpips}
+\citation{efron1979bootstrap}
+\citation{wilcoxon1945}
+\citation{strubell2019energy}
+\def\@LN@column{1}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.4}Métricas}{11}{subsection.4.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.5}Análise estatística}{11}{subsection.4.5}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.6}Custo}{11}{subsection.4.6}\protected@file@percent }
+\citation{jiang2024gaussianshader}
+\def\@LN@column{1}
+\@writefile{toc}{\contentsline {section}{\numberline {5}Resultados}{12}{section.5}\protected@file@percent }
+\newlabel{sec:resultados}{{5}{12}{Resultados}{section.5}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.1}Cena real: Truck}{12}{subsection.5.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.2}Objetos brilhantes: NeRO}{12}{subsection.5.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{C1, termo especular com a configuração do Truck.}{12}{section*.12}\protected@file@percent }
+\def\@LN@column{1}
+\@writefile{lot}{\contentsline {table}{\numberline {3}{\ignorespaces \textbf  {Truck: efeito do termo especular (C1).} Média das 32 vistas de teste, uma semente por configuração. $\Delta $ = GOF+BRDF $-$ GOF; para o LPIPS, menor é melhor.}}{13}{table.3}\protected@file@percent }
+\newlabel{tab:truck}{{3}{13}{\textbf {Truck: efeito do termo especular (C1).} Média das 32 vistas de teste, uma semente por configuração. $\Delta $ = GOF+BRDF $-$ GOF; para o LPIPS, menor é melhor}{table.3}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces \textbf  {Truck.} Acima: vista de teste com o maior ganho do termo especular (vista 24), e a diferença do erro absoluto por pixel, GOF+BRDF menos GOF (azul: o GOF+BRDF erra menos). Abaixo: diferença de PSNR por vista, ordenada; a linha tracejada é a média.}}{13}{figure.2}\protected@file@percent }
+\newlabel{fig:truck}{{2}{13}{\textbf {Truck.} Acima: vista de teste com o maior ganho do termo especular (vista 24), e a diferença do erro absoluto por pixel, GOF+BRDF menos GOF (azul: o GOF+BRDF erra menos). Abaixo: diferença de PSNR por vista, ordenada; a linha tracejada é a média}{figure.2}{}}
+\@writefile{toc}{\contentsline {paragraph}{C2, efeito do ajuste.}{13}{section*.13}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{C3, comparação com o GaussianShader.}{13}{section*.14}\protected@file@percent }
+\citation{jiang2024gaussianshader}
+\citation{jiang2024gaussianshader}
+\citation{jiang2024gaussianshader}
+\citation{jiang2024gaussianshader}
+\def\@LN@column{1}
+\@writefile{lot}{\contentsline {table}{\numberline {4}{\ignorespaces \textbf  {NeRO: métricas médias nas 32 vistas de teste.} Negrito: melhor média da cena (na \emph  {bell}, a diferença de PSNR entre o GOF+BRDF ajustado e o GaussianShader não é significativa; Tabela~\ref {tab:pares}). Itálico: valores publicados pelos autores do GaussianShader para o mesmo objeto (Tabela 5 de~\cite  {jiang2024gaussianshader}), como referência da nossa execução.}}{14}{table.4}\protected@file@percent }
+\newlabel{tab:nero}{{4}{14}{\textbf {NeRO: métricas médias nas 32 vistas de teste.} Negrito: melhor média da cena (na \emph {bell}, a diferença de PSNR entre o GOF+BRDF ajustado e o GaussianShader não é significativa; Tabela~\ref {tab:pares}). Itálico: valores publicados pelos autores do GaussianShader para o mesmo objeto (Tabela 5 de~\cite {jiang2024gaussianshader}), como referência da nossa execução}{table.4}{}}
+\@writefile{toc}{\contentsline {paragraph}{Inspeção visual.}{14}{section*.15}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.3}Custo}{14}{subsection.5.3}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {3}{\ignorespaces \textbf  {NeRO, vista de teste 5 de cada objeto.} Linhas ímpares: referência e renders, com o PSNR da vista; linhas pares: erro absoluto médio por pixel, na mesma escala para todos os métodos.}}{15}{figure.3}\protected@file@percent }
+\newlabel{fig:nero_qualitativo}{{3}{15}{\textbf {NeRO, vista de teste 5 de cada objeto.} Linhas ímpares: referência e renders, com o PSNR da vista; linhas pares: erro absoluto médio por pixel, na mesma escala para todos os métodos}{figure.3}{}}
+\def\@LN@column{1}
+\@writefile{lot}{\contentsline {table}{\numberline {5}{\ignorespaces \textbf  {NeRO: diferenças pareadas por vista.} Média e IC 95\% por \emph  {bootstrap} pareado; $p$ do teste de Wilcoxon para o PSNR; última coluna: vistas em que o primeiro termo tem PSNR maior. Diferenças positivas favorecem o primeiro termo em PSNR e SSIM, e negativas em LPIPS. Estatísticas de todos os pares estão na Tabela~\ref {tab:pares_completa}.}}{16}{table.5}\protected@file@percent }
+\newlabel{tab:pares}{{5}{16}{\textbf {NeRO: diferenças pareadas por vista.} Média e IC 95\% por \emph {bootstrap} pareado; $p$ do teste de Wilcoxon para o PSNR; última coluna: vistas em que o primeiro termo tem PSNR maior. Diferenças positivas favorecem o primeiro termo em PSNR e SSIM, e negativas em LPIPS. Estatísticas de todos os pares estão na Tabela~\ref {tab:pares_completa}}{table.5}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {4}{\ignorespaces \textbf  {NeRO: métricas médias por objeto.} Os losangos vazados são os valores publicados para o GaussianShader~\cite  {jiang2024gaussianshader}; os eixos verticais não começam em zero.}}{16}{figure.4}\protected@file@percent }
+\newlabel{fig:nero_metricas}{{4}{16}{\textbf {NeRO: métricas médias por objeto.} Os losangos vazados são os valores publicados para o GaussianShader~\cite {jiang2024gaussianshader}; os eixos verticais não começam em zero}{figure.4}{}}
+\def\@LN@column{1}
+\@writefile{lof}{\contentsline {figure}{\numberline {5}{\ignorespaces \textbf  {Efeitos pareados com intervalo de confiança de 95\%.} Cada linha é um contraste: termo especular com a mesma configuração (laranja-claro, incluindo o Truck), efeito do ajuste (laranja-escuro) e GOF+BRDF ajustado menos GaussianShader (azul). Para o LPIPS, valores negativos favorecem o primeiro termo.}}{17}{figure.5}\protected@file@percent }
+\newlabel{fig:efeitos}{{5}{17}{\textbf {Efeitos pareados com intervalo de confiança de 95\%.} Cada linha é um contraste: termo especular com a mesma configuração (laranja-claro, incluindo o Truck), efeito do ajuste (laranja-escuro) e GOF+BRDF ajustado menos GaussianShader (azul). Para o LPIPS, valores negativos favorecem o primeiro termo}{figure.5}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.4}Por que a configuração importa}{17}{subsection.5.4}\protected@file@percent }
+\newlabel{sec:mecanismo}{{5.4}{17}{Por que a configuração importa}{subsection.5.4}{}}
+\def\@LN@column{1}
+\@writefile{lot}{\contentsline {table}{\numberline {6}{\ignorespaces \textbf  {NeRO: custo do treino de 30 mil iterações na RTX 3050 (6\,GB).} Energia = potência média da GPU $\times $ tempo; memória = máximo do \texttt  {nvidia-smi}; Gaussianas ao final do treino; render = tempo de parede para renderizar as 32 vistas de teste.}}{18}{table.6}\protected@file@percent }
+\newlabel{tab:custo}{{6}{18}{\textbf {NeRO: custo do treino de 30 mil iterações na RTX 3050 (6\,GB).} Energia = potência média da GPU $\times $ tempo; memória = máximo do \texttt {nvidia-smi}; Gaussianas ao final do treino; render = tempo de parede para renderizar as 32 vistas de teste}{table.6}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {6}{\ignorespaces \textbf  {Qualidade contra energia de treino no NeRO.} Cada ponto é um treino completo.}}{18}{figure.6}\protected@file@percent }
+\newlabel{fig:custo}{{6}{18}{\textbf {Qualidade contra energia de treino no NeRO.} Cada ponto é um treino completo}{figure.6}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {6}Discussão}{18}{section.6}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Respostas à pergunta de pesquisa.}{18}{section*.16}\protected@file@percent }
+\citation{jiang2024gaussianshader}
+\citation{gu2025irgs,zhu2026ptirgs,han2026radiometric}
+\def\@LN@column{1}
+\@writefile{lot}{\contentsline {table}{\numberline {7}{\ignorespaces \textbf  {Material aprendido pelo GOF+BRDF no NeRO.} Estatísticas ponderadas pela opacidade das Gaussianas; tom = média dos três canais; rugosidade com mediana e quartis.}}{19}{table.7}\protected@file@percent }
+\newlabel{tab:material}{{7}{19}{\textbf {Material aprendido pelo GOF+BRDF no NeRO.} Estatísticas ponderadas pela opacidade das Gaussianas; tom = média dos três canais; rugosidade com mediana e quartis}{table.7}{}}
+\@writefile{toc}{\contentsline {paragraph}{A configuração pode anular o termo especular.}{19}{section*.17}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Por que o GOF+BRDF pode superar o GaussianShader.}{19}{section*.18}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Discordância entre métricas.}{19}{section*.19}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Relação com a literatura.}{19}{section*.20}\protected@file@percent }
+\def\@LN@column{1}
+\@writefile{lof}{\contentsline {figure}{\numberline {7}{\ignorespaces \textbf  {Mecanismo do ajuste.} Distribuições acumuladas, ponderadas pela opacidade, do tom especular (primeira linha) e da rugosidade (segunda linha), para a configuração do Truck e a ajustada. Abaixo: mapa de ambiente aprendido na \emph  {bell} em cada configuração (exibição com escala no percentil 99,5 e gama 2,2).}}{20}{figure.7}\protected@file@percent }
+\newlabel{fig:mecanismo}{{7}{20}{\textbf {Mecanismo do ajuste.} Distribuições acumuladas, ponderadas pela opacidade, do tom especular (primeira linha) e da rugosidade (segunda linha), para a configuração do Truck e a ajustada. Abaixo: mapa de ambiente aprendido na \emph {bell} em cada configuração (exibição com escala no percentil 99,5 e gama 2,2)}{figure.7}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.1}Ameaças à validade}{20}{subsection.6.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Validade interna.}{20}{section*.21}\protected@file@percent }
+\def\@LN@column{1}
+\@writefile{toc}{\contentsline {paragraph}{Validade externa.}{21}{section*.22}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Validade de construto.}{21}{section*.23}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {7}Limitações e trabalhos futuros}{21}{section.7}\protected@file@percent }
+\newlabel{sec:limitacoes}{{7}{21}{Limitações e trabalhos futuros}{section.7}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {8}Conclusão}{21}{section.8}\protected@file@percent }
+\citation{knapitsch2017tanks,liu2023nero}
+\bibstyle{sciencemag}
+\bibdata{referencias}
+\bibcite{mildenhall2020nerf}{1}
+\bibcite{kerbl2023gaussian}{2}
+\bibcite{bao2025survey}{3}
+\bibcite{verbin2022refnerf}{4}
+\def\@LN@column{1}
+\bibcite{mezieres2022hvl}{5}
+\bibcite{jiang2024gaussianshader}{6}
+\bibcite{wu2025deferredgs}{7}
+\bibcite{liu2023nero}{8}
+\bibcite{li2026pdrgs}{9}
+\bibcite{guedon2024sugar}{10}
+\bibcite{huang2024twodgs}{11}
+\bibcite{yu2024gof}{12}
+\bibcite{liang2024gsir}{13}
+\def\@LN@column{1}
+\bibcite{shi2025gir}{14}
+\bibcite{yao2025refgaussian}{15}
+\bibcite{gu2025irgs}{16}
+\bibcite{karis2013ue4}{17}
+\bibcite{munkberg2022nvdiffrec}{18}
+\bibcite{yu2024mipsplatting}{19}
+\bibcite{zhang2024radegs}{20}
+\bibcite{lyu2024dgsr}{21}
+\bibcite{guedon2025milo}{22}
+\def\@LN@column{1}
+\bibcite{jiang2025geometryfield}{23}
+\bibcite{moenne2024gaussianrt}{24}
+\bibcite{liang2025gusir}{25}
+\bibcite{zhou2025rtrgs}{26}
+\bibcite{lai2025glossygs}{27}
+\bibcite{yang2025gogs}{28}
+\bibcite{zhu2025gsror2}{29}
+\bibcite{zhu2025dsdf}{30}
+\bibcite{ye2025geosplatting}{31}
+\def\@LN@column{1}
+\bibcite{sun2025svgir}{32}
+\bibcite{gu2026irgsext}{33}
+\bibcite{zhu2026ptirgs}{34}
+\bibcite{jiang2025radiosity}{35}
+\bibcite{han2026radiometric}{36}
+\bibcite{chen2024gigs}{37}
+\bibcite{xu2026gspi}{38}
+\bibcite{noras2025gains}{39}
+\bibcite{schlick1994fresnel}{40}
+\bibcite{walter2007ggx}{41}
+\def\@LN@column{1}
+\bibcite{knapitsch2017tanks}{42}
+\bibcite{schonberger2016colmap}{43}
+\bibcite{wang2004ssim}{44}
+\bibcite{zhang2018lpips}{45}
+\bibcite{efron1979bootstrap}{46}
+\bibcite{wilcoxon1945}{47}
+\bibcite{strubell2019energy}{48}
+\def\@LN@column{1}
+\def\@LN@column{1}
+\@writefile{toc}{\contentsline {section}{\numberline {S1}Comparações adicionais no Truck}{28}{section.1}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {S1}{\ignorespaces \textbf  {Truck: comparação não controlada.} $^\dagger $Treinado em outra máquina, com hiperparâmetros próprios; não comparável de forma causal.}}{28}{table.1}\protected@file@percent }
+\newlabel{tab:truck_externos}{{S1}{28}{\textbf {Truck: comparação não controlada.} $^\dagger $Treinado em outra máquina, com hiperparâmetros próprios; não comparável de forma causal}{table.1}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {S2}Estatísticas completas do NeRO}{28}{section.2}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {S2}{\ignorespaces \textbf  {NeRO: todos os pares.} Média [IC 95\%] da diferença ``primeiro $-$ segundo''; $p$ de Wilcoxon para o PSNR (os de SSIM e LPIPS estão em \texttt  {dados/nero/*\_analysis.json}).}}{28}{table.2}\protected@file@percent }
+\newlabel{tab:pares_completa}{{S2}{28}{\textbf {NeRO: todos os pares.} Média [IC 95\%] da diferença ``primeiro $-$ segundo''; $p$ de Wilcoxon para o PSNR (os de SSIM e LPIPS estão em \texttt {dados/nero/*\_analysis.json})}{table.2}{}}
+\def\@LN@column{1}
+\@writefile{lof}{\contentsline {figure}{\numberline {S1}{\ignorespaces \textbf  {Potência da GPU ao longo do treino} (média móvel das amostras de 2\,s).}}{29}{figure.1}\protected@file@percent }
+\newlabel{fig:potencia}{{S1}{29}{\textbf {Potência da GPU ao longo do treino} (média móvel das amostras de 2\,s)}{figure.1}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {S2}{\ignorespaces \textbf  {Diferença de PSNR por vista, GOF+BRDF ajustado menos GaussianShader}, ordenada (laranja: GOF+BRDF ajustado melhor; azul: GaussianShader melhor).}}{29}{figure.2}\protected@file@percent }
+\newlabel{fig:por_vista}{{S2}{29}{\textbf {Diferença de PSNR por vista, GOF+BRDF ajustado menos GaussianShader}, ordenada (laranja: GOF+BRDF ajustado melhor; azul: GaussianShader melhor)}{figure.2}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {S3}Testes e modos de falha silenciosos}{29}{section.3}\protected@file@percent }
+\newlabel{sec:testes}{{S3}{29}{Testes e modos de falha silenciosos}{section.3}{}}
+\def\@LN@column{1}
+\@writefile{toc}{\contentsline {section}{\numberline {S4}Iluminação em referencial de câmera (não validada)}{30}{section.4}\protected@file@percent }
+\newlabel{sec:mesa}{{S4}{30}{Iluminação em referencial de câmera (não validada)}{section.4}{}}
+\gdef \@abspage@last{30}

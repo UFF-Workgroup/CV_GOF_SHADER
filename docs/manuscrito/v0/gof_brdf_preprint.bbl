@@ -1,0 +1,269 @@
+\begin{thebibliography}{10}
+\providecommand{\url}[1]{\texttt{#1}}
+\expandafter\ifx\csname urlstyle\endcsname\relax
+  \providecommand{\doi}[1]{doi:\discretionary{}{}{}#1}\else
+  \providecommand{\doi}{doi:\discretionary{}{}{}\begingroup
+  \urlstyle{rm}\Url}\fi
+
+\bibitem{mildenhall2020nerf}
+B.~Mildenhall, \emph{et~al.}, {NeRF: Representing Scenes as Neural Radiance
+  Fields for View Synthesis}, in \emph{European Conference on Computer Vision
+  (ECCV)} (2020), pp. 405--421, \doi{10.1007/978-3-030-58452-8_24}.
+
+\bibitem{kerbl2023gaussian}
+B.~Kerbl, G.~Kopanas, T.~Leimkuehler, G.~Drettakis, {3D Gaussian Splatting for
+  Real-Time Radiance Field Rendering}. \emph{ACM Transactions on Graphics}
+  \textbf{42}~(4), 1--14 (2023), \doi{10.1145/3592433}.
+
+\bibitem{bao2025survey}
+Y.~Bao, \emph{et~al.}, {3D Gaussian Splatting: Survey, Technologies,
+  Challenges, and Opportunities}. \emph{IEEE Transactions on Circuits and
+  Systems for Video Technology} \textbf{35}~(7), 6832--6852 (2025),
+  \doi{10.1109/tcsvt.2025.3538684}.
+
+\bibitem{verbin2022refnerf}
+D.~Verbin, \emph{et~al.}, {Ref-NeRF: Structured View-Dependent Appearance for
+  Neural Radiance Fields}, in \emph{2022 IEEE/CVF Conference on Computer Vision
+  and Pattern Recognition (CVPR)} (2022), pp. 5481--5490,
+  \doi{10.1109/cvpr52688.2022.00541}, arXiv:2112.03907.
+
+\bibitem{mezieres2022hvl}
+P.~M{\'e}zi{\`e}res, F.~Desrichard, D.~Vanderhaeghe, M.~Paulin, {Harmonics
+  Virtual Lights : fast projection of luminance field on spherical harmonics
+  for efficient rendering}. \emph{arXiv preprint arXiv:2201.01487}  (2022).
+
+\bibitem{jiang2024gaussianshader}
+Y.~Jiang, \emph{et~al.}, {GaussianShader: 3D Gaussian Splatting with Shading
+  Functions for Reflective Surfaces}, in \emph{2024 IEEE/CVF Conference on
+  Computer Vision and Pattern Recognition (CVPR)} (2024), pp. 5322--5332,
+  \doi{10.1109/cvpr52733.2024.00509}, arXiv:2311.17977.
+
+\bibitem{wu2025deferredgs}
+T.~Wu, \emph{et~al.}, {DeferredGS: Decoupled and Relightable Gaussian Splatting
+  With Deferred Shading}. \emph{IEEE Transactions on Pattern Analysis and
+  Machine Intelligence} \textbf{47}~(8), 6307--6319 (2025),
+  \doi{10.1109/tpami.2025.3560933}.
+
+\bibitem{liu2023nero}
+Y.~Liu, \emph{et~al.}, {NeRO: Neural Geometry and BRDF Reconstruction of
+  Reflective Objects from Multiview Images}. \emph{ACM Transactions on
+  Graphics} \textbf{42}~(4), 1--22 (2023), \doi{10.1145/3592134}.
+
+\bibitem{li2026pdrgs}
+Z.~Li, C.~Wang, P.~Wang, G.~Wei, Y.~Zhou, {PDRGS: Probabilistic Distribution
+  Reshaping for Specular Geometry Reconstruction in 3D Gaussian Splatting}.
+  \emph{Computer Graphics Forum} p. e70650 (2026), \doi{10.1111/cgf.70650}.
+
+\bibitem{guedon2024sugar}
+A.~Gu{\'e}don, V.~Lepetit, {SuGaR: Surface-Aligned Gaussian Splatting for
+  Efficient 3D Mesh Reconstruction and High-Quality Mesh Rendering}, in
+  \emph{2024 IEEE/CVF Conference on Computer Vision and Pattern Recognition
+  (CVPR)} (2024), pp. 5354--5363, \doi{10.1109/cvpr52733.2024.00512}.
+
+\bibitem{huang2024twodgs}
+B.~Huang, Z.~Yu, A.~Chen, A.~Geiger, S.~Gao, {2D Gaussian Splatting for
+  Geometrically Accurate Radiance Fields}, in \emph{ACM SIGGRAPH 2024
+  Conference Papers} (2024), pp. 1--11, \doi{10.1145/3641519.3657428}.
+
+\bibitem{yu2024gof}
+Z.~Yu, T.~Sattler, A.~Geiger, {Gaussian Opacity Fields: Efficient Adaptive
+  Surface Reconstruction in Unbounded Scenes}. \emph{ACM Transactions on
+  Graphics} \textbf{43}~(6), 1--13 (2024), arXiv:2404.10772,
+  \doi{10.1145/3687937}.
+
+\bibitem{liang2024gsir}
+Z.~Liang, Q.~Zhang, Y.~Feng, Y.~Shan, K.~Jia, {GS-IR: 3D Gaussian Splatting for
+  Inverse Rendering}, in \emph{2024 IEEE/CVF Conference on Computer Vision and
+  Pattern Recognition (CVPR)} (2024), pp. 21644--21653,
+  \doi{10.1109/cvpr52733.2024.02045}.
+
+\bibitem{shi2025gir}
+Y.~Shi, \emph{et~al.}, {GIR: 3D Gaussian Inverse Rendering for Relightable
+  Scene Factorization}. \emph{IEEE Transactions on Pattern Analysis and Machine
+  Intelligence} pp. 1--12 (2025), arXiv:2312.05133,
+  \doi{10.1109/tpami.2025.3575937}.
+
+\bibitem{yao2025refgaussian}
+Y.~Yao, Z.~Zeng, C.~Gu, X.~Zhu, L.~Zhang, {Reflective Gaussian Splatting}.
+  \emph{arXiv preprint arXiv:2412.19282}  (2024), international Conference on
+  Learning Representations (ICLR) 2025.
+
+\bibitem{gu2025irgs}
+C.~Gu, X.~Wei, Z.~Zeng, Y.~Yao, L.~Zhang, {IRGS: Inter-Reflective Gaussian
+  Splatting with 2D Gaussian Ray Tracing}, in \emph{2025 IEEE/CVF Conference on
+  Computer Vision and Pattern Recognition (CVPR)} (2025), pp. 10943--10952,
+  \doi{10.1109/cvpr52734.2025.01022}, arXiv:2412.15867.
+
+\bibitem{karis2013ue4}
+B.~Karis, {Real Shading in Unreal Engine 4}, SIGGRAPH 2013 Course: Physically
+  Based Shading in Theory and Practice (2013),
+  \url{https://blog.selfshadow.com/publications/s2013-shading-course/}.
+
+\bibitem{munkberg2022nvdiffrec}
+J.~Munkberg, \emph{et~al.}, {Extracting Triangular 3D Models, Materials, and
+  Lighting From Images}, in \emph{2022 IEEE/CVF Conference on Computer Vision
+  and Pattern Recognition (CVPR)} (2022), pp. 8270--8280,
+  \doi{10.1109/cvpr52688.2022.00810}.
+
+\bibitem{yu2024mipsplatting}
+Z.~Yu, A.~Chen, B.~Huang, T.~Sattler, A.~Geiger, {Mip-Splatting: Alias-Free 3D
+  Gaussian Splatting}, in \emph{2024 IEEE/CVF Conference on Computer Vision and
+  Pattern Recognition (CVPR)} (2024), pp. 19447--19456,
+  \doi{10.1109/cvpr52733.2024.01839}.
+
+\bibitem{zhang2024radegs}
+B.~Zhang, \emph{et~al.}, {RaDe-GS: Rasterizing Depth in Gaussian Splatting}.
+  \emph{ACM Transactions on Graphics} \textbf{45}~(2), 1--14 (2026),
+  \doi{10.1145/3789201}.
+
+\bibitem{lyu2024dgsr}
+X.~Lyu, \emph{et~al.}, {3DGSR: Implicit Surface Reconstruction with 3D Gaussian
+  Splatting}. \emph{ACM Transactions on Graphics} \textbf{43}~(6), 1--12
+  (2024), \doi{10.1145/3687952}.
+
+\bibitem{guedon2025milo}
+A.~Gu{\'e}don, \emph{et~al.}, {MILo: Mesh-In-the-Loop Gaussian Splatting for
+  Detailed and Efficient Surface Reconstruction}. \emph{ACM Transactions on
+  Graphics} \textbf{44}~(6), 1--15 (2025), \doi{10.1145/3763339}.
+
+\bibitem{jiang2025geometryfield}
+K.~Jiang, V.~Sivaram, C.~Peng, R.~Ramamoorthi, {Geometry Field Splatting with
+  Gaussian Surfels}, in \emph{2025 IEEE/CVF Conference on Computer Vision and
+  Pattern Recognition (CVPR)} (2025), pp. 5752--5762,
+  \doi{10.1109/cvpr52734.2025.00540}.
+
+\bibitem{moenne2024gaussianrt}
+N.~Moenne-Loccoz, \emph{et~al.}, {3D Gaussian Ray Tracing: Fast Tracing of
+  Particle Scenes}. \emph{ACM Transactions on Graphics} \textbf{43}~(6), 1--19
+  (2024), arXiv:2407.07090, \doi{10.1145/3687934}.
+
+\bibitem{liang2025gusir}
+Z.~Liang, H.~Li, K.~Jia, K.~Guo, Q.~Zhang, {GUS-IR: Gaussian Splatting With
+  Unified Shading for Inverse Rendering}. \emph{IEEE Transactions on Pattern
+  Analysis and Machine Intelligence} \textbf{47}~(10), 8364--8378 (2025),
+  \doi{10.1109/tpami.2025.3578416}.
+
+\bibitem{zhou2025rtrgs}
+Y.~Zhou, F.~Zhang, Z.~Wang, L.~Zhang, {RTR-GS: 3D Gaussian Splatting for
+  Inverse Rendering with Radiance Transfer and Reflection}, in
+  \emph{Proceedings of the 33rd ACM International Conference on Multimedia}
+  (2025), pp. 6888--6897, \doi{10.1145/3746027.3755197}.
+
+\bibitem{lai2025glossygs}
+S.~Lai, \emph{et~al.}, {GlossyGS: Inverse Rendering of Glossy Objects With 3D
+  Gaussian Splatting}. \emph{IEEE Transactions on Visualization and Computer
+  Graphics} \textbf{31}~(10), 7478--7491 (2025),
+  \doi{10.1109/tvcg.2025.3547063}.
+
+\bibitem{yang2025gogs}
+X.~Yang, M.~Wei, {GOGS: High-Fidelity Geometry and Relighting for Glossy
+  Objects via Gaussian Surfels}. \emph{arXiv preprint arXiv:2508.14563}
+  (2025).
+
+\bibitem{zhu2025gsror2}
+Z.~Zhu, B.~Wang, J.~Yang, {GS-ROR2: Bidirectional-guided 3DGS and SDF for
+  Reflective Object Relighting and Reconstruction}. \emph{ACM Transactions on
+  Graphics} \textbf{45}~(1), 1--19 (2025), \doi{10.1145/3759248}.
+
+\bibitem{zhu2025dsdf}
+Z.-L. Zhu, J.~Yang, B.~Wang, {Gaussian Splatting with Discretized SDF for
+  Relightable Assets}, in \emph{2025 IEEE/CVF International Conference on
+  Computer Vision (ICCV)} (2025), pp. 25155--25164,
+  \doi{10.1109/iccv51701.2025.02333}.
+
+\bibitem{ye2025geosplatting}
+K.~Ye, C.~Gao, G.~Li, W.~Chen, B.~Chen, {GeoSplatting: Towards Geometry Guided
+  Gaussian Splatting for Physically-Based Inverse Rendering}, in \emph{2025
+  IEEE/CVF International Conference on Computer Vision (ICCV)} (2025), pp.
+  28991--29000, \doi{10.1109/iccv51701.2025.02692}.
+
+\bibitem{sun2025svgir}
+H.~Sun, Y.~Gao, J.~Xie, J.~Yang, B.~Wang, {SVG-IR: Spatially-Varying Gaussian
+  Splatting for Inverse Rendering}, in \emph{2025 IEEE/CVF Conference on
+  Computer Vision and Pattern Recognition (CVPR)} (2025), pp. 16143--16152,
+  \doi{10.1109/cvpr52734.2025.01505}.
+
+\bibitem{gu2026irgsext}
+C.~Gu, X.~Wei, Z.~Zeng, Y.~Yao, L.~Zhang, {Inter-Reflective Gaussian Splatting
+  for Robust and Efficient Inverse Rendering}. \emph{arXiv preprint
+  arXiv:2607.22780}  (2026).
+
+\bibitem{zhu2026ptirgs}
+J.~Zhu, \emph{et~al.}, {PTIR-GS: Path-Traced Inverse Rendering with Global
+  Illumination in 3D Gaussian Fields}. \emph{arXiv preprint arXiv:2606.09606}
+  (2026).
+
+\bibitem{jiang2025radiosity}
+K.~Jiang, \emph{et~al.}, {Differentiable Light Transport with Gaussian Surfels
+  via Adapted Radiosity for Efficient Relighting and Geometry Reconstruction}.
+  \emph{ACM Transactions on Graphics} \textbf{44}~(6), 1--25 (2025),
+  \doi{10.1145/3763305}.
+
+\bibitem{han2026radiometric}
+K.~B. Han, J.~Kim, W.~J. Kim, J.~Seo, S.-e. Yoon, {Radiometrically Consistent
+  Gaussian Surfels for Inverse Rendering}. \emph{arXiv preprint
+  arXiv:2603.01491}  (2026), international Conference on Learning
+  Representations (ICLR) 2026.
+
+\bibitem{chen2024gigs}
+H.~Chen, Z.~Lin, J.~Zhang, {GI-GS: Global Illumination Decomposition on
+  Gaussian Splatting for Inverse Rendering}. \emph{arXiv preprint
+  arXiv:2410.02619}  (2024).
+
+\bibitem{xu2026gspi}
+J.~Xu, \emph{et~al.}, {GS-PI: An Optimization-Decoupled Appearance
+  Decomposition Approach for Generating PBR Gaussian Assets}. \emph{arXiv
+  preprint arXiv:2609.19907}  (2026).
+
+\bibitem{noras2025gains}
+P.~Noras, J.~M. Choi, D.~Stricker, P.~Peers, R.~Sengupta, {GAINS:
+  Gaussian-based Inverse Rendering from Sparse Multi-View Captures}.
+  \emph{arXiv preprint arXiv:2512.09925}  (2025).
+
+\bibitem{schlick1994fresnel}
+C.~Schlick, {An Inexpensive BRDF Model for Physically‐based Rendering}.
+  \emph{Computer Graphics Forum} \textbf{13}~(3), 233--246 (1994),
+  \doi{10.1111/1467-8659.1330233}.
+
+\bibitem{walter2007ggx}
+B.~Walter, S.~R. Marschner, H.~Li, K.~E. Torrance, {Microfacet Models for
+  Refraction through Rough Surfaces}, in \emph{Eurographics Symposium on
+  Rendering (EGSR)} (2007), pp. 195--206, \doi{10.2312/EGWR/EGSR07/195-206}.
+
+\bibitem{knapitsch2017tanks}
+A.~Knapitsch, J.~Park, Q.-Y. Zhou, V.~Koltun, {Tanks and Temples: Benchmarking
+  Large-Scale Scene Reconstruction}. \emph{ACM Transactions on Graphics}
+  \textbf{36}~(4), 1--13 (2017), \doi{10.1145/3072959.3073599}.
+
+\bibitem{schonberger2016colmap}
+J.~L. Schonberger, J.-M. Frahm, {Structure-from-Motion Revisited}, in
+  \emph{2016 IEEE Conference on Computer Vision and Pattern Recognition (CVPR)}
+  (2016), pp. 4104--4113, \doi{10.1109/cvpr.2016.445}.
+
+\bibitem{wang2004ssim}
+Z.~Wang, A.~C. Bovik, H.~R. Sheikh, E.~P. Simoncelli, {Image quality
+  assessment: from error visibility to structural similarity}. \emph{IEEE
+  Transactions on Image Processing} \textbf{13}~(4), 600--612 (2004),
+  \doi{10.1109/tip.2003.819861}.
+
+\bibitem{zhang2018lpips}
+R.~Zhang, P.~Isola, A.~A. Efros, E.~Shechtman, O.~Wang, {The Unreasonable
+  Effectiveness of Deep Features as a Perceptual Metric}, in \emph{2018
+  IEEE/CVF Conference on Computer Vision and Pattern Recognition} (2018), pp.
+  586--595, \doi{10.1109/cvpr.2018.00068}.
+
+\bibitem{efron1979bootstrap}
+B.~Efron, {Bootstrap Methods: Another Look at the Jackknife}. \emph{The Annals
+  of Statistics} \textbf{7}~(1), 1--26 (1979), \doi{10.1214/aos/1176344552}.
+
+\bibitem{wilcoxon1945}
+F.~Wilcoxon, {Individual Comparisons by Ranking Methods}. \emph{Biometrics
+  Bulletin} \textbf{1}~(6), 80 (1945), \doi{10.2307/3001968}.
+
+\bibitem{strubell2019energy}
+E.~Strubell, A.~Ganesh, A.~McCallum, {Energy and Policy Considerations for Deep
+  Learning in NLP}, in \emph{Proceedings of the 57th Annual Meeting of the
+  Association for Computational Linguistics} (2019), pp. 3645--3650,
+  \doi{10.18653/v1/p19-1355}.
+
+\end{thebibliography}
