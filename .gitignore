@@ -44,3 +44,6 @@ __pycache__
 !docs/experiments/
 !docs/experiments/**
 release
+# O manuscrito precisa de seus dados (.json), figuras (.png) e da imagem TeX (build/) para ser recompilado.
+!docs/manuscrito/
+!docs/manuscrito/**

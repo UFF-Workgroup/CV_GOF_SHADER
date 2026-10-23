@@ -1,0 +1,32 @@
+{
+ "bell/gof_brdf": {
+  "altura": 128,
+  "largura": 256,
+  "p99_5": 19.976217288970947
+ },
+ "bell/gof_brdf_ajustado": {
+  "altura": 512,
+  "largura": 1024,
+  "p99_5": 3.9777173924446156
+ },
+ "cat/gof_brdf": {
+  "altura": 128,
+  "largura": 256,
+  "p99_5": 7.791258275508881
+ },
+ "cat/gof_brdf_ajustado": {
+  "altura": 512,
+  "largura": 1024,
+  "p99_5": 4.098240840435029
+ },
+ "teapot/gof_brdf": {
+  "altura": 128,
+  "largura": 256,
+  "p99_5": 14.051213169097906
+ },
+ "teapot/gof_brdf_ajustado": {
+  "altura": 512,
+  "largura": 1024,
+  "p99_5": 5.832897241115577
+ }
+}

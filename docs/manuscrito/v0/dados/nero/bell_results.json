@@ -1,0 +1,129 @@
+{
+  "medias": {
+    "GOF": {
+      "PSNR": 24.846316874027252,
+      "SSIM": 0.9042970035225153,
+      "LPIPS": 0.11090497858822346
+    },
+    "GOF+BRDF": {
+      "PSNR": 24.804646253585815,
+      "SSIM": 0.8927969895303249,
+      "LPIPS": 0.11589383380487561
+    },
+    "GOF+BRDF ajustado": {
+      "PSNR": 29.829263389110565,
+      "SSIM": 0.9350086096674204,
+      "LPIPS": 0.08670493506360799
+    },
+    "GaussianShader": {
+      "PSNR": 29.838413417339325,
+      "SSIM": 0.940493343397975,
+      "LPIPS": 0.08343453868292272
+    }
+  },
+  "pares": {
+    "GOF+BRDF - GOF": {
+      "PSNR": {
+        "media": -0.04167062044143677,
+        "vistas_b_melhor": 14,
+        "vistas": 32
+      },
+      "SSIM": {
+        "media": -0.011500013992190361,
+        "vistas_b_melhor": 0,
+        "vistas": 32
+      },
+      "LPIPS": {
+        "media": 0.004988855216652155,
+        "vistas_b_melhor": 1,
+        "vistas": 32
+      }
+    },
+    "GOF+BRDF ajustado - GOF": {
+      "PSNR": {
+        "media": 4.982946515083313,
+        "vistas_b_melhor": 32,
+        "vistas": 32
+      },
+      "SSIM": {
+        "media": 0.03071160614490509,
+        "vistas_b_melhor": 32,
+        "vistas": 32
+      },
+      "LPIPS": {
+        "media": -0.024200043524615467,
+        "vistas_b_melhor": 32,
+        "vistas": 32
+      }
+    },
+    "GaussianShader - GOF": {
+      "PSNR": {
+        "media": 4.992096543312073,
+        "vistas_b_melhor": 32,
+        "vistas": 32
+      },
+      "SSIM": {
+        "media": 0.03619633987545967,
+        "vistas_b_melhor": 32,
+        "vistas": 32
+      },
+      "LPIPS": {
+        "media": -0.027470439905300736,
+        "vistas_b_melhor": 32,
+        "vistas": 32
+      }
+    },
+    "GOF+BRDF ajustado - GOF+BRDF": {
+      "PSNR": {
+        "media": 5.02461713552475,
+        "vistas_b_melhor": 32,
+        "vistas": 32
+      },
+      "SSIM": {
+        "media": 0.04221162013709545,
+        "vistas_b_melhor": 32,
+        "vistas": 32
+      },
+      "LPIPS": {
+        "media": -0.02918889874126762,
+        "vistas_b_melhor": 32,
+        "vistas": 32
+      }
+    },
+    "GaussianShader - GOF+BRDF": {
+      "PSNR": {
+        "media": 5.0337671637535095,
+        "vistas_b_melhor": 32,
+        "vistas": 32
+      },
+      "SSIM": {
+        "media": 0.04769635386765003,
+        "vistas_b_melhor": 32,
+        "vistas": 32
+      },
+      "LPIPS": {
+        "media": -0.03245929512195289,
+        "vistas_b_melhor": 32,
+        "vistas": 32
+      }
+    },
+    "GaussianShader - GOF+BRDF ajustado": {
+      "PSNR": {
+        "media": 0.009150028228759766,
+        "vistas_b_melhor": 15,
+        "vistas": 32
+      },
+      "SSIM": {
+        "media": 0.005484733730554581,
+        "vistas_b_melhor": 28,
+        "vistas": 32
+      },
+      "LPIPS": {
+        "media": -0.00327039638068527,
+        "vistas_b_melhor": 25,
+        "vistas": 32
+      }
+    }
+  },
+  "n_vistas": 32
+}

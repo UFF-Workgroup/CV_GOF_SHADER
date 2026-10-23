@@ -1,0 +1,6 @@
+# Intermediarios do LaTeX; o PDF fica versionado.
+*.aux
+*.bbl
+*.blg
+*.log
+*.out

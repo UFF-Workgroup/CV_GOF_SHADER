@@ -1,0 +1,1348 @@
+[
+ {
+  "key": "kerbl2023gaussian",
+  "fonte": "levantamento",
+  "titulo_esperado": "3D Gaussian Splatting for Real-Time Radiance Field Rendering",
+  "crossref": {
+   "doi": "10.1145/3592433",
+   "titulo": "3D Gaussian Splatting for Real-Time Radiance Field Rendering",
+   "autores": [
+    "Bernhard Kerbl",
+    "Georgios Kopanas",
+    "Thomas Leimkuehler",
+    "George Drettakis"
+   ],
+   "veiculo": "ACM Transactions on Graphics",
+   "volume": "42",
+   "numero": "4",
+   "paginas": "1-14",
+   "ano": 2023,
+   "tipo": "journal-article",
+   "editora": "Association for Computing Machinery (ACM)"
+  },
+  "arxiv": null,
+  "erros": [],
+  "similaridade_titulo": 1.0,
+  "status": "confirmada"
+ },
+ {
+  "key": "yu2024gof",
+  "fonte": "levantamento",
+  "titulo_esperado": "Gaussian Opacity Fields: Efficient Adaptive Surface Reconstruction in Unbounded Scenes",
+  "crossref": {
+   "doi": "10.1145/3687937",
+   "titulo": "Gaussian Opacity Fields: Efficient Adaptive Surface Reconstruction in Unbounded Scenes",
+   "autores": [
+    "Zehao Yu",
+    "Torsten Sattler",
+    "Andreas Geiger"
+   ],
+   "veiculo": "ACM Transactions on Graphics",
+   "volume": "43",
+   "numero": "6",
+   "paginas": "1-13",
+   "ano": 2024,
+   "tipo": "journal-article",
+   "editora": "Association for Computing Machinery (ACM)"
+  },
+  "arxiv": {
+   "arxiv": "2404.10772",
+   "titulo": "Gaussian Opacity Fields: Efficient Adaptive Surface Reconstruction in Unbounded Scenes",
+   "autores": [
+    "Zehao Yu",
+    "Torsten Sattler",
+    "Andreas Geiger"
+   ],
+   "publicado": "2024-04-16",
+   "journal_ref": null,
+   "doi": null
+  },
+  "erros": [],
+  "similaridade_titulo": 1.0,
+  "status": "confirmada"
+ },
+ {
+  "key": "jiang2024gaussianshader",
+  "fonte": "levantamento",
+  "titulo_esperado": "GaussianShader: 3D Gaussian Splatting with Shading Functions for Reflective Surfaces",
+  "crossref": {
+   "doi": "10.1109/cvpr52733.2024.00509",
+   "titulo": "GaussianShader: 3D Gaussian Splatting with Shading Functions for Reflective Surfaces",
+   "autores": [
+    "Yingwenqi Jiang",
+    "Jiadong Tu",
+    "Yuan Liu",
+    "Xifeng Gao",
+    "Xiaoxiao Long",
+    "Wenping Wang",
+    "Yuexin Ma"
+   ],
+   "veiculo": "2024 IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR)",
+   "volume": null,
+   "numero": null,
+   "paginas": "5322-5332",
+   "ano": 2024,
+   "tipo": "proceedings-article",
+   "editora": "IEEE"
+  },
+  "arxiv": {
+   "arxiv": "2311.17977",
+   "titulo": "GaussianShader: 3D Gaussian Splatting with Shading Functions for Reflective Surfaces",
+   "autores": [
+    "Yingwenqi Jiang",
+    "Jiadong Tu",
+    "Yuan Liu",
+    "Xifeng Gao",
+    "Xiaoxiao Long",
+    "Wenping Wang",
+    "Yuexin Ma"
+   ],
+   "publicado": "2023-11-29",
+   "journal_ref": null,
+   "doi": null
+  },
+  "erros": [],
+  "similaridade_titulo": 1.0,
+  "status": "confirmada"
+ },
+ {
+  "key": "verbin2022refnerf",
+  "fonte": "projeto",
+  "titulo_esperado": "Ref-NeRF: Structured View-Dependent Appearance for Neural Radiance Fields",
+  "crossref": {
+   "doi": "10.1109/cvpr52688.2022.00541",
+   "titulo": "Ref-NeRF: Structured View-Dependent Appearance for Neural Radiance Fields",
+   "autores": [
+    "Dor Verbin",
+    "Peter Hedman",
+    "Ben Mildenhall",
+    "Todd Zickler",
+    "Jonathan T. Barron",
+    "Pratul P. Srinivasan"
+   ],
+   "veiculo": "2022 IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR)",
+   "volume": null,
+   "numero": null,
+   "paginas": "5481-5490",
+   "ano": 2022,
+   "tipo": "proceedings-article",
+   "editora": "IEEE"
+  },
+  "arxiv": {
+   "arxiv": "2112.03907",
+   "titulo": "Ref-NeRF: Structured View-Dependent Appearance for Neural Radiance Fields",
+   "autores": [
+    "Dor Verbin",
+    "Peter Hedman",
+    "Ben Mildenhall",
+    "Todd Zickler",
+    "Jonathan T. Barron",
+    "Pratul P. Srinivasan"
+   ],
+   "publicado": "2021-12-07",
+   "journal_ref": null,
+   "doi": null
+  },
+  "erros": [],
+  "similaridade_titulo": 1.0,
+  "status": "confirmada"
+ },
+ {
+  "key": "mezieres2022hvl",
+  "fonte": "projeto",
+  "titulo_esperado": "Harmonics Virtual Lights: Fast Projection of Luminance Field on Spherical Harmonics for Efficient Rendering",
+  "crossref": null,
+  "arxiv": {
+   "arxiv": "2201.01487",
+   "titulo": "Harmonics Virtual Lights : fast projection of luminance field on spherical harmonics for efficient rendering",
+   "autores": [
+    "Pierre Mézières",
+    "François Desrichard",
+    "David Vanderhaeghe",
+    "Mathias Paulin"
+   ],
+   "publicado": "2022-01-05",
+   "journal_ref": null,
+   "doi": null
+  },
+  "erros": [],
+  "similaridade_titulo": 1.0,
+  "status": "confirmada"
+ },
+ {
+  "key": "mildenhall2020nerf",
+  "fonte": "novo",
+  "titulo_esperado": "NeRF: Representing Scenes as Neural Radiance Fields for View Synthesis",
+  "crossref": {
+   "doi": "10.1007/978-3-030-58452-8_24",
+   "titulo": "NeRF: Representing Scenes as Neural Radiance Fields for View Synthesis",
+   "autores": [
+    "Ben Mildenhall",
+    "Pratul P. Srinivasan",
+    "Matthew Tancik",
+    "Jonathan T. Barron",
+    "Ravi Ramamoorthi",
+    "Ren Ng"
+   ],
+   "veiculo": "Lecture Notes in Computer Science",
+   "volume": null,
+   "numero": null,
+   "paginas": "405-421",
+   "ano": 2020,
+   "tipo": "book-chapter",
+   "editora": "Springer International Publishing"
+  },
+  "arxiv": null,
+  "erros": [],
+  "similaridade_titulo": 1.0,
+  "status": "confirmada"
+ },
+ {
+  "key": "liu2023nero",
+  "fonte": "novo",
+  "titulo_esperado": "NeRO: Neural Geometry and BRDF Reconstruction of Reflective Objects from Multiview Images",
+  "crossref": {
+   "doi": "10.1145/3592134",
+   "titulo": "NeRO: Neural Geometry and BRDF Reconstruction of Reflective Objects from Multiview Images",
+   "autores": [
+    "Yuan Liu",
+    "Peng Wang",
+    "Cheng Lin",
+    "Xiaoxiao Long",
+    "Jiepeng Wang",
+    "Lingjie Liu",
+    "Taku Komura",
+    "Wenping Wang"
+   ],
+   "veiculo": "ACM Transactions on Graphics",
+   "volume": "42",
+   "numero": "4",
+   "paginas": "1-22",
+   "ano": 2023,
+   "tipo": "journal-article",
+   "editora": "Association for Computing Machinery (ACM)"
+  },
+  "arxiv": null,
+  "erros": [],
+  "similaridade_titulo": 1.0,
+  "status": "confirmada"
+ },
+ {
+  "key": "knapitsch2017tanks",
+  "fonte": "novo",
+  "titulo_esperado": "Tanks and Temples: Benchmarking Large-Scale Scene Reconstruction",
+  "crossref": {
+   "doi": "10.1145/3072959.3073599",
+   "titulo": "Tanks and temples",
+   "autores": [
+    "Arno Knapitsch",
+    "Jaesik Park",
+    "Qian-Yi Zhou",
+    "Vladlen Koltun"
+   ],
+   "veiculo": "ACM Transactions on Graphics",
+   "volume": "36",
+   "numero": "4",
+   "paginas": "1-13",
+   "ano": 2017,
+   "tipo": "journal-article",
+   "editora": "Association for Computing Machinery (ACM)"
+  },
+  "arxiv": null,
+  "erros": [],
+  "similaridade_titulo": 0.425,
+  "status": "divergente"
+ },
+ {
+  "key": "huang2024twodgs",
+  "fonte": "levantamento",
+  "titulo_esperado": "2D Gaussian Splatting for Geometrically Accurate Radiance Fields",
+  "crossref": {
+   "doi": "10.1145/3641519.3657428",
+   "titulo": "2D Gaussian Splatting for Geometrically Accurate Radiance Fields",
+   "autores": [
+    "Binbin Huang",
+    "Zehao Yu",
+    "Anpei Chen",
+    "Andreas Geiger",
+    "Shenghua Gao"
+   ],
+   "veiculo": "Special Interest Group on Computer Graphics and Interactive Techniques Conference Conference Papers",
+   "volume": null,
+   "numero": null,
+   "paginas": "1-11",
+   "ano": 2024,
+   "tipo": "proceedings-article",
+   "editora": "ACM"
+  },
+  "arxiv": null,
+  "erros": [],
+  "similaridade_titulo": 1.0,
+  "status": "confirmada"
+ },
+ {
+  "key": "guedon2024sugar",
+  "fonte": "levantamento",
+  "titulo_esperado": "SuGaR: Surface-Aligned Gaussian Splatting for Efficient 3D Mesh Reconstruction and High-Quality Mesh Rendering",
+  "crossref": {
+   "doi": "10.1109/cvpr52733.2024.00512",
+   "titulo": "SuGaR: Surface-Aligned Gaussian Splatting for Efficient 3D Mesh Reconstruction and High-Quality Mesh Rendering",
+   "autores": [
+    "Antoine Guédon",
+    "Vincent Lepetit"
+   ],
+   "veiculo": "2024 IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR)",
+   "volume": null,
+   "numero": null,
+   "paginas": "5354-5363",
+   "ano": 2024,
+   "tipo": "proceedings-article",
+   "editora": "IEEE"
+  },
+  "arxiv": null,
+  "erros": [],
+  "similaridade_titulo": 1.0,
+  "status": "confirmada"
+ },
+ {
+  "key": "yu2024mipsplatting",
+  "fonte": "novo",
+  "titulo_esperado": "Mip-Splatting: Alias-free 3D Gaussian Splatting",
+  "crossref": {
+   "doi": "10.1109/cvpr52733.2024.01839",
+   "titulo": "Mip-Splatting: Alias-Free 3D Gaussian Splatting",
+   "autores": [
+    "Zehao Yu",
+    "Anpei Chen",
+    "Binbin Huang",
+    "Torsten Sattler",
+    "Andreas Geiger"
+   ],
+   "veiculo": "2024 IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR)",
+   "volume": null,
+   "numero": null,
+   "paginas": "19447-19456",
+   "ano": 2024,
+   "tipo": "proceedings-article",
+   "editora": "IEEE"
+  },
+  "arxiv": null,
+  "erros": [],
+  "similaridade_titulo": 1.0,
+  "status": "confirmada"
+ },
+ {
+  "key": "liang2024gsir",
+  "fonte": "levantamento",
+  "titulo_esperado": "GS-IR: 3D Gaussian Splatting for Inverse Rendering",
+  "crossref": {
+   "doi": "10.1109/cvpr52733.2024.02045",
+   "titulo": "GS-IR: 3D Gaussian Splatting for Inverse Rendering",
+   "autores": [
+    "Zhihao Liang",
+    "Qi Zhang",
+    "Ying Feng",
+    "Ying Shan",
+    "Kui Jia"
+   ],
+   "veiculo": "2024 IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR)",
+   "volume": null,
+   "numero": null,
+   "paginas": "21644-21653",
+   "ano": 2024,
+   "tipo": "proceedings-article",
+   "editora": "IEEE"
+  },
+  "arxiv": null,
+  "erros": [],
+  "similaridade_titulo": 1.0,
+  "status": "confirmada"
+ },
+ {
+  "key": "shi2025gir",
+  "fonte": "levantamento",
+  "titulo_esperado": "GIR: 3D Gaussian Inverse Rendering for Relightable Scene Factorization",
+  "crossref": {
+   "doi": "10.1109/tpami.2025.3575937",
+   "titulo": "GIR: 3D Gaussian Inverse Rendering for Relightable Scene Factorization",
+   "autores": [
+    "Yahao Shi",
+    "Yanmin Wu",
+    "Chenming Wu",
+    "Xing Liu",
+    "Chen Zhao",
+    "Haocheng Feng",
+    "Jian Zhang",
+    "Bin Zhou",
+    "Errui Ding",
+    "Jingdong Wang"
+   ],
+   "veiculo": "IEEE Transactions on Pattern Analysis and Machine Intelligence",
+   "volume": null,
+   "numero": null,
+   "paginas": "1-12",
+   "ano": 2025,
+   "tipo": "journal-article",
+   "editora": "Institute of Electrical and Electronics Engineers (IEEE)"
+  },
+  "arxiv": {
+   "arxiv": "2312.05133",
+   "titulo": "GIR: 3D Gaussian Inverse Rendering for Relightable Scene Factorization",
+   "autores": [
+    "Yahao Shi",
+    "Yanmin Wu",
+    "Chenming Wu",
+    "Xing Liu",
+    "Chen Zhao",
+    "Haocheng Feng",
+    "Jian Zhang",
+    "Bin Zhou",
+    "Errui Ding",
+    "Jingdong Wang"
+   ],
+   "publicado": "2023-12-08",
+   "journal_ref": null,
+   "doi": null
+  },
+  "erros": [],
+  "similaridade_titulo": 1.0,
+  "status": "confirmada"
+ },
+ {
+  "key": "wu2025deferredgs",
+  "fonte": "levantamento",
+  "titulo_esperado": "DeferredGS: Decoupled and Relightable Gaussian Splatting With Deferred Shading",
+  "crossref": {
+   "doi": "10.1109/tpami.2025.3560933",
+   "titulo": "DeferredGS: Decoupled and Relightable Gaussian Splatting With Deferred Shading",
+   "autores": [
+    "Tong Wu",
+    "Jia-Mu Sun",
+    "Yu-Kun Lai",
+    "Yuewen Ma",
+    "Leif Kobbelt",
+    "Lin Gao"
+   ],
+   "veiculo": "IEEE Transactions on Pattern Analysis and Machine Intelligence",
+   "volume": "47",
+   "numero": "8",
+   "paginas": "6307-6319",
+   "ano": 2025,
+   "tipo": "journal-article",
+   "editora": "Institute of Electrical and Electronics Engineers (IEEE)"
+  },
+  "arxiv": null,
+  "erros": [],
+  "similaridade_titulo": 1.0,
+  "status": "confirmada"
+ },
+ {
+  "key": "ye2025geosplatting",
+  "fonte": "levantamento",
+  "titulo_esperado": "GeoSplatting: Towards Geometry Guided Gaussian Splatting for Physically-Based Inverse Rendering",
+  "crossref": {
+   "doi": "10.1109/iccv51701.2025.02692",
+   "titulo": "GeoSplatting: Towards Geometry Guided Gaussian Splatting for Physically-Based Inverse Rendering",
+   "autores": [
+    "Kai Ye",
+    "Chong Gao",
+    "Guanbin Li",
+    "Wenzheng Chen",
+    "Baoquan Chen"
+   ],
+   "veiculo": "2025 IEEE/CVF International Conference on Computer Vision (ICCV)",
+   "volume": null,
+   "numero": null,
+   "paginas": "28991-29000",
+   "ano": 2025,
+   "tipo": "proceedings-article",
+   "editora": "IEEE"
+  },
+  "arxiv": null,
+  "erros": [],
+  "similaridade_titulo": 1.0,
+  "status": "confirmada"
+ },
+ {
+  "key": "yao2025refgaussian",
+  "fonte": "levantamento",
+  "titulo_esperado": "Reflective Gaussian Splatting",
+  "crossref": null,
+  "arxiv": {
+   "arxiv": "2412.19282",
+   "titulo": "Reflective Gaussian Splatting",
+   "autores": [
+    "Yuxuan Yao",
+    "Zixuan Zeng",
+    "Chun Gu",
+    "Xiatian Zhu",
+    "Li Zhang"
+   ],
+   "publicado": "2024-12-26",
+   "journal_ref": null,
+   "doi": null
+  },
+  "erros": [],
+  "similaridade_titulo": 1.0,
+  "status": "confirmada"
+ },
+ {
+  "key": "gu2025irgs",
+  "fonte": "levantamento",
+  "titulo_esperado": "IRGS: Inter-Reflective Gaussian Splatting with 2D Gaussian Ray Tracing",
+  "crossref": {
+   "doi": "10.1109/cvpr52734.2025.01022",
+   "titulo": "IRGS: Inter-Reflective Gaussian Splatting with 2D Gaussian Ray Tracing",
+   "autores": [
+    "Chun Gu",
+    "Xiaofei Wei",
+    "Zixuan Zeng",
+    "Yuxuan Yao",
+    "Li Zhang"
+   ],
+   "veiculo": "2025 IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR)",
+   "volume": null,
+   "numero": null,
+   "paginas": "10943-10952",
+   "ano": 2025,
+   "tipo": "proceedings-article",
+   "editora": "IEEE"
+  },
+  "arxiv": {
+   "arxiv": "2412.15867",
+   "titulo": "IRGS: Inter-Reflective Gaussian Splatting with 2D Gaussian Ray Tracing",
+   "autores": [
+    "Chun Gu",
+    "Xiaofei Wei",
+    "Zixuan Zeng",
+    "Yuxuan Yao",
+    "Li Zhang"
+   ],
+   "publicado": "2024-12-20",
+   "journal_ref": null,
+   "doi": null
+  },
+  "erros": [],
+  "similaridade_titulo": 1.0,
+  "status": "confirmada"
+ },
+ {
+  "key": "gu2026irgsext",
+  "fonte": "levantamento",
+  "titulo_esperado": "Inter-Reflective Gaussian Splatting for Robust and Efficient Inverse Rendering",
+  "crossref": null,
+  "arxiv": {
+   "arxiv": "2607.22780",
+   "titulo": "Inter-Reflective Gaussian Splatting for Robust and Efficient Inverse Rendering",
+   "autores": [
+    "Chun Gu",
+    "Xiaofei Wei",
+    "Zixuan Zeng",
+    "Yuxuan Yao",
+    "Li Zhang"
+   ],
+   "publicado": "2026-07-24",
+   "journal_ref": null,
+   "doi": null
+  },
+  "erros": [],
+  "similaridade_titulo": 1.0,
+  "status": "confirmada"
+ },
+ {
+  "key": "lai2025glossygs",
+  "fonte": "levantamento",
+  "titulo_esperado": "GlossyGS: Inverse Rendering of Glossy Objects With 3D Gaussian Splatting",
+  "crossref": {
+   "doi": "10.1109/tvcg.2025.3547063",
+   "titulo": "GlossyGS: Inverse Rendering of Glossy Objects With 3D Gaussian Splatting",
+   "autores": [
+    "Shuichang Lai",
+    "Letian Huang",
+    "Jie Guo",
+    "Kai Cheng",
+    "Bowen Pan",
+    "Xiaoxiao Long",
+    "Jiangjing Lyu",
+    "Chengfei Lv",
+    "Yanwen Guo"
+   ],
+   "veiculo": "IEEE Transactions on Visualization and Computer Graphics",
+   "volume": "31",
+   "numero": "10",
+   "paginas": "7478-7491",
+   "ano": 2025,
+   "tipo": "journal-article",
+   "editora": "Institute of Electrical and Electronics Engineers (IEEE)"
+  },
+  "arxiv": null,
+  "erros": [],
+  "similaridade_titulo": 1.0,
+  "status": "confirmada"
+ },
+ {
+  "key": "liang2025gusir",
+  "fonte": "levantamento",
+  "titulo_esperado": "GUS-IR: Gaussian Splatting With Unified Shading for Inverse Rendering",
+  "crossref": {
+   "doi": "10.1109/tpami.2025.3578416",
+   "titulo": "GUS-IR: Gaussian Splatting With Unified Shading for Inverse Rendering",
+   "autores": [
+    "Zhihao Liang",
+    "Hongdong Li",
+    "Kui Jia",
+    "Kailing Guo",
+    "Qi Zhang"
+   ],
+   "veiculo": "IEEE Transactions on Pattern Analysis and Machine Intelligence",
+   "volume": "47",
+   "numero": "10",
+   "paginas": "8364-8378",
+   "ano": 2025,
+   "tipo": "journal-article",
+   "editora": "Institute of Electrical and Electronics Engineers (IEEE)"
+  },
+  "arxiv": null,
+  "erros": [],
+  "similaridade_titulo": 1.0,
+  "status": "confirmada"
+ },
+ {
+  "key": "zhou2025rtrgs",
+  "fonte": "levantamento",
+  "titulo_esperado": "RTR-GS: 3D Gaussian Splatting for Inverse Rendering with Radiance Transfer and Reflection",
+  "crossref": {
+   "doi": "10.1145/3746027.3755197",
+   "titulo": "RTR-GS: 3D Gaussian Splatting for Inverse Rendering with Radiance Transfer and Reflection",
+   "autores": [
+    "Yongyang Zhou",
+    "Fanglue Zhang",
+    "Zichen Wang",
+    "Lei Zhang"
+   ],
+   "veiculo": "Proceedings of the 33rd ACM International Conference on Multimedia",
+   "volume": null,
+   "numero": null,
+   "paginas": "6888-6897",
+   "ano": 2025,
+   "tipo": "proceedings-article",
+   "editora": "ACM"
+  },
+  "arxiv": null,
+  "erros": [],
+  "similaridade_titulo": 1.0,
+  "status": "confirmada"
+ },
+ {
+  "key": "sun2025svgir",
+  "fonte": "levantamento",
+  "titulo_esperado": "SVG-IR: Spatially-Varying Gaussian Splatting for Inverse Rendering",
+  "crossref": {
+   "doi": "10.1109/cvpr52734.2025.01505",
+   "titulo": "SVG-IR: Spatially-Varying Gaussian Splatting for Inverse Rendering",
+   "autores": [
+    "Hanxiao Sun",
+    "Yupeng Gao",
+    "Jin Xie",
+    "Jian Yang",
+    "Beibei Wang"
+   ],
+   "veiculo": "2025 IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR)",
+   "volume": null,
+   "numero": null,
+   "paginas": "16143-16152",
+   "ano": 2025,
+   "tipo": "proceedings-article",
+   "editora": "IEEE"
+  },
+  "arxiv": null,
+  "erros": [],
+  "similaridade_titulo": 1.0,
+  "status": "confirmada"
+ },
+ {
+  "key": "chen2024gigs",
+  "fonte": "levantamento",
+  "titulo_esperado": "GI-GS: Global Illumination Decomposition on Gaussian Splatting for Inverse Rendering",
+  "crossref": null,
+  "arxiv": {
+   "arxiv": "2410.02619",
+   "titulo": "GI-GS: Global Illumination Decomposition on Gaussian Splatting for Inverse Rendering",
+   "autores": [
+    "Hongze Chen",
+    "Zehong Lin",
+    "Jun Zhang"
+   ],
+   "publicado": "2024-10-03",
+   "journal_ref": null,
+   "doi": null
+  },
+  "erros": [],
+  "similaridade_titulo": 1.0,
+  "status": "confirmada"
+ },
+ {
+  "key": "bao2025survey",
+  "fonte": "levantamento",
+  "titulo_esperado": "3D Gaussian Splatting: Survey, Technologies, Challenges, and Opportunities",
+  "crossref": {
+   "doi": "10.1109/tcsvt.2025.3538684",
+   "titulo": "3D Gaussian Splatting: Survey, Technologies, Challenges, and Opportunities",
+   "autores": [
+    "Yanqi Bao",
+    "Tianyu Ding",
+    "Jing Huo",
+    "Yaoli Liu",
+    "Yuxin Li",
+    "Wenbin Li",
+    "Yang Gao",
+    "Jiebo Luo"
+   ],
+   "veiculo": "IEEE Transactions on Circuits and Systems for Video Technology",
+   "volume": "35",
+   "numero": "7",
+   "paginas": "6832-6852",
+   "ano": 2025,
+   "tipo": "journal-article",
+   "editora": "Institute of Electrical and Electronics Engineers (IEEE)"
+  },
+  "arxiv": null,
+  "erros": [],
+  "similaridade_titulo": 1.0,
+  "status": "confirmada"
+ },
+ {
+  "key": "moenne2024gaussianrt",
+  "fonte": "levantamento",
+  "titulo_esperado": "3D Gaussian Ray Tracing: Fast Tracing of Particle Scenes",
+  "crossref": {
+   "doi": "10.1145/3687934",
+   "titulo": "3D Gaussian Ray Tracing: Fast Tracing of Particle Scenes",
+   "autores": [
+    "Nicolas Moenne-Loccoz",
+    "Ashkan Mirzaei",
+    "Or Perel",
+    "Riccardo de Lutio",
+    "Janick Martinez Esturo",
+    "Gavriel State",
+    "Sanja Fidler",
+    "Nicholas Sharp",
+    "Zan Gojcic"
+   ],
+   "veiculo": "ACM Transactions on Graphics",
+   "volume": "43",
+   "numero": "6",
+   "paginas": "1-19",
+   "ano": 2024,
+   "tipo": "journal-article",
+   "editora": "Association for Computing Machinery (ACM)"
+  },
+  "arxiv": {
+   "arxiv": "2407.07090",
+   "titulo": "3D Gaussian Ray Tracing: Fast Tracing of Particle Scenes",
+   "autores": [
+    "Nicolas Moenne-Loccoz",
+    "Ashkan Mirzaei",
+    "Or Perel",
+    "Riccardo de Lutio",
+    "Janick Martinez Esturo",
+    "Gavriel State",
+    "Sanja Fidler",
+    "Nicholas Sharp",
+    "Zan Gojcic"
+   ],
+   "publicado": "2024-07-09",
+   "journal_ref": null,
+   "doi": null
+  },
+  "erros": [],
+  "similaridade_titulo": 1.0,
+  "status": "confirmada"
+ },
+ {
+  "key": "guedon2025milo",
+  "fonte": "levantamento",
+  "titulo_esperado": "MILo: Mesh-In-the-Loop Gaussian Splatting for Detailed and Efficient Surface Reconstruction",
+  "crossref": {
+   "doi": "10.1145/3763339",
+   "titulo": "MILo: Mesh-In-the-Loop Gaussian Splatting for Detailed and Efficient Surface Reconstruction",
+   "autores": [
+    "Antoine Guédon",
+    "Diego Gomez",
+    "Nissim Maruani",
+    "Bingchen Gong",
+    "George Drettakis",
+    "Maks Ovsjanikov"
+   ],
+   "veiculo": "ACM Transactions on Graphics",
+   "volume": "44",
+   "numero": "6",
+   "paginas": "1-15",
+   "ano": 2025,
+   "tipo": "journal-article",
+   "editora": "Association for Computing Machinery (ACM)"
+  },
+  "arxiv": null,
+  "erros": [],
+  "similaridade_titulo": 1.0,
+  "status": "confirmada"
+ },
+ {
+  "key": "lyu2024dgsr",
+  "fonte": "levantamento",
+  "titulo_esperado": "3DGSR: Implicit Surface Reconstruction with 3D Gaussian Splatting",
+  "crossref": {
+   "doi": "10.1145/3687952",
+   "titulo": "3DGSR: Implicit Surface Reconstruction with 3D Gaussian Splatting",
+   "autores": [
+    "Xiaoyang Lyu",
+    "Yang-Tian Sun",
+    "Yi-Hua Huang",
+    "Xiuzhe Wu",
+    "Ziyi Yang",
+    "Yilun Chen",
+    "Jiangmiao Pang",
+    "Xiaojuan Qi"
+   ],
+   "veiculo": "ACM Transactions on Graphics",
+   "volume": "43",
+   "numero": "6",
+   "paginas": "1-12",
+   "ano": 2024,
+   "tipo": "journal-article",
+   "editora": "Association for Computing Machinery (ACM)"
+  },
+  "arxiv": null,
+  "erros": [],
+  "similaridade_titulo": 1.0,
+  "status": "confirmada"
+ },
+ {
+  "key": "jiang2025geometryfield",
+  "fonte": "levantamento",
+  "titulo_esperado": "Geometry Field Splatting with Gaussian Surfels",
+  "crossref": {
+   "doi": "10.1109/cvpr52734.2025.00540",
+   "titulo": "Geometry Field Splatting with Gaussian Surfels",
+   "autores": [
+    "Kaiwen Jiang",
+    "Venkataram Sivaram",
+    "Cheng Peng",
+    "Ravi Ramamoorthi"
+   ],
+   "veiculo": "2025 IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR)",
+   "volume": null,
+   "numero": null,
+   "paginas": "5752-5762",
+   "ano": 2025,
+   "tipo": "proceedings-article",
+   "editora": "IEEE"
+  },
+  "arxiv": null,
+  "erros": [],
+  "similaridade_titulo": 1.0,
+  "status": "confirmada"
+ },
+ {
+  "key": "jiang2025radiosity",
+  "fonte": "levantamento",
+  "titulo_esperado": "Differentiable Light Transport with Gaussian Surfels via Adapted Radiosity for Efficient Relighting and Geometry Reconstruction",
+  "crossref": {
+   "doi": "10.1145/3763305",
+   "titulo": "Differentiable Light Transport with Gaussian Surfels via Adapted Radiosity for Efficient Relighting and Geometry Reconstruction",
+   "autores": [
+    "Kaiwen Jiang",
+    "Jia-Mu Sun",
+    "Zilu Li",
+    "Dan Wang",
+    "Tzu-Mao Li",
+    "Ravi Ramamoorthi"
+   ],
+   "veiculo": "ACM Transactions on Graphics",
+   "volume": "44",
+   "numero": "6",
+   "paginas": "1-25",
+   "ano": 2025,
+   "tipo": "journal-article",
+   "editora": "Association for Computing Machinery (ACM)"
+  },
+  "arxiv": null,
+  "erros": [],
+  "similaridade_titulo": 1.0,
+  "status": "confirmada"
+ },
+ {
+  "key": "li2026pdrgs",
+  "fonte": "levantamento",
+  "titulo_esperado": "PDRGS: Probabilistic Distribution Reshaping for Specular Geometry Reconstruction in 3D Gaussian Splatting",
+  "crossref": {
+   "doi": "10.1111/cgf.70650",
+   "titulo": "PDRGS: Probabilistic Distribution Reshaping for Specular Geometry Reconstruction in 3D Gaussian Splatting",
+   "autores": [
+    "Zhihao Li",
+    "Chen Wang",
+    "Pengfei Wang",
+    "Guangshun Wei",
+    "Yuanfeng Zhou"
+   ],
+   "veiculo": "Computer Graphics Forum",
+   "volume": null,
+   "numero": null,
+   "paginas": "e70650",
+   "ano": 2026,
+   "tipo": "journal-article",
+   "editora": "Wiley"
+  },
+  "arxiv": null,
+  "erros": [],
+  "similaridade_titulo": 1.0,
+  "status": "confirmada"
+ },
+ {
+  "key": "han2026radiometric",
+  "fonte": "levantamento",
+  "titulo_esperado": "Radiometrically Consistent Gaussian Surfels for Inverse Rendering",
+  "crossref": null,
+  "arxiv": {
+   "arxiv": "2603.01491",
+   "titulo": "Radiometrically Consistent Gaussian Surfels for Inverse Rendering",
+   "autores": [
+    "Kyu Beom Han",
+    "Jaeyoon Kim",
+    "Woo Jae Kim",
+    "Jinhwan Seo",
+    "Sung-eui Yoon"
+   ],
+   "publicado": "2026-03-02",
+   "journal_ref": null,
+   "doi": null
+  },
+  "erros": [],
+  "similaridade_titulo": 1.0,
+  "status": "confirmada"
+ },
+ {
+  "key": "xu2026gspi",
+  "fonte": "levantamento",
+  "titulo_esperado": "GS-PI: An Optimization-Decoupled Appearance Decomposition Approach for Generating PBR Gaussian Assets",
+  "crossref": null,
+  "arxiv": {
+   "arxiv": "2609.19907",
+   "titulo": "GS-PI: An Optimization-Decoupled Appearance Decomposition Approach for Generating PBR Gaussian Assets",
+   "autores": [
+    "Jieting Xu",
+    "Rengan Xie",
+    "Zijian Huang",
+    "Zehui Jin",
+    "Rui Wang",
+    "Yuchi Huo"
+   ],
+   "publicado": "2026-09-17",
+   "journal_ref": null,
+   "doi": null
+  },
+  "erros": [],
+  "similaridade_titulo": 1.0,
+  "status": "confirmada"
+ },
+ {
+  "key": "yang2025gogs",
+  "fonte": "levantamento",
+  "titulo_esperado": "GOGS: High-Fidelity Geometry and Relighting for Glossy Objects via Gaussian Surfels",
+  "crossref": null,
+  "arxiv": {
+   "arxiv": "2508.14563",
+   "titulo": "GOGS: High-Fidelity Geometry and Relighting for Glossy Objects via Gaussian Surfels",
+   "autores": [
+    "Xingyuan Yang",
+    "Min Wei"
+   ],
+   "publicado": "2025-08-20",
+   "journal_ref": null,
+   "doi": null
+  },
+  "erros": [],
+  "similaridade_titulo": 1.0,
+  "status": "confirmada"
+ },
+ {
+  "key": "noras2025gains",
+  "fonte": "levantamento",
+  "titulo_esperado": "GAINS: Gaussian-based Inverse Rendering from Sparse Multi-View Captures",
+  "crossref": null,
+  "arxiv": {
+   "arxiv": "2512.09925",
+   "titulo": "GAINS: Gaussian-based Inverse Rendering from Sparse Multi-View Captures",
+   "autores": [
+    "Patrick Noras",
+    "Jun Myeong Choi",
+    "Didier Stricker",
+    "Pieter Peers",
+    "Roni Sengupta"
+   ],
+   "publicado": "2025-12-10",
+   "journal_ref": null,
+   "doi": null
+  },
+  "erros": [],
+  "similaridade_titulo": 1.0,
+  "status": "confirmada"
+ },
+ {
+  "key": "zhang2024radegs",
+  "fonte": "levantamento",
+  "titulo_esperado": "RaDe-GS: Rasterizing Depth in Gaussian Splatting",
+  "crossref": {
+   "doi": "10.1145/3789201",
+   "titulo": "RaDe-GS: Rasterizing Depth in Gaussian Splatting",
+   "autores": [
+    "Baowen Zhang",
+    "Chuan Fang",
+    "Rakesh Shrestha",
+    "Yixun Liang",
+    "Xiao-Xiao Long",
+    "Ping Tan"
+   ],
+   "veiculo": "ACM Transactions on Graphics",
+   "volume": "45",
+   "numero": "2",
+   "paginas": "1-14",
+   "ano": 2026,
+   "tipo": "journal-article",
+   "editora": "Association for Computing Machinery (ACM)"
+  },
+  "arxiv": null,
+  "erros": [],
+  "similaridade_titulo": 1.0,
+  "status": "confirmada"
+ },
+ {
+  "key": "zhu2025gsror2",
+  "fonte": "levantamento",
+  "titulo_esperado": "GS-ROR2: Bidirectional-guided 3DGS and SDF for Reflective Object Relighting and Reconstruction",
+  "crossref": {
+   "doi": "10.1145/3759248",
+   "titulo": "GS-ROR2: Bidirectional-guided 3DGS and SDF for Reflective Object Relighting and Reconstruction",
+   "autores": [
+    "Zuoliang Zhu",
+    "Beibei Wang",
+    "Jian Yang"
+   ],
+   "veiculo": "ACM Transactions on Graphics",
+   "volume": "45",
+   "numero": "1",
+   "paginas": "1-19",
+   "ano": 2025,
+   "tipo": "journal-article",
+   "editora": "Association for Computing Machinery (ACM)"
+  },
+  "arxiv": null,
+  "erros": [],
+  "similaridade_titulo": 1.0,
+  "status": "confirmada"
+ },
+ {
+  "key": "zhu2025dsdf",
+  "fonte": "levantamento",
+  "titulo_esperado": "Gaussian Splatting with Discretized SDF for Relightable Assets",
+  "crossref": {
+   "doi": "10.1109/iccv51701.2025.02333",
+   "titulo": "Gaussian Splatting with Discretized SDF for Relightable Assets",
+   "autores": [
+    "Zuo-Liang Zhu",
+    "Jian Yang",
+    "Beibei Wang"
+   ],
+   "veiculo": "2025 IEEE/CVF International Conference on Computer Vision (ICCV)",
+   "volume": null,
+   "numero": null,
+   "paginas": "25155-25164",
+   "ano": 2025,
+   "tipo": "proceedings-article",
+   "editora": "IEEE"
+  },
+  "arxiv": null,
+  "erros": [],
+  "similaridade_titulo": 1.0,
+  "status": "confirmada"
+ },
+ {
+  "key": "zhu2026ptirgs",
+  "fonte": "levantamento",
+  "titulo_esperado": "Path-Traced Inverse Rendering with Global Illumination in 3D Gaussian Fields",
+  "crossref": null,
+  "arxiv": {
+   "arxiv": "2606.09606",
+   "titulo": "PTIR-GS: Path-Traced Inverse Rendering with Global Illumination in 3D Gaussian Fields",
+   "autores": [
+    "Junke Zhu",
+    "Hao Zhang",
+    "Yutian Zhu",
+    "Ang Li",
+    "Chenxiao Hu",
+    "Meng Gai",
+    "Fei Zhu",
+    "Zhangjin Huang",
+    "Sheng Li"
+   ],
+   "publicado": "2026-06-08",
+   "journal_ref": null,
+   "doi": null
+  },
+  "erros": [],
+  "similaridade_titulo": 0.95,
+  "status": "confirmada"
+ },
+ {
+  "key": "munkberg2022nvdiffrec",
+  "fonte": "novo",
+  "titulo_esperado": "Extracting Triangular 3D Models, Materials, and Lighting From Images",
+  "crossref": {
+   "doi": "10.1109/cvpr52688.2022.00810",
+   "titulo": "Extracting Triangular 3D Models, Materials, and Lighting From Images",
+   "autores": [
+    "Jacob Munkberg",
+    "Wenzheng Chen",
+    "Jon Hasselgren",
+    "Alex Evans",
+    "Tianchang Shen",
+    "Thomas Muller",
+    "Jun Gao",
+    "Sanja Fidler"
+   ],
+   "veiculo": "2022 IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR)",
+   "volume": null,
+   "numero": null,
+   "paginas": "8270-8280",
+   "ano": 2022,
+   "tipo": "proceedings-article",
+   "editora": "IEEE"
+  },
+  "arxiv": null,
+  "erros": [],
+  "similaridade_titulo": 1.0,
+  "status": "confirmada"
+ },
+ {
+  "key": "schlick1994fresnel",
+  "fonte": "novo",
+  "titulo_esperado": "An Inexpensive BRDF Model for Physically-based Rendering",
+  "crossref": {
+   "doi": "10.1111/1467-8659.1330233",
+   "titulo": "An Inexpensive BRDF Model for Physically‐based Rendering",
+   "autores": [
+    "Christophe Schlick"
+   ],
+   "veiculo": "Computer Graphics Forum",
+   "volume": "13",
+   "numero": "3",
+   "paginas": "233-246",
+   "ano": 1994,
+   "tipo": "journal-article",
+   "editora": "Wiley"
+  },
+  "arxiv": null,
+  "erros": [],
+  "similaridade_titulo": 1.0,
+  "status": "confirmada"
+ },
+ {
+  "key": "walter2007ggx",
+  "fonte": "novo",
+  "titulo_esperado": "Microfacet Models for Refraction through Rough Surfaces",
+  "crossref": null,
+  "arxiv": null,
+  "erros": [],
+  "manual": {
+   "doi": "10.2312/EGWR/EGSR07/195-206",
+   "titulo": "Microfacet Models for Refraction through Rough Surfaces",
+   "autores": [
+    "Bruce Walter",
+    "Stephen R. Marschner",
+    "Hongsong Li",
+    "Kenneth E. Torrance"
+   ],
+   "veiculo": "Eurographics Symposium on Rendering (EGSR)",
+   "paginas": "195-206",
+   "ano": 2007,
+   "tipo": "proceedings-article",
+   "editora": "The Eurographics Association",
+   "url_evidencia": "https://diglib.eg.org/handle/10.2312/EGWR.EGSR07.195-206",
+   "titulo_na_pagina": true
+  },
+  "similaridade_titulo": 1.0,
+  "status": "confirmada"
+ },
+ {
+  "key": "wang2004ssim",
+  "fonte": "novo",
+  "titulo_esperado": "Image Quality Assessment: From Error Visibility to Structural Similarity",
+  "crossref": {
+   "doi": "10.1109/tip.2003.819861",
+   "titulo": "Image quality assessment: from error visibility to structural similarity",
+   "autores": [
+    "Zhou Wang",
+    "A.C. Bovik",
+    "H.R. Sheikh",
+    "E.P. Simoncelli"
+   ],
+   "veiculo": "IEEE Transactions on Image Processing",
+   "volume": "13",
+   "numero": "4",
+   "paginas": "600-612",
+   "ano": 2004,
+   "tipo": "journal-article",
+   "editora": "Institute of Electrical and Electronics Engineers (IEEE)"
+  },
+  "arxiv": null,
+  "erros": [],
+  "similaridade_titulo": 1.0,
+  "status": "confirmada"
+ },
+ {
+  "key": "zhang2018lpips",
+  "fonte": "novo",
+  "titulo_esperado": "The Unreasonable Effectiveness of Deep Features as a Perceptual Metric",
+  "crossref": {
+   "doi": "10.1109/cvpr.2018.00068",
+   "titulo": "The Unreasonable Effectiveness of Deep Features as a Perceptual Metric",
+   "autores": [
+    "Richard Zhang",
+    "Phillip Isola",
+    "Alexei A. Efros",
+    "Eli Shechtman",
+    "Oliver Wang"
+   ],
+   "veiculo": "2018 IEEE/CVF Conference on Computer Vision and Pattern Recognition",
+   "volume": null,
+   "numero": null,
+   "paginas": "586-595",
+   "ano": 2018,
+   "tipo": "proceedings-article",
+   "editora": "IEEE"
+  },
+  "arxiv": null,
+  "erros": [],
+  "similaridade_titulo": 1.0,
+  "status": "confirmada"
+ },
+ {
+  "key": "wilcoxon1945",
+  "fonte": "novo",
+  "titulo_esperado": "Individual Comparisons by Ranking Methods",
+  "crossref": {
+   "doi": "10.2307/3001968",
+   "titulo": "Individual Comparisons by Ranking Methods",
+   "autores": [
+    "Frank Wilcoxon"
+   ],
+   "veiculo": "Biometrics Bulletin",
+   "volume": "1",
+   "numero": "6",
+   "paginas": "80",
+   "ano": 1945,
+   "tipo": "journal-article",
+   "editora": "JSTOR"
+  },
+  "arxiv": null,
+  "erros": [],
+  "similaridade_titulo": 1.0,
+  "status": "confirmada"
+ },
+ {
+  "key": "efron1979bootstrap",
+  "fonte": "novo",
+  "titulo_esperado": "Bootstrap Methods: Another Look at the Jackknife",
+  "crossref": {
+   "doi": "10.1214/aos/1176344552",
+   "titulo": "Bootstrap Methods: Another Look at the Jackknife",
+   "autores": [
+    "B. Efron"
+   ],
+   "veiculo": "The Annals of Statistics",
+   "volume": "7",
+   "numero": "1",
+   "paginas": "1-26",
+   "ano": 1979,
+   "tipo": "journal-article",
+   "editora": "Institute of Mathematical Statistics"
+  },
+  "arxiv": null,
+  "erros": [],
+  "similaridade_titulo": 1.0,
+  "status": "confirmada"
+ },
+ {
+  "key": "strubell2019energy",
+  "fonte": "novo",
+  "titulo_esperado": "Energy and Policy Considerations for Deep Learning in NLP",
+  "crossref": {
+   "doi": "10.18653/v1/p19-1355",
+   "titulo": "Energy and Policy Considerations for Deep Learning in NLP",
+   "autores": [
+    "Emma Strubell",
+    "Ananya Ganesh",
+    "Andrew McCallum"
+   ],
+   "veiculo": "Proceedings of the 57th Annual Meeting of the Association for Computational Linguistics",
+   "volume": null,
+   "numero": null,
+   "paginas": "3645-3650",
+   "ano": 2019,
+   "tipo": "proceedings-article",
+   "editora": "Association for Computational Linguistics"
+  },
+  "arxiv": null,
+  "erros": [],
+  "similaridade_titulo": 1.0,
+  "status": "confirmada"
+ },
+ {
+  "key": "schonberger2016colmap",
+  "fonte": "novo",
+  "titulo_esperado": "Structure-from-Motion Revisited",
+  "crossref": {
+   "doi": "10.1109/cvpr.2016.445",
+   "titulo": "Structure-from-Motion Revisited",
+   "autores": [
+    "Johannes L. Schonberger",
+    "Jan-Michael Frahm"
+   ],
+   "veiculo": "2016 IEEE Conference on Computer Vision and Pattern Recognition (CVPR)",
+   "volume": null,
+   "numero": null,
+   "paginas": "4104-4113",
+   "ano": 2016,
+   "tipo": "proceedings-article",
+   "editora": "IEEE"
+  },
+  "arxiv": null,
+  "erros": [],
+  "similaridade_titulo": 1.0,
+  "status": "confirmada"
+ },
+ {
+  "key": "karis2013ue4",
+  "fonte": "novo",
+  "titulo_esperado": "Real Shading in Unreal Engine 4",
+  "crossref": null,
+  "arxiv": null,
+  "erros": [],
+  "manual": {
+   "doi": null,
+   "titulo": "Real Shading in Unreal Engine 4",
+   "autores": [
+    "Brian Karis"
+   ],
+   "veiculo": "SIGGRAPH 2013 Course: Physically Based Shading in Theory and Practice",
+   "paginas": null,
+   "ano": 2013,
+   "tipo": "course-notes",
+   "editora": "ACM SIGGRAPH",
+   "url_evidencia": "https://blog.selfshadow.com/publications/s2013-shading-course/",
+   "titulo_na_pagina": true
+  },
+  "similaridade_titulo": 1.0,
+  "status": "confirmada"
+ }
+]

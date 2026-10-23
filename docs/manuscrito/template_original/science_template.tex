@@ -1,0 +1,187 @@
+% science_template.tex
+% See accompanying readme.txt for copyright statement, change log etc.
+
+% Any modification of this template, including writing a paper using it,
+% MUST rename the file i.e. use a different file name.
+
+%%%%%%%%%%%%%%%% START OF PREAMBLE %%%%%%%%%%%%%%%
+
+% Basic setup. Authors shouldn't need to adjust these commands.
+% It's annoying, but please do NOT strip these into a separate file.
+% They need to be included in this .tex for our production software to work.
+
+% Use the basic LaTeX article class, 12pt text
+\documentclass[12pt]{article}
+
+% Science uses Times font. If you don't have this installed (most LaTeX installations will be
+% fine) or prefer the old Computer Modern fonts, comment out the following line
+\usepackage{newtxtext,newtxmath}
+% Depending on your LaTeX fonts installation, you might get better results with one or both of these:
+%\usepackage{mathptmx}
+%\usepackage{txfonts}
+
+% Allow external graphics files
+\usepackage{graphicx}
+
+% Use US letter sized paper with 1 inch margins
+\usepackage[letterpaper,margin=1in]{geometry}
+
+% Double line spacing, including in captions
+\linespread{1.5} % For some reason double spacing is 1.5, not 2.0!
+
+% One space after each sentence
+\frenchspacing
+
+% Abstract formatting and spacing - no heading
+\renewenvironment{abstract}
+	{\quotation}
+	{\endquotation}
+
+% No date in the title section
+\date{}
+
+% Reference section heading
+\renewcommand\refname{References and Notes}
+
+% Figure and Table labels in bold
+\makeatletter
+\renewcommand{\fnum@figure}{\textbf{Figure \thefigure}}
+\renewcommand{\fnum@table}{\textbf{Table \thetable}}
+\makeatother
+
+% Call the accompanying scicite.sty package.
+% This formats citation numbers in Science style.
+\usepackage{scicite}
+
+% Provides the \url command, and fixes a crash if URLs or DOIs contain underscores
+\usepackage{url}
+
+%%%%%%%%%%%% CUSTOM COMMANDS AND PACKAGES %%%%%%%%%%%%
+
+% Authors can define simple custom commands e.g. as shortcuts to save on typing
+% Use \newcommand (not \def) to avoid overwriting existing commands.
+% Keep them as simple as possible and note the warning in the text below.
+
+% Example:
+\newcommand{\pcc}{\,cm$^{-3}$}	% per cm-cubed
+
+% If your BibTeX uses shortcuts for journal names, define them here e.g.
+% \newcommand{\apj}{Astrophys.~J.}
+
+% Please DO NOT import additional external packages or .sty files.
+% Those are unlikely to work with our conversion software and will cause problems later.
+% Don't add any more \usepackage{} commands.
+
+
+%%%%%%%%%%%%%%%% TITLE AND AUTHORS %%%%%%%%%%%%%%%%
+
+% Title of the paper.
+% Keep it short and understandable by any reader of Science.
+% Avoid acronyms or jargon. Use sentence case.
+\def\scititle{
+	Proposta de melhorias para o Gaussian Opacity Field com base no GuassianShader
+}
+% Store the title in a variable for reuse in the supplement (otherwise \maketitle deletes it)
+\title{\bfseries \boldmath \scititle}
+
+% Author and institution list.
+% Institution numbers etc. should be hard-coded, do *not* use the \footnote command.
+\author{
+	% You can write out first names or use initials - either way is acceptable, but be consistent
+	First~Author$^{1\ast\dagger}$,
+	A.~Scientist$^{2\dagger}$,
+	Someone~E.~Else$^{2}$\and
+	% Additional lines of authors should be inserted using the \and command (not \\)
+	% Institution list, in a slightly smaller font
+	\small$^{1}$Department, Institution, City, Country.\and\
+	\small$^{2}$Another Department, Different Institution, City, Country.\and
+	% Do not include street addresses, postal codes etc.
+	%
+	% Identify at least one corresponding author, with contact email address
+	\small$^\ast$Corresponding author. Email: example@mail.com\and
+	% Joint contributions can be indicated like this
+	\small$^\dagger$These authors contributed equally to this work.
+}
+
+
+\begin{document} 
+
+% Insert the title and author list
+\maketitle
+
+% Abstract, in bold
+% There are strict length limits, and not all formats have abstracts.
+% Consult the journal instructions to authors for details.
+% Do not cite any references in the abstract.
+\begin{abstract} \bfseries \boldmath
+% Start with one or two sentences of background
+This is a simple template to prepare papers in \LaTeX\ for the \textit{Science}-family journals.
+Abstracts start with one or two sentences of background, which should be
+comprehensible to any scientist.
+% Then summarise the results of your observations, experiments, simulations etc.
+The following text should outline the main results of the research.
+Simple mathematical expressions can be included e.g. $a^2+b^2=c^2$.
+% End with a statement of your main conclusions
+The final sentence of the abstract should state the main conclusions and implications.
+\end{abstract}
+
+
+\noindent
+
+Abaixo, rascunhos de algumas partes do artigo.
+
+RESUMO:
+
+Este artigo apresenta uma nova abordagem unificada para a reconstrução 3D de superfícies contínuas e decomposição de refletância óptica em objetos com estruturas pequenas e reflexões especulares complexas. Abordagens tradicionais de 3D Gaussian Splatting (3DGS) falham em isolar a iluminação do ambiente da textura intrínseca do objeto, gerando artefatos em minerais e materiais refletivos devido ao "assamento" (baking) da luz incidente. O método proposto combina a formulação analítica de interseção raio-Gaussiana e extração de nível de conjunto do Gaussian Opacity Fields (GOF) com uma função de sombreamento baseada em física (PBR), estendendo o vetor de estado das primitivas volumétricas para incluir parâmetros de Specular Tint, rugosidade ($\rho$) e uma componente residual de espalhamento $c_r(\omega_o)$.
+
+INTRODUÇÃO:
+
+A reconstrução 3D de alta fidelidade a partir de imagens multiview é fundamental em domínios técnicos como a análise geológica de testemunhos de sondagem, em que a caracterização precisa de pequenas estruturas minerais e reflexões especulares em cristais (ex.: quartzo e calcita) determina a qualidade da análise visual. Contudo, modelos vigentes baseados em NeRFs, MVS e 3DGS apresentam limitações severas, como o assamento de iluminação, onde os modelos incorporam a luz do laboratório/scanner na textura intrínseca, impedindo a re-iluminação, e a inadequação angular dos Harmônicos Esféricos (SH), uma vez que os SH assumem funções de radiância suavemente variantes, falhando em representar altos picos especulares, anisotropia e pequenas faíscas (glints) de iluminação geradas por microestruturas (como cristais).
+
+Problema de Pesquisa: Como formular um modelo contínuo de representação 3D por primitivas Gaussianas que extraia a superfície de forma analítica e, simultaneamente, desentrelace o componente difuso, a rugosidade superficial e as reflexões especulares de alta frequência em objetos com microestrutura complexa?
+
+Proposta: Apresenta-se uma nova arquitetura que funde o modelo de campo de opacidade contínuo por interseção de raios (GOF) a um pipeline de renderização diferenciável baseado em BRDF (inspirado na parametrização do GaussianShader), estendido para comportar termos de refletância direcionais avançados.
+
+REVISÃO DA LITERATURA:
+
+A literatura de reconstrução 3D migrou das representações implícitas baseadas em redes neurais (Neural Radiance Fields) para abordagens explícitas de rápida rasterização via 3D Gaussian Splatting. Para tratar superfícies refletivas, trabalhos como Ref-NeRF introduziram a Integrated Directional Encoding (IDE), utilizando a distribuição de von Mises-Fisher para suavizar altas frequências angulares na direção refletida. No entanto, modelos NeRF sofrem com alto custo computacional de treinamento e inferência.
+
+No domínio das Gaussianas 3D, o GOF (Gaussian Opacity Fields) resolveu a extração de superfícies contínuas ao substituir a projeção 2D por um cálculo de interseção raio-Gaussiana 3D, permitindo a extração de malhas diretamente por Marching Tetrahedra sem necessidade de fusão TSDF ou reconstrução de Poisson. Em paralelo, o GaussianShader introduziu funções de sombreamento (PBR) em primitivas 3D para tratar refletância especular através de mapas de ambiente e Funções de Distribuição de Normais (NDF GGX). Este trabalho propõe a unificação teórica entre o campo de opacidade analítico do GOF e as variáveis de refletância física e residual de espalhamento do GaussianShader.
+
+METODOLOGIA:
+
+O modelo computacional unificado é estruturado em cinco etapas fundamentais: Percepção (multiview images), Renderização/Rasterização 2D via ray-tracing, Extração de Informação Intrínseca, Agrupamento/Densificação e Reconstrução da Cena.
+
+Formulário Teórico do Sombreamento e Geometria:
+
+Para cada primitiva Gaussiana 3D $G_k$, definida por centro $p_k$, escala $S_k$ e rotação $R_k$, calcula-se a normal de superfície de forma analítica através do plano de interseção do raio $r_g$ no sistema local do objeto: $$n_i = -R_k^T S_k^{-1} r_g$$
+
+A cor de saída na direção de visada $\omega_o$ é obtida combinando a cor intrínseca do objeto com os termos de refletância física:  $$c(\omega_o) = \gamma \left( c_d + s \odot L_s(\omega_o, n, \rho) + c_r(\omega_o) \right)$$
+
+Onde:
+
+- $c_d \in [0,1]^3$: Componente de cor difusa (independente da direção de visão).
+
+- $s \in [0,1]^3$: Specular Tint associado à composição material.
+
+- $L_s(\omega_o, n, \rho)$: Luz especular direta integrada sobre a NDF GGX com rugosidade $\rho$.
+
+- $c_r(\omega_o)$: Termo de cor residual (parametrizado por Harmônicos Esféricos de 3ª ordem ou IDE), responsável por capturar espalhamento sub-superficial, reflexões indiretas e efeitos de birrefringência/interferência de microcristais que a BRDF simplificada não modela isoladamente.
+
+Infraestrutura e Kernels CUDA: \textcolor{red}{(JOÃO E DANILO VER ESSA PARTE)}
+
+- Integração de Software: Implementou-se a passagem do vetor de estado estendido ($s, \rho, c_r$) na biblioteca CUDA original do renderizador.
+
+- Ambiente de Computação: Para evitar conflitos de DLL PyTorch, ausência de compilador nativo Windows e problemas do COLMAP via Docker, estabilizou-se o pipeline em ambiente isolado Conda com regras de compilação personalizadas em CMake.
+
+RESULTADOS:
+
+A validação empírica do modelo foi realizada em dados padronizados de referência:
+
+- Dataset TnT (Truck): A otimização em 30.000 iterações demonstrou a estabilidade numérica dos novos gradientes injetados pelas variáveis $s$, $\rho$ e $c_r$ no kernel CUDA, sem provocar degradação geométrica na renderização. \textcolor{red}{FALTA VER COM O ENVIRONMENT MAP}
+
+DISCUSSÃO:
+
+A fusão teórica entre a determinação analítica de normais do GOF e a decomposição de refletância do GaussianShader prova que é possível tratar superfícies com brilho e especularidade sem comprometer a estabilidade do campo de opacidade. O termo de cor residual $c_r(\omega_o)$ demonstrou papel fundamental na atenuação dos erros de renderização causados por microgeometria não resolvida.
+
+\end{document}

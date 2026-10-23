@@ -1,0 +1,323 @@
+[
+ {
+  "key": "kerbl2023gaussian",
+  "doi": "10.1145/3592433",
+  "titulo": "3D Gaussian Splatting for Real-Time Radiance Field Rendering",
+  "fonte": "levantamento"
+ },
+ {
+  "key": "yu2024gof",
+  "doi": "10.1145/3687937",
+  "arxiv": "2404.10772",
+  "titulo": "Gaussian Opacity Fields: Efficient Adaptive Surface Reconstruction in Unbounded Scenes",
+  "fonte": "levantamento"
+ },
+ {
+  "key": "jiang2024gaussianshader",
+  "arxiv": "2311.17977",
+  "query": "GaussianShader: 3D Gaussian Splatting with Shading Functions for Reflective Surfaces",
+  "titulo": "GaussianShader: 3D Gaussian Splatting with Shading Functions for Reflective Surfaces",
+  "fonte": "levantamento"
+ },
+ {
+  "key": "verbin2022refnerf",
+  "arxiv": "2112.03907",
+  "query": "Ref-NeRF: Structured View-Dependent Appearance for Neural Radiance Fields",
+  "titulo": "Ref-NeRF: Structured View-Dependent Appearance for Neural Radiance Fields",
+  "fonte": "projeto"
+ },
+ {
+  "key": "mezieres2022hvl",
+  "arxiv": "2201.01487",
+  "titulo": "Harmonics Virtual Lights: Fast Projection of Luminance Field on Spherical Harmonics for Efficient Rendering",
+  "fonte": "projeto"
+ },
+ {
+  "key": "mildenhall2020nerf",
+  "doi": "10.1007/978-3-030-58452-8_24",
+  "titulo": "NeRF: Representing Scenes as Neural Radiance Fields for View Synthesis",
+  "fonte": "novo"
+ },
+ {
+  "key": "liu2023nero",
+  "doi": "10.1145/3592134",
+  "titulo": "NeRO: Neural Geometry and BRDF Reconstruction of Reflective Objects from Multiview Images",
+  "fonte": "novo"
+ },
+ {
+  "key": "knapitsch2017tanks",
+  "doi": "10.1145/3072959.3073599",
+  "titulo": "Tanks and Temples: Benchmarking Large-Scale Scene Reconstruction",
+  "fonte": "novo"
+ },
+ {
+  "key": "huang2024twodgs",
+  "doi": "10.1145/3641519.3657428",
+  "titulo": "2D Gaussian Splatting for Geometrically Accurate Radiance Fields",
+  "fonte": "levantamento"
+ },
+ {
+  "key": "guedon2024sugar",
+  "doi": "10.1109/cvpr52733.2024.00512",
+  "titulo": "SuGaR: Surface-Aligned Gaussian Splatting for Efficient 3D Mesh Reconstruction and High-Quality Mesh Rendering",
+  "fonte": "levantamento"
+ },
+ {
+  "key": "yu2024mipsplatting",
+  "query": "Mip-Splatting: Alias-free 3D Gaussian Splatting",
+  "titulo": "Mip-Splatting: Alias-free 3D Gaussian Splatting",
+  "fonte": "novo"
+ },
+ {
+  "key": "liang2024gsir",
+  "doi": "10.1109/cvpr52733.2024.02045",
+  "titulo": "GS-IR: 3D Gaussian Splatting for Inverse Rendering",
+  "fonte": "levantamento"
+ },
+ {
+  "key": "shi2025gir",
+  "arxiv": "2312.05133",
+  "titulo": "GIR: 3D Gaussian Inverse Rendering for Relightable Scene Factorization",
+  "fonte": "levantamento",
+  "doi": "10.1109/tpami.2025.3575937"
+ },
+ {
+  "key": "wu2025deferredgs",
+  "doi": "10.1109/tpami.2025.3560933",
+  "titulo": "DeferredGS: Decoupled and Relightable Gaussian Splatting With Deferred Shading",
+  "fonte": "levantamento"
+ },
+ {
+  "key": "ye2025geosplatting",
+  "doi": "10.1109/iccv51701.2025.02692",
+  "titulo": "GeoSplatting: Towards Geometry Guided Gaussian Splatting for Physically-Based Inverse Rendering",
+  "fonte": "levantamento"
+ },
+ {
+  "key": "yao2025refgaussian",
+  "arxiv": "2412.19282",
+  "titulo": "Reflective Gaussian Splatting",
+  "fonte": "levantamento"
+ },
+ {
+  "key": "gu2025irgs",
+  "arxiv": "2412.15867",
+  "titulo": "IRGS: Inter-Reflective Gaussian Splatting with 2D Gaussian Ray Tracing",
+  "fonte": "levantamento",
+  "doi": "10.1109/cvpr52734.2025.01022"
+ },
+ {
+  "key": "gu2026irgsext",
+  "arxiv": "2607.22780",
+  "titulo": "Inter-Reflective Gaussian Splatting for Robust and Efficient Inverse Rendering",
+  "fonte": "levantamento"
+ },
+ {
+  "key": "lai2025glossygs",
+  "doi": "10.1109/tvcg.2025.3547063",
+  "titulo": "GlossyGS: Inverse Rendering of Glossy Objects With 3D Gaussian Splatting",
+  "fonte": "levantamento"
+ },
+ {
+  "key": "liang2025gusir",
+  "doi": "10.1109/tpami.2025.3578416",
+  "titulo": "GUS-IR: Gaussian Splatting With Unified Shading for Inverse Rendering",
+  "fonte": "levantamento"
+ },
+ {
+  "key": "zhou2025rtrgs",
+  "doi": "10.1145/3746027.3755197",
+  "titulo": "RTR-GS: 3D Gaussian Splatting for Inverse Rendering with Radiance Transfer and Reflection",
+  "fonte": "levantamento"
+ },
+ {
+  "key": "sun2025svgir",
+  "doi": "10.1109/cvpr52734.2025.01505",
+  "titulo": "SVG-IR: Spatially-Varying Gaussian Splatting for Inverse Rendering",
+  "fonte": "levantamento"
+ },
+ {
+  "key": "chen2024gigs",
+  "arxiv": "2410.02619",
+  "titulo": "GI-GS: Global Illumination Decomposition on Gaussian Splatting for Inverse Rendering",
+  "fonte": "levantamento"
+ },
+ {
+  "key": "bao2025survey",
+  "doi": "10.1109/tcsvt.2025.3538684",
+  "titulo": "3D Gaussian Splatting: Survey, Technologies, Challenges, and Opportunities",
+  "fonte": "levantamento"
+ },
+ {
+  "key": "moenne2024gaussianrt",
+  "doi": "10.1145/3687934",
+  "arxiv": "2407.07090",
+  "titulo": "3D Gaussian Ray Tracing: Fast Tracing of Particle Scenes",
+  "fonte": "levantamento"
+ },
+ {
+  "key": "guedon2025milo",
+  "doi": "10.1145/3763339",
+  "titulo": "MILo: Mesh-In-the-Loop Gaussian Splatting for Detailed and Efficient Surface Reconstruction",
+  "fonte": "levantamento"
+ },
+ {
+  "key": "lyu2024dgsr",
+  "doi": "10.1145/3687952",
+  "titulo": "3DGSR: Implicit Surface Reconstruction with 3D Gaussian Splatting",
+  "fonte": "levantamento"
+ },
+ {
+  "key": "jiang2025geometryfield",
+  "doi": "10.1109/cvpr52734.2025.00540",
+  "titulo": "Geometry Field Splatting with Gaussian Surfels",
+  "fonte": "levantamento"
+ },
+ {
+  "key": "jiang2025radiosity",
+  "doi": "10.1145/3763305",
+  "titulo": "Differentiable Light Transport with Gaussian Surfels via Adapted Radiosity for Efficient Relighting and Geometry Reconstruction",
+  "fonte": "levantamento"
+ },
+ {
+  "key": "li2026pdrgs",
+  "doi": "10.1111/cgf.70650",
+  "titulo": "PDRGS: Probabilistic Distribution Reshaping for Specular Geometry Reconstruction in 3D Gaussian Splatting",
+  "fonte": "levantamento"
+ },
+ {
+  "key": "han2026radiometric",
+  "arxiv": "2603.01491",
+  "titulo": "Radiometrically Consistent Gaussian Surfels for Inverse Rendering",
+  "fonte": "levantamento"
+ },
+ {
+  "key": "xu2026gspi",
+  "arxiv": "2609.19907",
+  "titulo": "GS-PI: An Optimization-Decoupled Appearance Decomposition Approach for Generating PBR Gaussian Assets",
+  "fonte": "levantamento"
+ },
+ {
+  "key": "yang2025gogs",
+  "arxiv": "2508.14563",
+  "titulo": "GOGS: High-Fidelity Geometry and Relighting for Glossy Objects via Gaussian Surfels",
+  "fonte": "levantamento"
+ },
+ {
+  "key": "noras2025gains",
+  "arxiv": "2512.09925",
+  "titulo": "GAINS: Gaussian-based Inverse Rendering from Sparse Multi-View Captures",
+  "fonte": "levantamento"
+ },
+ {
+  "key": "zhang2024radegs",
+  "doi": "10.1145/3789201",
+  "titulo": "RaDe-GS: Rasterizing Depth in Gaussian Splatting",
+  "fonte": "levantamento"
+ },
+ {
+  "key": "zhu2025gsror2",
+  "doi": "10.1145/3759248",
+  "titulo": "GS-ROR2: Bidirectional-guided 3DGS and SDF for Reflective Object Relighting and Reconstruction",
+  "fonte": "levantamento"
+ },
+ {
+  "key": "zhu2025dsdf",
+  "doi": "10.1109/iccv51701.2025.02333",
+  "titulo": "Gaussian Splatting with Discretized SDF for Relightable Assets",
+  "fonte": "levantamento"
+ },
+ {
+  "key": "zhu2026ptirgs",
+  "titulo": "Path-Traced Inverse Rendering with Global Illumination in 3D Gaussian Fields",
+  "fonte": "levantamento",
+  "arxiv": "2606.09606"
+ },
+ {
+  "key": "munkberg2022nvdiffrec",
+  "query": "Extracting Triangular 3D Models, Materials, and Lighting From Images",
+  "titulo": "Extracting Triangular 3D Models, Materials, and Lighting From Images",
+  "fonte": "novo"
+ },
+ {
+  "key": "schlick1994fresnel",
+  "doi": "10.1111/1467-8659.1330233",
+  "titulo": "An Inexpensive BRDF Model for Physically-based Rendering",
+  "fonte": "novo"
+ },
+ {
+  "key": "walter2007ggx",
+  "titulo": "Microfacet Models for Refraction through Rough Surfaces",
+  "fonte": "novo",
+  "url_evidencia": "https://diglib.eg.org/handle/10.2312/EGWR.EGSR07.195-206",
+  "manual": {
+   "doi": "10.2312/EGWR/EGSR07/195-206",
+   "titulo": "Microfacet Models for Refraction through Rough Surfaces",
+   "autores": [
+    "Bruce Walter",
+    "Stephen R. Marschner",
+    "Hongsong Li",
+    "Kenneth E. Torrance"
+   ],
+   "veiculo": "Eurographics Symposium on Rendering (EGSR)",
+   "paginas": "195-206",
+   "ano": 2007,
+   "tipo": "proceedings-article",
+   "editora": "The Eurographics Association"
+  }
+ },
+ {
+  "key": "wang2004ssim",
+  "doi": "10.1109/TIP.2003.819861",
+  "titulo": "Image Quality Assessment: From Error Visibility to Structural Similarity",
+  "fonte": "novo"
+ },
+ {
+  "key": "zhang2018lpips",
+  "query": "The Unreasonable Effectiveness of Deep Features as a Perceptual Metric",
+  "titulo": "The Unreasonable Effectiveness of Deep Features as a Perceptual Metric",
+  "fonte": "novo"
+ },
+ {
+  "key": "wilcoxon1945",
+  "doi": "10.2307/3001968",
+  "titulo": "Individual Comparisons by Ranking Methods",
+  "fonte": "novo"
+ },
+ {
+  "key": "efron1979bootstrap",
+  "doi": "10.1214/aos/1176344552",
+  "titulo": "Bootstrap Methods: Another Look at the Jackknife",
+  "fonte": "novo"
+ },
+ {
+  "key": "strubell2019energy",
+  "doi": "10.18653/v1/P19-1355",
+  "titulo": "Energy and Policy Considerations for Deep Learning in NLP",
+  "fonte": "novo"
+ },
+ {
+  "key": "schonberger2016colmap",
+  "query": "Structure-from-Motion Revisited",
+  "titulo": "Structure-from-Motion Revisited",
+  "fonte": "novo"
+ },
+ {
+  "key": "karis2013ue4",
+  "titulo": "Real Shading in Unreal Engine 4",
+  "fonte": "novo",
+  "url_evidencia": "https://blog.selfshadow.com/publications/s2013-shading-course/",
+  "manual": {
+   "doi": null,
+   "titulo": "Real Shading in Unreal Engine 4",
+   "autores": [
+    "Brian Karis"
+   ],
+   "veiculo": "SIGGRAPH 2013 Course: Physically Based Shading in Theory and Practice",
+   "paginas": null,
+   "ano": 2013,
+   "tipo": "course-notes",
+   "editora": "ACM SIGGRAPH"
+  }
+ }
+]
