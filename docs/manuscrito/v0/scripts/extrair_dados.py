@@ -1,4 +1,4 @@
-"""Copia e deriva, a partir das saidas dos treinos, todos os dados que o manuscrito usa (dados/ e figuras/envmaps)."""
+"""Copia e deriva, a partir das saidas dos treinos, os dados que o manuscrito usa (dados/); os mapas de ambiente ficam em scripts/figuras/envmaps.py."""
 import csv
 import json
 import os
@@ -6,8 +6,6 @@ import shutil
 import sys
 
 import numpy as np
-import torch
-from PIL import Image
 from plyfile import PlyData
 
 CENAS = ["bell", "cat", "teapot"]
@@ -44,14 +42,6 @@ def material(ply):
     }
 
 
-def envmap_png(pth, out):
-    base = torch.load(pth, map_location="cpu")["state_dict"]["base"].clamp(min=0).numpy().transpose(1, 2, 0)
-    escala = np.percentile(base, 99.5)
-    img = np.clip(base / escala, 0, 1) ** (1 / 2.2)
-    Image.fromarray((img * 255).astype(np.uint8)).save(out)
-    return {"altura": base.shape[0], "largura": base.shape[1], "p99_5": float(escala)}
-
-
 def potencia(gpu_csv, max_pontos=400):
     vals = []
     with open(gpu_csv) as f:
@@ -69,12 +59,11 @@ def main(repo, dst):
     nero, truck = os.path.join(repo, "output", "nero"), os.path.join(repo, "docs", "experiments", "COMPARACAO-truck")
     os.makedirs(os.path.join(dst, "dados", "nero"), exist_ok=True)
     os.makedirs(os.path.join(dst, "dados", "truck"), exist_ok=True)
-    os.makedirs(os.path.join(dst, "figuras", "envmaps"), exist_ok=True)
     for f in ("per_view.json", "results.json", "analysis.json"):
         shutil.copy(os.path.join(truck, f), os.path.join(dst, "dados", "truck", f))
     shutil.copy(os.path.join(nero, "relatorio", "resumo.csv"), os.path.join(dst, "dados", "nero", "resumo.csv"))
 
-    perfis, mats, envs, pots = {}, {}, {}, {}
+    perfis, mats, pots = {}, {}, {}
     for s in CENAS:
         for f in ("per_view.json", "results.json", "analysis.json"):
             shutil.copy(os.path.join(nero, s, "metricas", f), os.path.join(dst, "dados", "nero", f"{s}_{f}"))
@@ -87,10 +76,8 @@ def main(repo, dst):
             pots[f"{s}/{m}"] = potencia(os.path.join(d, "gpu.csv"))
             if m.startswith("gof_brdf"):
                 mats[f"{s}/{m}"] = material(os.path.join(d, "point_cloud", "iteration_30000", "point_cloud.ply"))
-                envs[f"{s}/{m}"] = envmap_png(os.path.join(d, "point_cloud", "iteration_30000", "lighting.pth"),
-                                              os.path.join(dst, "figuras", "envmaps", f"{s}_{m}.png"))
             print(s, m, "ok", flush=True)
-    for nome, obj in (("perfis", perfis), ("material", mats), ("envmaps", envs), ("potencia", pots)):
+    for nome, obj in (("perfis", perfis), ("material", mats), ("potencia", pots)):
         json.dump(obj, open(os.path.join(dst, "dados", "nero", nome + ".json"), "w"), indent=1)
 
 

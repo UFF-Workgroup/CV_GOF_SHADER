@@ -12,15 +12,21 @@
 | `referencias/` | `candidatas.json` (entrada), `verificacao.json` (Crossref/arXiv), `resumos.json` (resumos oficiais) |
 | `dados/` | todos os números usados, copiados ou derivados das saídas dos treinos por `scripts/extrair_dados.py` |
 | `tabelas/` | tabelas LaTeX geradas por `scripts/gerar_tabelas.py`; nenhum número das tabelas é digitado à mão |
-| `figuras/` | figuras geradas por `scripts/gerar_figuras.py`, mais o diagrama `pipeline.tex` (TikZ) |
+| `figuras/` | figuras do artigo; cada uma tem seu script em `scripts/figuras/`, e o diagrama vem de `pipeline.tex` (TikZ) |
+| `FIGURAS.md` | **guia das figuras:** qual script gera cada uma, o que ajustar, de onde vêm os dados e as escolhas de estilo |
 | `build/Dockerfile` | imagem TeX Live usada na compilação (`texlive/texlive:latest-medium` mais `standalone`, `newtx` e outros) |
+| `scripts/tex.sh` | chamada do TeX Live no contêiner, compartilhada por `compilar.sh` e `scripts/figuras/pipeline.sh` |
 
 ## Como recompilar
 
 ```bash
 ./compilar.sh                                              # só o PDF
 PY_GOF=~/miniconda3/envs/gof/bin/python ./compilar.sh tudo # dados, figuras, tabelas e PDF
+
+python scripts/figuras/truck.py && ./compilar.sh           # refaz uma figura e remonta o PDF
 ```
+
+Para ajustar uma figura, veja [`FIGURAS.md`](FIGURAS.md).
 
 O LaTeX roda num contêiner Docker, sem instalar nada no sistema. `tudo` lê as saídas dos treinos em `output/nero/`, `output/EXP-*` e `docs/experiments/COMPARACAO-truck/`.
 
